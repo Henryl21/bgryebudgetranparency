@@ -6,8 +6,8 @@
 
     <div class="bg-white p-6 rounded-lg shadow">
         <div class="flex items-center gap-6">
-            @if($settings?->logo)
-                <img src="{{ asset('storage/'.$settings->logo) }}" 
+            @if($settings?->barangay_logo)
+                <img src="{{ asset('storage/'.$settings->barangay_logo) }}"
                      alt="Barangay Logo" class="w-24 h-24 object-cover rounded-full border">
             @else
                 <div class="w-24 h-24 flex items-center justify-center bg-gray-200 rounded-full">

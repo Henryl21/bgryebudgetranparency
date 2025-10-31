@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Budget;
+use App\Models\Expenditure;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
@@ -12,10 +13,12 @@ class ExpenditureController extends Controller
 {
     public function index()
     {
-        $expenditures = Budget::expense()
-            ->orderBy('date', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->get();
+        // $expenditures = Budget::expense()
+        //     ->orderBy('date', 'desc')
+        //     ->orderBy('created_at', 'desc')
+        //     ->get();
+
+        $expenditures = Expenditure::get();
 
         $totalSpent = $expenditures->sum('amount');
 

@@ -22,6 +22,15 @@ class OfficerAuthController extends Controller
     }
 
     /**
+     * Show the login page.
+     */
+    public function showRegister()
+    {
+        return view('officer.auth.register');
+    }
+
+
+    /**
      * Handle officer login (3-attempt limit + countdown + secure sessions)
      */
     public function login(Request $request)

@@ -35,15 +35,21 @@ class BarangaySettingController extends Controller
 
         $data = $request->validate([
             'barangay_name' => 'required|string|max:255',
-            'logo' => 'nullable|image|max:2048',
+            'poblacion_logo' => 'nullable|image|max:2048',
+            'barangay_logo' => 'nullable|image|max:2048',
         ]);
 
         // Auto-fill barangay_role from logged-in admin
         $data['barangay_role'] = $barangayRole;
 
-        if ($request->hasFile('logo')) {
-            $data['logo'] = $request->file('logo')->store('logos', 'public');
+        if ($request->hasFile('poblacion_logo')) {
+            $data['poblacion_logo'] = $request->file('poblacion_logo')->store('logos', 'public');
         }
+
+        if ($request->hasFile('barangay_logo')) {
+            $data['barangay_logo'] = $request->file('barangay_logo')->store('logos', 'public');
+        }
+
 
         BarangaySetting::create($data);
 
@@ -74,14 +80,19 @@ class BarangaySettingController extends Controller
 
         $data = $request->validate([
             'barangay_name' => 'required|string|max:255',
-            'logo' => 'nullable|image|max:2048',
+            'poblacion_logo' => 'nullable|image|max:2048',
+            'barangay_logo' => 'nullable|image|max:2048',
         ]);
 
         // Always keep barangay_role of logged-in admin
         $data['barangay_role'] = $barangayRole;
 
-        if ($request->hasFile('logo')) {
-            $data['logo'] = $request->file('logo')->store('logos', 'public');
+        if ($request->hasFile('poblacion_logo')) {
+            $data['poblacion_logo'] = $request->file('poblacion_logo')->store('logos', 'public');
+        }
+
+        if ($request->hasFile('barangay_logo')) {
+            $data['barangay_logo'] = $request->file('barangay_logo')->store('logos', 'public');
         }
 
         $settings->update($data);

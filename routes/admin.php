@@ -79,6 +79,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin'])->group(functi
     // ✅ Budget CRUD
     Route::resource('/budget', BudgetController::class);
     Route::get('/budget/{budget}/receipt', [BudgetController::class, 'showReceipt'])->name('budget.showReceipt');
+    Route::post('/officers/{id}/approve', [OfficerApprovalController::class, 'approve'])->name('officers.approve');
+    Route::post('/officers/{id}/decline', [OfficerApprovalController::class, 'decline'])->name('officers.decline');
+    Route::post('/officers/{id}/budget-approve', [OfficerApprovalController::class, 'approveBudgetRequest'])->name('officers.approve');
+    Route::post('/officers/{id}/budget-decline', [OfficerApprovalController::class, 'declineBudgetRequest'])->name('officers.decline');
 
     // ✅ Income CRUD
     Route::get('/incomes', [IncomeController::class, 'index'])->name('income.index');
@@ -148,9 +152,9 @@ Route::middleware(['auth:officer'])->prefix('officer')->name('officer.')->group(
 | User Feedback (Authenticated Users)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth'])->group(function () {
-    Route::get('/feedback', [UserFeedbackController::class, 'index'])->name('feedback.index');   // list user feedback
-    Route::get('/feedback/create', [UserFeedbackController::class, 'create'])->name('user.feedback.create'); // feedback form
-    Route::post('/feedback', [UserFeedbackController::class, 'store'])->name('user.feedback.store');  // save feedback
-    Route::delete('/feedback/{id}', [UserFeedbackController::class, 'destroy'])->name('user.feedback.destroy'); // delete feedback
-});
+// Route::middleware(['auth'])->group(function () {
+//     Route::get('/feedback', [UserFeedbackController::class, 'index'])->name('feedback.index');   // list user feedback
+//     Route::get('/feedback/create', [UserFeedbackController::class, 'create'])->name('user.feedback.create'); // feedback form
+//     Route::post('/feedback', [UserFeedbackController::class, 'store'])->name('user.feedback.store');  // save feedback
+//     Route::delete('/feedback/{id}', [UserFeedbackController::class, 'destroy'])->name('user.feedback.destroy'); // delete feedback
+// });

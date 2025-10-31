@@ -7,18 +7,18 @@
         <!-- Top Row: Title and User Profile -->
         <div class="flex items-center justify-between mb-6">
             <div class="flex items-center">
-               
+
                 <div class="ml-4">
                     <h1 class="text-3xl font-bold text-gray-800">Barangay eBudget Transparency</h1>
                     <p class="text-gray-600 mt-1">Welcome, {{ auth('admin')->user()->name }}!</p>
                 </div>
             </div>
-            
+
             <!-- User Profile & Logout -->
             <div class="relative">
                 <!-- Profile Button -->
-                <button 
-                    id="profileDropdownButton" 
+                <button
+                    id="profileDropdownButton"
                     class="flex items-center gap-3 p-3 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200"
                 >
                     <div class="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center">
@@ -42,8 +42,8 @@
                 </button>
 
                 <!-- Profile Dropdown Menu -->
-                <div 
-                    id="profileDropdown" 
+                <div
+                    id="profileDropdown"
                     class="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 z-50 hidden"
                 >
                     <!-- User Info Section -->
@@ -69,7 +69,7 @@
 
                     <!-- Menu Items -->
                     <div class="p-2">
-                     <a href="{{ route('admin.profile.show') }}" 
+                     <a href="{{ route('admin.profile.show') }}"
    class="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
     <i class="fas fa-user-circle w-4 text-gray-500"></i>
     <span class="text-sm">View Profile</span>
@@ -77,13 +77,13 @@
 
 
 
-                       
+
                         <div class="border-t border-gray-100 my-2"></div>
                         <!-- Logout Button -->
                         <form method="POST" action="{{ route('admin.logout') }}">
                             @csrf
-                            <button 
-                                type="submit" 
+                            <button
+                                type="submit"
                                 class="w-full flex items-center gap-3 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                             >
                                 <i class="fas fa-sign-out-alt w-4"></i>
@@ -94,38 +94,38 @@
                 </div>
             </div>
         </div>
-        
+
     <!-- Dashboard Search Bar (Below Title) -->
 <div class="relative max-w-2xl mb-6">
     <div class="relative">
-        <input 
-            type="text" 
+        <input
+            type="text"
             id="dashboardSearch"
-            placeholder="Search dashboard sections..." 
-            class="w-full pl-12 pr-12 py-4 border-2 border-gray-200 rounded-2xl 
-                   focus:outline-none focus:border-blue-500 focus:ring-2 
-                   focus:ring-blue-200 transition-all duration-200 bg-white shadow-lg 
+            placeholder="Search dashboard sections..."
+            class="w-full pl-12 pr-12 py-4 border-2 border-gray-200 rounded-2xl
+                   focus:outline-none focus:border-blue-500 focus:ring-2
+                   focus:ring-blue-200 transition-all duration-200 bg-white shadow-lg
                    text-left text-lg"
             autocomplete="off"
         >
         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
             <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
         </div>
-        <button 
-            type="button" 
+        <button
+            type="button"
             id="clearDashboardSearch"
             class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-red-500 transition-colors hidden"
         >
             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M6 18L18 6M6 6l12 12"></path>
             </svg>
         </button>
     </div>
-    
+
     <!-- Search Results Dropdown -->
     <div id="searchResults" class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg mt-2 z-50 hidden max-h-64 overflow-y-auto">
         <div class="p-2">
@@ -178,7 +178,7 @@
         <!-- Background Pattern -->
         <div class="absolute top-0 right-0 w-20 h-20 bg-white bg-opacity-10 rounded-full -mr-10 -mt-10"></div>
         <div class="absolute bottom-0 left-0 w-16 h-16 bg-white bg-opacity-10 rounded-full -ml-8 -mb-8"></div>
-        
+
         <div class="flex items-center justify-between relative z-10">
             <div>
                 <h3 class="text-sm font-medium text-teal-100 uppercase tracking-wide mb-2">TOTAL BUDGET</h3>
@@ -197,7 +197,7 @@
         <!-- Background Pattern -->
         <div class="absolute top-0 right-0 w-20 h-20 bg-white bg-opacity-10 rounded-full -mr-10 -mt-10"></div>
         <div class="absolute bottom-0 left-0 w-16 h-16 bg-white bg-opacity-10 rounded-full -ml-8 -mb-8"></div>
-        
+
         <div class="flex items-center justify-between relative z-10">
             <div>
                 <h3 class="text-sm font-medium text-green-100 uppercase tracking-wide mb-2">TOTAL SPENT</h3>
@@ -218,7 +218,7 @@
             <!-- Background Pattern -->
             <div class="absolute top-0 right-0 w-20 h-20 bg-white bg-opacity-10 rounded-full -mr-10 -mt-10"></div>
             <div class="absolute bottom-0 left-0 w-16 h-16 bg-white bg-opacity-10 rounded-full -ml-8 -mb-8"></div>
-            
+
             <div class="flex items-center justify-between relative z-10">
                 <div>
                     <h3 class="text-sm font-medium text-red-100 uppercase tracking-wide mb-2">REMAINING BUDGET</h3>
@@ -237,7 +237,7 @@
             <!-- Background Pattern -->
             <div class="absolute top-0 right-0 w-20 h-20 bg-white bg-opacity-10 rounded-full -mr-10 -mt-10"></div>
             <div class="absolute bottom-0 left-0 w-16 h-16 bg-white bg-opacity-10 rounded-full -ml-8 -mb-8"></div>
-            
+
             <div class="flex items-center justify-between relative z-10">
                 <div>
                     <h3 class="text-sm font-medium text-yellow-100 uppercase tracking-wide mb-2">REMAINING BUDGET</h3>
@@ -287,11 +287,11 @@
             <!-- Budget Summary Text -->
             <div class="mt-4 text-center">
                 <p class="text-sm text-gray-600">
-                    <span class="font-semibold text-gray-800">Total Spent:</span> 
+                    <span class="font-semibold text-gray-800">Total Spent:</span>
                     <span id="spentPercentage" class="text-gray-800 font-bold">{{ $totalBudget > 0 ? number_format(($totalSpent / $totalBudget) * 100, 1) : 0 }}%</span>
                 </p>
                 <p class="text-sm text-gray-600">
-                    <span class="font-semibold text-gray-800">Remaining:</span> 
+                    <span class="font-semibold text-gray-800">Remaining:</span>
                     <span id="remainingPercentage" class="text-gray-800 font-bold">{{ $totalBudget > 0 ? number_format(($totalRemaining / $totalBudget) * 100, 1) : 0 }}%</span>
                 </p>
             </div>
@@ -528,7 +528,7 @@
             // Update percentages
             const spentPercentage = newTotalBudget > 0 ? ((newTotalSpent / newTotalBudget) * 100).toFixed(1) : 0;
             const remainingPercentage = newTotalBudget > 0 ? ((newTotalRemaining / newTotalBudget) * 100).toFixed(1) : 0;
-            
+
             document.getElementById('spentPercentage').textContent = spentPercentage + '%';
             document.getElementById('remainingPercentage').textContent = remainingPercentage + '%';
         }
@@ -569,7 +569,7 @@
                 this.searchResults = document.getElementById('searchResults');
                 this.clearButton = document.getElementById('clearDashboardSearch');
                 this.currentHighlight = null;
-                
+
                 // Define searchable sections
                 this.sections = [
                     {
@@ -608,7 +608,7 @@
                         keywords: ['filters', 'active', 'month', 'year', 'category', 'search']
                     }
                 ];
-                
+
                 this.initializeEventListeners();
             }
 
@@ -651,7 +651,7 @@
 
             handleSearch(query) {
                 const trimmedQuery = query.trim().toLowerCase();
-                
+
                 if (trimmedQuery.length === 0) {
                     this.hideResults();
                     this.clearButton.classList.add('hidden');
@@ -669,7 +669,7 @@
                     const titleMatch = section.title.toLowerCase().includes(query);
                     const descriptionMatch = section.description.toLowerCase().includes(query);
                     const keywordMatch = section.keywords.some(keyword => keyword.includes(query));
-                    
+
                     return titleMatch || descriptionMatch || keywordMatch;
                 }).sort((a, b) => {
                     // Prioritize title matches
@@ -693,8 +693,8 @@
                     `;
                 } else {
                     this.searchResults.innerHTML = results.map((section, index) => `
-                        <div class="search-result-item p-3 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0" 
-                             data-section-id="${section.id}" 
+                        <div class="search-result-item p-3 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0"
+                             data-section-id="${section.id}"
                              data-index="${index}">
                             <div class="flex items-center">
                                 <span class="text-lg mr-3">${section.icon}</span>
@@ -717,7 +717,7 @@
                         });
                     });
                 }
-                
+
                 this.showResults();
             }
 
@@ -731,25 +731,25 @@
                 if (section) {
                     // Clear any existing highlights
                     this.clearHighlight();
-                    
+
                     // Add highlight to the target section
                     section.classList.add('search-highlight');
                     this.currentHighlight = section;
-                    
+
                     // Smooth scroll to section
                     section.scrollIntoView({
                         behavior: 'smooth',
                         block: 'center'
                     });
-                    
+
                     // Hide search results
                     this.hideResults();
-                    
+
                     // Remove highlight after 3 seconds
                     setTimeout(() => {
                         this.clearHighlight();
                     }, 3000);
-                    
+
                     // Show success message
                     this.showNavigationSuccess(sectionId);
                 }
@@ -769,9 +769,9 @@
                             Navigated to ${section.title}
                         </div>
                     `;
-                    
+
                     document.body.appendChild(message);
-                    
+
                     // Remove message after 2 seconds
                     setTimeout(() => {
                         message.style.opacity = '0';
@@ -891,14 +891,14 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
-    
+
     mark {
         background-color: #fef08a;
         padding: 2px 4px;
         border-radius: 3px;
         font-weight: 600;
     }
-    
+
     /* Search highlight animation */
     .search-highlight {
         animation: highlightPulse 2s ease-in-out;
@@ -906,18 +906,18 @@
         border-radius: 16px !important;
         box-shadow: 0 0 20px rgba(59, 130, 246, 0.3) !important;
     }
-    
+
     @keyframes highlightPulse {
-        0%, 100% { 
-            transform: scale(1); 
+        0%, 100% {
+            transform: scale(1);
             box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
         }
-        50% { 
-            transform: scale(1.02); 
+        50% {
+            transform: scale(1.02);
             box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
         }
     }
-    
+
     /* Search results styling */
     #searchResults {
         max-height: 300px;
@@ -925,30 +925,30 @@
         scrollbar-width: thin;
         scrollbar-color: #cbd5e1 #f1f5f9;
     }
-    
+
     #searchResults::-webkit-scrollbar {
         width: 6px;
     }
-    
+
     #searchResults::-webkit-scrollbar-track {
         background: #f1f5f9;
         border-radius: 3px;
     }
-    
+
     #searchResults::-webkit-scrollbar-thumb {
         background: #cbd5e1;
         border-radius: 3px;
     }
-    
+
     #searchResults::-webkit-scrollbar-thumb:hover {
         background: #94a3b8;
     }
-    
+
     /* Profile dropdown styling */
     #profileDropdown {
         animation: slideDown 0.2s ease-out;
     }
-    
+
     @keyframes slideDown {
         from {
             opacity: 0;
@@ -959,19 +959,19 @@
             transform: translateY(0);
         }
     }
-    
+
     /* Smooth transitions for all sections */
     [data-search-terms] {
         transition: all 0.3s ease;
     }
-    
+
     /* Responsive adjustments */
     @media (max-width: 768px) {
         .flex.items-center.gap-4 {
             flex-direction: column;
             gap: 1rem;
         }
-        
+
         .max-w-md.w-full {
             max-width: 100%;
         }

@@ -11,10 +11,13 @@ class Expenditure extends Model
 
     protected $fillable = [
         'title',
-        'category', 
+        'barangay',
+        'category',
+        'description',
         'amount',
         'date',
-        'receipt'
+        'receipt',
+        'status'
     ];
 
     protected $casts = [

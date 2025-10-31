@@ -40,7 +40,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: 
+            background:
                 radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.4) 0%, transparent 60%),
                 radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 60%),
                 radial-gradient(circle at 40% 40%, rgba(120, 119, 198, 0.3) 0%, transparent 60%);
@@ -99,7 +99,7 @@
             backdrop-filter: blur(20px);
             padding: clamp(30px, 5vw, 50px) clamp(25px, 5vw, 40px);
             border-radius: clamp(15px, 3vw, 20px);
-            box-shadow: 
+            box-shadow:
                 0 20px 40px rgba(0, 0, 0, 0.3),
                 0 0 0 1px rgba(255, 255, 255, 0.1),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -112,14 +112,14 @@
 
         @keyframes boxGlow {
             0% {
-                box-shadow: 
+                box-shadow:
                     0 20px 40px rgba(0, 0, 0, 0.3),
                     0 0 0 1px rgba(255, 255, 255, 0.1),
                     inset 0 1px 0 rgba(255, 255, 255, 0.1),
                     0 0 30px rgba(102, 126, 234, 0.1);
             }
             100% {
-                box-shadow: 
+                box-shadow:
                     0 25px 50px rgba(0, 0, 0, 0.4),
                     0 0 0 1px rgba(255, 255, 255, 0.2),
                     inset 0 1px 0 rgba(255, 255, 255, 0.2),
@@ -270,7 +270,7 @@
             outline: none;
             border-color: rgba(255, 255, 255, 0.6);
             background: rgba(255, 255, 255, 0.15);
-            box-shadow: 
+            box-shadow:
                 0 0 25px rgba(102, 126, 234, 0.3),
                 0 0 50px rgba(255, 255, 255, 0.1),
                 inset 0 0 20px rgba(255, 255, 255, 0.1);
@@ -342,7 +342,7 @@
 
         .login-btn:hover {
             transform: translateY(-3px) scale(1.02);
-            box-shadow: 
+            box-shadow:
                 0 15px 35px rgba(102, 126, 234, 0.4),
                 0 0 30px rgba(118, 75, 162, 0.3);
             background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
@@ -489,7 +489,7 @@
             left: -50px;
             right: -50px;
             bottom: -50px;
-            background-image: 
+            background-image:
                 radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.3), transparent),
                 radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.2), transparent),
                 radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,0.3), transparent),
@@ -510,7 +510,7 @@
             body {
                 padding: 15px;
             }
-            
+
             .login-box {
                 margin: 0 auto;
             }
@@ -521,19 +521,19 @@
                 padding: 10px;
                 min-height: 100vh;
             }
-            
+
             .login-container {
                 width: 100%;
             }
-            
+
             .login-box {
                 border-radius: 15px;
             }
-            
+
             .input-group {
                 margin-bottom: 20px;
             }
-            
+
             .login-subtitle {
                 line-height: 1.4;
             }
@@ -543,7 +543,7 @@
             body {
                 padding: 8px;
             }
-            
+
             .login-box {
                 border-radius: 12px;
             }
@@ -555,19 +555,19 @@
                 padding: 10px;
                 align-items: flex-start;
             }
-            
+
             .login-container {
                 margin-top: 20px;
             }
-            
+
             .login-box {
                 padding: 25px 30px;
             }
-            
+
             .login-subtitle {
                 margin-bottom: 25px;
             }
-            
+
             .input-group {
                 margin-bottom: 20px;
             }
@@ -579,17 +579,17 @@
                 font-size: 20px;
                 letter-spacing: 1px;
             }
-            
+
             .login-subtitle {
                 font-size: 11px;
             }
-            
+
             .input-group input,
             .input-group select {
                 padding-left: 35px;
                 font-size: 14px;
             }
-            
+
             .input-icon {
                 left: 10px;
                 font-size: 14px;
@@ -618,7 +618,7 @@
                 animation-iteration-count: 1 !important;
                 transition-duration: 0.01ms !important;
             }
-            
+
             body::before,
             body::after,
             .login-box::before {
@@ -658,7 +658,7 @@
 
             <form method="POST" action="{{ route('admin.login') }}">
                 @csrf
-                
+
                 <div class="input-group">
                     <div class="input-icon user-icon"></div>
                     <input type="email" name="email" placeholder="Email Address" value="{{ old('email') }}" required>

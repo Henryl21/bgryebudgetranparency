@@ -10,18 +10,25 @@
 
             <div class="mb-4">
                 <label class="block text-gray-700 mb-2">Barangay Name <span class="text-red-500">*</span></label>
-                <input type="text" name="barangay_name" value="{{ old('barangay_name') }}"
+                <input type="text" name="barangay_name" value="{{ old('barangay_name') ?? auth()->user()->barangay_role }}"
                        class="w-full border rounded px-3 py-2" required>
                 @error('barangay_name')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
 
-
-           
             <div class="mb-4">
-                <label class="block text-gray-700 mb-2">Logo</label>
-                <input type="file" name="logo" accept="image/*"
+                <label class="block text-gray-700 mb-2">Poblacion Logo</label>
+                <input type="file" name="poblacion_logo" accept="image/*"
+                       class="w-full border rounded px-3 py-2">
+                @error('logo')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Barangay Logo</label>
+                <input type="file" name="baranggay_logo" accept="image/*"
                        class="w-full border rounded px-3 py-2">
                 @error('logo')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>

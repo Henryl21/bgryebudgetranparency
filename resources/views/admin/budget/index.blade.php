@@ -13,8 +13,8 @@
                 </div>
                 <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">Income Records</h1>
             </div>
-            
-            <a href="{{ route('admin.budget.create') }}" 
+
+            <a href="{{ route('admin.budget.create') }}"
                class="inline-flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold text-sm sm:text-base rounded-lg hover:from-emerald-700 hover:to-teal-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all duration-200 shadow-md hover:shadow-lg whitespace-nowrap">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -45,7 +45,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 sm:p-6 hover:shadow-lg transition-shadow">
                 <div class="flex items-start sm:items-center gap-4">
                     <div class="p-3 bg-green-100 rounded-lg flex-shrink-0">
@@ -68,25 +68,25 @@
             <form method="GET" action="{{ route('admin.budget.index') }}" class="space-y-4 sm:space-y-0 sm:flex sm:gap-4 sm:items-end">
                 <div class="flex-1">
                     <label for="search" class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Search Income Records</label>
-                    <input type="text" 
-                           name="search" 
+                    <input type="text"
+                           name="search"
                            id="search"
                            value="{{ request('search') }}"
                            placeholder="Search by income title..."
                            class="w-full px-3 sm:px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all">
                 </div>
-                
+
                 <input type="hidden" name="type" value="income">
-                
+
                 <div class="flex gap-2 sm:gap-3">
-                    <button type="submit" 
+                    <button type="submit"
                             class="flex-1 sm:flex-none px-4 py-2.5 bg-green-600 text-white font-semibold text-sm rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all inline-flex items-center justify-center">
                         <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                         <span class="hidden sm:inline">Search</span>
                     </button>
-                    <a href="{{ route('admin.budget.index') }}?type=income" 
+                    <a href="{{ route('admin.budget.index') }}?type=income"
                        class="flex-1 sm:flex-none px-4 py-2.5 bg-gray-300 text-gray-700 font-semibold text-sm rounded-lg hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all text-center">
                         Clear
                     </a>
@@ -141,7 +141,7 @@
                                     </td>
                                     <td class="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap text-center text-sm font-medium">
                                         <div class="flex items-center justify-center gap-1.5 lg:gap-2">
-                                            <a href="{{ route('admin.budget.edit', $budget->id) }}" 
+                                            <a href="{{ route('admin.budget.edit', $budget->id) }}"
                                                class="inline-flex items-center px-2.5 lg:px-3 py-1.5 bg-orange-500 text-white text-xs font-semibold rounded-md hover:bg-orange-600 transition-colors">
                                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -151,7 +151,7 @@
                                             <form action="{{ route('admin.budget.destroy', $budget->id) }}" method="POST" class="inline-block">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" 
+                                                <button type="submit"
                                                         onclick="return confirm('Are you sure you want to delete this income record? This action cannot be undone.')"
                                                         class="inline-flex items-center px-2.5 lg:px-3 py-1.5 bg-red-500 text-white text-xs font-semibold rounded-md hover:bg-red-600 transition-colors">
                                                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -182,7 +182,7 @@
                                     </div>
                                     <span class="text-xs text-gray-500 flex-shrink-0">#{{ $budget->id }}</span>
                                 </div>
-                                
+
                                 <div class="grid grid-cols-2 gap-3 mb-3 py-3 border-y border-green-200">
                                     <div>
                                         <p class="text-xs text-gray-500 mb-1">Amount</p>
@@ -200,9 +200,9 @@
                                         <p class="text-xs text-gray-700">{{ Str::limit($budget->description, 100) }}</p>
                                     </div>
                                 @endif
-                                
+
                                 <div class="flex gap-2 pt-2">
-                                    <a href="{{ route('admin.budget.edit', $budget->id) }}" 
+                                    <a href="{{ route('admin.budget.edit', $budget->id) }}"
                                        class="flex-1 inline-flex items-center justify-center px-3 py-2.5 bg-orange-500 text-white text-xs font-semibold rounded-md hover:bg-orange-600 transition-colors">
                                         <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -212,7 +212,7 @@
                                     <form action="{{ route('admin.budget.destroy', $budget->id) }}" method="POST" class="flex-1">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" 
+                                        <button type="submit"
                                                 onclick="return confirm('Are you sure you want to delete this income record? This action cannot be undone.')"
                                                 class="w-full inline-flex items-center justify-center px-3 py-2.5 bg-red-500 text-white text-xs font-semibold rounded-md hover:bg-red-600 transition-colors">
                                             <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -333,7 +333,7 @@
                         @endif
                     </p>
                     @if(!request()->has('search'))
-                        <a href="{{ route('admin.budget.create') }}" 
+                        <a href="{{ route('admin.budget.create') }}"
                            class="inline-flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold text-sm sm:text-base rounded-lg hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -352,9 +352,9 @@
                     return $budget->type === 'expense';
                 });
             @endphp
-            
+
             @foreach($expenses as $expense)
-                <span data-expense-id="{{ $expense->id }}" 
+                <span data-expense-id="{{ $expense->id }}"
                       data-expense-amount="{{ $expense->amount }}"
                       data-expense-title="{{ $expense->title }}"></span>
             @endforeach

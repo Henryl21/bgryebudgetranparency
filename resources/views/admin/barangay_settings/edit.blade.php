@@ -18,23 +18,36 @@
                 @enderror
             </div>
 
-           
-
-          
-
-            <div class="mb-4">
-                <label class="block text-gray-700 mb-2">Logo</label>
-                @if($settings->logo)
+             <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Poblacion Logo</label>
+                @if($settings->barangay_logo)
                     <div class="mb-2">
-                        <img src="{{ asset('storage/'.$settings->logo) }}" class="w-24 h-24 object-cover rounded-full border">
+                        <img src="{{ asset('storage/'.$settings->poblacion_logo) }}" class="w-24 h-24 object-cover rounded-full border">
                     </div>
                 @endif
-                <input type="file" name="logo" accept="image/*"
+                <input type="file" name="poblacion_logo" accept="image/*"
                        class="w-full border rounded px-3 py-2">
                 @error('logo')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
+
+
+
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Barangay Logo</label>
+                @if($settings->barangay_logo)
+                    <div class="mb-2">
+                        <img src="{{ asset('storage/'.$settings->barangay_logo) }}" class="w-24 h-24 object-cover rounded-full border">
+                    </div>
+                @endif
+                <input type="file" name="barangay_logo" accept="image/*"
+                       class="w-full border rounded px-3 py-2">
+                @error('logo')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
 
             <div class="mt-6">
                 <button type="submit"

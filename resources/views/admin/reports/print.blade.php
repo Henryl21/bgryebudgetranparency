@@ -5,10 +5,45 @@
     <title>Expenditure Report</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 40px; }
-        .header { text-align: center; margin-bottom: 20px; }
-        .header img { height: 80px; }
-        .header h1 { margin: 8px 0 0; font-size: 22px; }
-        .header p { margin: 2px 0; font-size: 14px; }
+
+        /* Header Layout */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-align: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+        }
+        .header img {
+            height: 80px;
+            width: 80px;
+            object-fit: contain;
+        }
+        .header-text {
+            flex: 1;
+            text-align: center;
+        }
+        .header-text h2 {
+            margin: 0;
+            font-size: 18px;
+            text-transform: uppercase;
+        }
+        .header-text h3 {
+            margin: 0;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+        .header-text h4 {
+            margin: 2px 0;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .header-text small {
+            margin: 0;
+            font-size: 10px;
+        }
+
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { border: 1px solid #444; padding: 8px; font-size: 14px; }
         th { background: #f1f1f1; }
@@ -20,20 +55,32 @@
 </head>
 <body>
 
-   <!-- Header -->
-<div class="header">
-    @if($settings && $settings->logo)
-        <img src="{{ asset('storage/'.$settings->logo) }}" alt="Barangay Logo">
-    @else
-        <div style="width:80px; height:80px; background:#ccc; display:inline-block;"></div>
-    @endif
+    <!-- Header -->
+    <div class="header">
+        <!-- Left Logo -->
+        @if($settings && $settings->poblacion_logo)
+            <img src="{{ asset('storage/'.$settings->poblacion_logo) }}" alt="Poblacion Logo">
+        @else
+            <div style="width:80px; height:80px; background:#ccc;"></div>
+        @endif
 
-    <h1>{{ $settings->barangay_name ?? 'Barangay eBudget Transparency System' }}</h1>
+        <!-- Center Text -->
+        <div class="header-text">
+            <h4>Republic of the Philippines</h4>
+            <h4>Province of Cebu</h4>
+            <h4>Municipality of Madridejos</h4>
+            <h3>BARANGAY {{ strtoupper($settings->barangay_name ?? 'POBLACION') }}</h3>
+            <h2>OFFICE OF THE PUNONG BARANGAY</h2>
+            <small>Tel. #: (032) 439-7421  Email: brgypoblacio.madridejos@gmail.com</small>
+        </div>
 
-   
-    <p>{{ now()->format('F d, Y') }}</p>
-</div>
-
+        <!-- Right Logo -->
+        @if($settings && $settings->barangay_logo)
+            <img src="{{ asset('storage/'.$settings->barangay_logo) }}" alt="Barangay Logo">
+        @else
+            <div style="width:80px; height:80px; background:#ccc;"></div>
+        @endif
+    </div>
 
     <!-- Table -->
     <table>
@@ -86,10 +133,7 @@
     <script>
         window.onload = function() {
             window.print();
-
-            // When print dialog is closed (cancel or done), go back
             window.onafterprint = function() {
-                // Redirect to the expenditures section on same page
                 window.location.href = "{{ url()->previous() }}#expenditures";
             };
         };

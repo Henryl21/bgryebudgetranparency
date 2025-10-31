@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Officer;
+use App\Models\OfficerRequest;
 use App\Models\Expenditure;
 use Illuminate\Http\Request;
 
@@ -15,7 +16,8 @@ class OfficerApprovalController extends Controller
     public function index()
     {
         $officers = Officer::latest()->get();
-        return view('admin.officers.approval', compact('officers'));
+        $budget_request = OfficerRequest::orderBy('created_at', 'desc')->get();
+        return view('admin.officers.approval', compact('officers', 'budget_request'));
     }
 
     /**
@@ -45,6 +47,29 @@ class OfficerApprovalController extends Controller
         return back()->with('success', 'Officer approved and expenditure recorded successfully.');
     }
 
+    public function approveBudgetRequest(Request $request, $id)
+    {
+        $officer = OfficerRequest::findOrFail($id);
+        // Update officer status
+        $officer->status = 'approved';
+        $officer->decline_reason = null;
+        $officer->save();
+
+        // Auto-insert to expenditures
+        Expenditure::create([
+            'title'       => $officer->title ?? $officer->name,  // adjust based on Officer model fields
+            'category'    => $officer->category ?? 'Other',
+            'barangay'    => auth()->user()->barangay_role,
+            'amount'      => $officer->amount ?? 0,
+            'date'        => now(),
+            'description' => $officer->description,
+            'receipt'     => $officer->receipt ?? null,
+            'status'      => 'approved',
+        ]);
+
+        return back()->with('success', 'Officer approved and expenditure recorded successfully.');
+    }
+
     /**
      * Decline the officer request with reason.
      */
@@ -60,6 +85,20 @@ class OfficerApprovalController extends Controller
         $officer->save();
 
         return back()->with('error', 'Officer declined with reason.');
+    }
+
+    public function declineBudgetRequest(Request $request, $id)
+    {
+        $request->validate([
+            'reason' => 'required|string|max:255',
+        ]);
+
+        $officer = OfficerRequest::findOrFail($id);
+        $officer->status = 'declined';
+        $officer->decline_reason = $request->input('reason');
+        $officer->save();
+
+        return back()->with('success', 'Budget declined with reason.');
     }
 
     /**

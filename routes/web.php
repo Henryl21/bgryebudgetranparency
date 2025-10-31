@@ -15,6 +15,7 @@ use App\Http\Controllers\Auth\OfficerForgotPasswordController;
 use App\Http\Controllers\Auth\OfficerResetPasswordController;
 use App\Http\Controllers\Auth\UserResetPasswordController;
 use App\Http\Controllers\Auth\UserForgotPasswordController;
+use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 
 /*
 |--------------------------------------------------------------------------
@@ -72,6 +73,13 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::get('/profile/edit', [UserProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [UserProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [UserProfileController::class, 'destroy'])->name('profile.destroy');
+
+          // Feedback
+        // Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback.index');
+        // Route::get('/feedback/create', [FeedbackController::class, 'create'])->name('feedback.create');
+        // Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
+        // Route::delete('/feedback/{id}', [FeedbackController::class, 'destroy'])->name('feedback.destroy');
+
     });
 });
 
@@ -92,6 +100,8 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('feedback', [AdminFeedbackController::class, 'index'])->name('feedback.index');
+    Route::delete('feedback/{id}', [AdminFeedbackController::class, 'destroy'])->name('feedback.destroy');
     Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotPasswordForm'])->name('forgot.password');
     Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink'])->name('forgot.password.send');
     Route::get('/reset-password', [ResetPasswordController::class, 'showResetPasswordForm'])->name('reset.password');

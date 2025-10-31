@@ -9,7 +9,8 @@ class BarangaySetting extends Model
     protected $fillable = [
         'barangay_name',
         'barangay_role', // ✅ keep role
-        'logo',
+        'poblacion_logo',
+        'barangay_logo',
     ];
 }
 

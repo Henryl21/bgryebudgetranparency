@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Http\Controllers\Admin;
 
@@ -19,7 +19,7 @@ class AdminDashboardController extends Controller
         // 💰 Totals (filtered by barangay role)
         $totalBudget = Budget::where('barangay_role', $barangayRole)
             ->where('type', 'income')
-            ->sum('amount'); 
+            ->sum('amount');
 
         $totalSpent = Budget::where('barangay_role', $barangayRole)
             ->where('type', 'expense')
