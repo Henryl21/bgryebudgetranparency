@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Officer;
 
 use App\Http\Controllers\Controller;
 use App\Models\OfficerUser;
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -26,7 +27,9 @@ class OfficerAuthController extends Controller
      */
     public function showRegister()
     {
-        return view('officer.auth.register');
+        $barangays = Admin::getBarangays();;
+
+        return view('officer.auth.register', compact('barangays'));
     }
 
 
@@ -37,6 +40,7 @@ class OfficerAuthController extends Controller
     {
         $request->validate([
             'email'    => 'required|email',
+            'password' => 'required|string',
             'password' => 'required|string',
             'role'     => 'required|string',
         ]);
@@ -111,6 +115,7 @@ class OfficerAuthController extends Controller
             'email'    => 'required|email|unique:officer_users,email',
             'password' => 'required|string|min:6|confirmed',
             'role'     => 'required|string|max:255',
+            'barangay'     => 'required|string|max:255',
         ]);
 
         $officer = OfficerUser::create([
@@ -118,6 +123,7 @@ class OfficerAuthController extends Controller
             'email'    => strtolower($request->email),
             'password' => Hash::make($request->password),
             'role'     => $request->role,
+            'barangay'     => $request->barangay,
         ]);
 
         Auth::guard('officer')->login($officer);

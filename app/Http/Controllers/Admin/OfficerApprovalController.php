@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Officer;
+use App\Models\OfficerUser;
 use App\Models\OfficerRequest;
 use App\Models\Expenditure;
 use Illuminate\Http\Request;
@@ -16,7 +17,18 @@ class OfficerApprovalController extends Controller
     public function index()
     {
         $officers = Officer::latest()->get();
-        $budget_request = OfficerRequest::orderBy('created_at', 'desc')->get();
+
+        $auth_barangay_user = strtolower(auth()->user()->barangay_role);
+        $auth_barangay = OfficerUser::whereRaw('LOWER(barangay) = ?', [$auth_barangay_user])->first();
+
+        if ($auth_barangay) {
+            $budget_request = OfficerRequest::where('officer_user_id', $auth_barangay->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        } else {
+            $budget_request = collect(); 
+        }
+
         return view('admin.officers.approval', compact('officers', 'budget_request'));
     }
 

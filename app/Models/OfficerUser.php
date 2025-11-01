@@ -16,6 +16,7 @@ class OfficerUser extends Authenticatable
         'email',
         'password',
         'position',
+        'barangay',
         'role', // ✅ Added for role-based login
     ];
 

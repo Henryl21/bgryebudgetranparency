@@ -48,7 +48,7 @@
 
         <!-- Table Header -->
         <div class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
-            <div class="grid grid-cols-12 gap-4 p-4 font-semibold">
+            <div class="grid grid-cols-10 gap-4 p-4 font-semibold">
                 {{-- <div class="col-span-1">NAME</div> --}}
                 <div class="col-span-2">BARANGAY</div>
                 <div class="col-span-2">TITLE</div>
@@ -62,7 +62,7 @@
         <!-- Table Body -->
         <div class="divide-y divide-gray-200" id="expenditure-table-body">
             @forelse($expenditures as $exp)
-            <div class="grid grid-cols-12 gap-4 p-4 hover:bg-gray-50 transition-colors duration-150 {{ session('new_expenditure_id') == $exp->id ? 'bg-green-50 border-l-4 border-green-500' : '' }}">
+            <div class="grid grid-cols-10 gap-4 p-4 hover:bg-gray-50 transition-colors duration-150 {{ session('new_expenditure_id') == $exp->id ? 'bg-green-50 border-l-4 border-green-500' : '' }}">
                 <!-- NAME -->
                 {{-- <div class="col-span-1 flex items-center font-medium text-gray-900">
                     {{ $exp->officer->name }}

@@ -17,9 +17,10 @@ class ExpenditureController extends Controller
         //     ->orderBy('date', 'desc')
         //     ->orderBy('created_at', 'desc')
         //     ->get();
+        $auth_user_barangay = auth()->user()->barangay_role;
 
-        $expenditures = Expenditure::get();
-
+        $expenditures = Expenditure::whereRaw('LOWER(barangay) = ?', [$auth_user_barangay])
+            ->get();
         $totalSpent = $expenditures->sum('amount');
 
         return view('admin.expenditure.index', compact('expenditures', 'totalSpent'));

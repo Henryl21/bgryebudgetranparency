@@ -228,10 +228,10 @@
                         </div>
 
                         <div>
-                            <label class="block text-gray-700 font-medium">Supporting Document (Word/PDF)</label>
-                            <input type="file" name="document" accept=".doc,.docx,.pdf"
+                            <label class="block text-gray-700 font-medium">Resolution (Word/PDF)</label>
+                            <input type="file" name="resolution" accept=".doc,.docx,.pdf"
                                 class="w-full border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-300">
-                            @error('document')
+                            @error('resolution')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>

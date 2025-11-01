@@ -16,8 +16,8 @@
             padding-bottom: 10px;
         }
         .header img {
-            height: 80px;
-            width: 80px;
+            height: 100px;
+            width: 100px;
             object-fit: contain;
         }
         .header-text {
@@ -59,9 +59,9 @@
     <div class="header">
         <!-- Left Logo -->
         @if($settings && $settings->poblacion_logo)
-            <img src="{{ asset('storage/'.$settings->poblacion_logo) }}" alt="Poblacion Logo">
+            <img  src="{{ asset('storage/'.$settings->poblacion_logo) }}" alt="Poblacion Logo">
         @else
-            <div style="width:80px; height:80px; background:#ccc;"></div>
+            <div style="width:100px; height:100px; background:#ccc;"></div>
         @endif
 
         <!-- Center Text -->
@@ -76,9 +76,9 @@
 
         <!-- Right Logo -->
         @if($settings && $settings->barangay_logo)
-            <img src="{{ asset('storage/'.$settings->barangay_logo) }}" alt="Barangay Logo">
+            <img  src="{{ asset('storage/'.$settings->barangay_logo) }}" alt="Barangay Logo">
         @else
-            <div style="width:80px; height:80px; background:#ccc;"></div>
+            <div style="width:100px; height:100px; background:#ccc;"></div>
         @endif
     </div>
 

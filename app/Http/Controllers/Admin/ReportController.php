@@ -19,7 +19,10 @@ class ReportController extends Controller
         // $expenditures = Budget::where('type', 'expense')
         //     ->orderBy('date', 'desc')
         //     ->get();
-        $expenditures = Expenditure::get();
+        $auth_user_barangay = auth()->user()->barangay_role;
+
+        $expenditures = Expenditure::whereRaw('LOWER(barangay) = ?', [$auth_user_barangay])
+            ->get();
 
         // Calculate total spent
         $totalSpent = $expenditures->sum('amount');

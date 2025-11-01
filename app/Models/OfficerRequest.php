@@ -14,6 +14,7 @@ class OfficerRequest extends Model
         'title',
         'description',
         'amount',
+        'category',
         'receipt',
         'resolution',
         'status',

@@ -80,16 +80,12 @@
           <label for="barangay" class="block text-sm font-medium text-gray-700 mb-1">Select Barangay</label>
           <select name="barangay" id="barangay"
                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" required>
-            <option value="" disabled selected>Select Barangay</option>
-            <option value="Barangay 1">Barangay 1</option>
-            <option value="Barangay 2">Barangay 2</option>
-            <option value="Barangay 3">Barangay 3</option>
-            <option value="Barangay 4">Barangay 4</option>
-            <option value="Barangay 5">Barangay 5</option>
-            <option value="Barangay 6">Barangay 6</option>
-            <option value="Barangay 7">Barangay 7</option>
-            <option value="Barangay 8">Barangay 8</option>
-            <option value="Barangay 9">Barangay 9</option>
+                <option value="">Select Barangay</option>
+                    @foreach($barangays as $key => $name)
+                        <option value="{{ $key }}" {{ old('barangay_role') == $key ? 'selected' : '' }}>
+                            {{ $name }}
+                        </option>
+                    @endforeach
           </select>
         </div>
       </div>
