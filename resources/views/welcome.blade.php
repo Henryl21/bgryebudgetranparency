@@ -116,27 +116,82 @@
     
     <!-- Header with Top Navigation -->
     <nav class="fixed top-0 left-0 right-0 z-50 bg-white/10 backdrop-blur-md border-b border-white/20">
-        <div class="container mx-auto px-6 py-4">
+        <div class="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
             <div class="flex justify-between items-center">
                 <!-- Logo/Brand -->
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-accent-gold rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-accent-gold rounded-lg flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 8h6m-6 4h6m0 4h6"></path>
                         </svg>
                     </div>
-                    <span class="text-white font-bold text-lg">Barangay Ebudget Transparency</span>
+                    <span class="text-white font-bold text-sm sm:text-base lg:text-lg hidden xs:inline">Barangay Ebudget Transparency</span>
+                    <span class="text-white font-bold text-sm xs:hidden">eBudget</span>
                 </div>
                 
-                <!-- Login/Register Buttons -->
-                <div class="flex items-center space-x-3">
-                    <a href="/user/login" 
-                       class="text-white hover:text-accent-gold transition-colors duration-300 font-medium px-4 py-2 rounded-lg hover:bg-white/10">
-                        Log in
+                <!-- Desktop Login Buttons -->
+                <div class="hidden md:flex items-center space-x-3">
+                    <!-- Role Selection Dropdown -->
+                    <div class="relative">
+                        <button id="desktop-dropdown-btn" class="text-white hover:text-accent-gold transition-colors duration-300 font-medium px-4 py-2 rounded-lg hover:bg-white/10 flex items-center space-x-2">
+                            <span>Login as</span>
+                            <svg id="desktop-dropdown-icon" class="w-4 h-4 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <!-- Dropdown Menu -->
+                        <div id="desktop-dropdown-menu" class="hidden absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-xl transform origin-top-right">
+                            <a href="/user/login" class="flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 rounded-t-lg transition-colors">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                                <span class="font-medium text-gray-700">User Login</span>
+                            </a>
+                            <a href="/admin/login" class="flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 transition-colors">
+                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                </svg>
+                                <span class="font-medium text-gray-700">Admin Login</span>
+                            </a>
+                            <a href="/officer/login" class="flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 rounded-b-lg transition-colors">
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                </svg>
+                                <span class="font-medium text-gray-700">Officer Login</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-btn" class="md:hidden text-white p-2 hover:bg-white/10 rounded-lg transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4 space-y-3">
+                <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 space-y-3">
+                    <p class="text-white/70 text-sm font-medium mb-2">Login as:</p>
+                    <a href="/user/login" class="flex items-center space-x-3 text-white hover:text-accent-gold transition-colors p-2 hover:bg-white/10 rounded-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                        <span class="font-medium">User Login</span>
                     </a>
-                    <a href="/user/register" 
-                       class="bg-accent-gold hover:bg-accent-gold/90 text-white px-6 py-2 rounded-lg font-semibold transition-all duration-300 pulse-glow">
-                        Register
+                    <a href="/admin/login" class="flex items-center space-x-3 text-white hover:text-accent-gold transition-colors p-2 hover:bg-white/10 rounded-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                        <span class="font-medium">Admin Login</span>
+                    </a>
+                    <a href="/officer/login" class="flex items-center space-x-3 text-white hover:text-accent-gold transition-colors p-2 hover:bg-white/10 rounded-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        <span class="font-medium">Officer Login</span>
                     </a>
                 </div>
             </div>
@@ -158,7 +213,8 @@
         <div class="hero-overlay"></div>
         
         <!-- Hero Content -->
-        <div class="hero-content min-h-screen flex items-center justify-center">
+        <!-- Hero Content -->
+        <div class="hero-content min-h-screen flex items-center justify-center pt-20 pb-16">
             <div class="container mx-auto px-6 text-center text-white">
                 <div class="max-w-4xl mx-auto">
                     <h1 class="text-5xl lg:text-7xl font-bold mb-8 leading-tight stagger-animation">
@@ -383,55 +439,181 @@
     </footer>
 
     <script>
-        // Background slideshow functionality
-        let currentSlide = 0;
-        const slides = document.querySelectorAll('.slide');
-        const totalSlides = slides.length;
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // ========================================
+            // DESKTOP DROPDOWN TOGGLE
+            // ========================================
+            const desktopDropdownBtn = document.getElementById('desktop-dropdown-btn');
+            const desktopDropdownMenu = document.getElementById('desktop-dropdown-menu');
+            const desktopDropdownIcon = document.getElementById('desktop-dropdown-icon');
+            let isDesktopDropdownOpen = false;
 
-        function showSlide(index) {
-            slides.forEach((slide, i) => {
-                slide.classList.toggle('active', i === index);
+            if (desktopDropdownBtn && desktopDropdownMenu && desktopDropdownIcon) {
+                // Toggle desktop dropdown when button is clicked
+                desktopDropdownBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    isDesktopDropdownOpen = !isDesktopDropdownOpen;
+                    
+                    if (isDesktopDropdownOpen) {
+                        // Open dropdown
+                        desktopDropdownMenu.classList.remove('hidden');
+                        desktopDropdownIcon.style.transform = 'rotate(180deg)';
+                    } else {
+                        // Close dropdown
+                        desktopDropdownMenu.classList.add('hidden');
+                        desktopDropdownIcon.style.transform = 'rotate(0deg)';
+                    }
+                });
+
+                // Close desktop dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!desktopDropdownBtn.contains(e.target) && !desktopDropdownMenu.contains(e.target)) {
+                        if (isDesktopDropdownOpen) {
+                            desktopDropdownMenu.classList.add('hidden');
+                            desktopDropdownIcon.style.transform = 'rotate(0deg)';
+                            isDesktopDropdownOpen = false;
+                        }
+                    }
+                });
+
+                // Close desktop dropdown when pressing Escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && isDesktopDropdownOpen) {
+                        desktopDropdownMenu.classList.add('hidden');
+                        desktopDropdownIcon.style.transform = 'rotate(0deg)';
+                        isDesktopDropdownOpen = false;
+                    }
+                });
+            }
+
+            // ========================================
+            // MOBILE MENU TOGGLE
+            // ========================================
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            let isMobileMenuOpen = false;
+
+            if (mobileMenuBtn && mobileMenu) {
+                const mobileMenuIcon = mobileMenuBtn.querySelector('svg');
+
+                // Toggle mobile menu when hamburger button is clicked
+                mobileMenuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    isMobileMenuOpen = !isMobileMenuOpen;
+                    
+                    if (isMobileMenuOpen) {
+                        // Open mobile menu
+                        mobileMenu.classList.remove('hidden');
+                        // Change icon to X (close)
+                        if (mobileMenuIcon) {
+                            mobileMenuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>';
+                        }
+                    } else {
+                        // Close mobile menu
+                        mobileMenu.classList.add('hidden');
+                        // Change icon to hamburger (menu)
+                        if (mobileMenuIcon) {
+                            mobileMenuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>';
+                        }
+                    }
+                });
+
+                // Close mobile menu when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!mobileMenuBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
+                        if (isMobileMenuOpen) {
+                            mobileMenu.classList.add('hidden');
+                            if (mobileMenuIcon) {
+                                mobileMenuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>';
+                            }
+                            isMobileMenuOpen = false;
+                        }
+                    }
+                });
+
+                // Close mobile menu when pressing Escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && isMobileMenuOpen) {
+                        mobileMenu.classList.add('hidden');
+                        if (mobileMenuIcon) {
+                            mobileMenuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>';
+                        }
+                        isMobileMenuOpen = false;
+                    }
+                });
+
+                // Close mobile menu when window is resized to desktop size
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth >= 768 && isMobileMenuOpen) {
+                        mobileMenu.classList.add('hidden');
+                        if (mobileMenuIcon) {
+                            mobileMenuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>';
+                        }
+                        isMobileMenuOpen = false;
+                    }
+                });
+            }
+
+            // ========================================
+            // BACKGROUND SLIDESHOW
+            // ========================================
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.slide');
+            const totalSlides = slides.length;
+
+            function showSlide(index) {
+                slides.forEach((slide, i) => {
+                    slide.classList.toggle('active', i === index);
+                });
+            }
+
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % totalSlides;
+                showSlide(currentSlide);
+            }
+
+            // Change slide every 4 seconds
+            if (slides.length > 0) {
+                setInterval(nextSlide, 4000);
+            }
+
+            // ========================================
+            // SMOOTH SCROLLING
+            // ========================================
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
             });
-        }
 
-        function nextSlide() {
-            currentSlide = (currentSlide + 1) % totalSlides;
-            showSlide(currentSlide);
-        }
+            // ========================================
+            // INTERSECTION OBSERVER FOR ANIMATIONS
+            // ========================================
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
 
-        // Change slide every 4 seconds
-        setInterval(nextSlide, 4000);
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fade-in-up');
+                    }
+                });
+            }, observerOptions);
 
-        // Smooth scrolling for internal links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                }
+            // Observe all feature cards
+            document.querySelectorAll('.bg-white.rounded-2xl').forEach(card => {
+                observer.observe(card);
             });
-        });
-
-        // Intersection Observer for animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate-fade-in-up');
-                }
-            });
-        }, observerOptions);
-
-        // Observe all feature cards
-        document.querySelectorAll('.bg-white.rounded-2xl').forEach(card => {
-            observer.observe(card);
         });
     </script>
 </body>

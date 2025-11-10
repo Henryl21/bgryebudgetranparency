@@ -62,7 +62,7 @@ class Admin extends Authenticatable
             'tarong' => 'Tarong',
             'pili' => 'Pili',
             'poblacion' => 'Poblacion',
-            'san-agustin' => 'San-agustin',
+            'san agustin' => 'San agustin',
             'tabagak' => 'Tabagak',
             'talangnan' => 'Talangnan',
             'tugas' => 'Tugas'

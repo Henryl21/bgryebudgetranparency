@@ -40,7 +40,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background:
+            background: 
                 radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.4) 0%, transparent 60%),
                 radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 60%),
                 radial-gradient(circle at 40% 40%, rgba(120, 119, 198, 0.3) 0%, transparent 60%);
@@ -99,7 +99,7 @@
             backdrop-filter: blur(20px);
             padding: clamp(30px, 5vw, 50px) clamp(25px, 5vw, 40px);
             border-radius: clamp(15px, 3vw, 20px);
-            box-shadow:
+            box-shadow: 
                 0 20px 40px rgba(0, 0, 0, 0.3),
                 0 0 0 1px rgba(255, 255, 255, 0.1),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -112,14 +112,14 @@
 
         @keyframes boxGlow {
             0% {
-                box-shadow:
+                box-shadow: 
                     0 20px 40px rgba(0, 0, 0, 0.3),
                     0 0 0 1px rgba(255, 255, 255, 0.1),
                     inset 0 1px 0 rgba(255, 255, 255, 0.1),
                     0 0 30px rgba(102, 126, 234, 0.1);
             }
             100% {
-                box-shadow:
+                box-shadow: 
                     0 25px 50px rgba(0, 0, 0, 0.4),
                     0 0 0 1px rgba(255, 255, 255, 0.2),
                     inset 0 1px 0 rgba(255, 255, 255, 0.2),
@@ -270,7 +270,7 @@
             outline: none;
             border-color: rgba(255, 255, 255, 0.6);
             background: rgba(255, 255, 255, 0.15);
-            box-shadow:
+            box-shadow: 
                 0 0 25px rgba(102, 126, 234, 0.3),
                 0 0 50px rgba(255, 255, 255, 0.1),
                 inset 0 0 20px rgba(255, 255, 255, 0.1);
@@ -342,7 +342,7 @@
 
         .login-btn:hover {
             transform: translateY(-3px) scale(1.02);
-            box-shadow:
+            box-shadow: 
                 0 15px 35px rgba(102, 126, 234, 0.4),
                 0 0 30px rgba(118, 75, 162, 0.3);
             background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
@@ -489,7 +489,7 @@
             left: -50px;
             right: -50px;
             bottom: -50px;
-            background-image:
+            background-image: 
                 radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.3), transparent),
                 radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.2), transparent),
                 radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,0.3), transparent),
@@ -510,7 +510,7 @@
             body {
                 padding: 15px;
             }
-
+            
             .login-box {
                 margin: 0 auto;
             }
@@ -521,19 +521,19 @@
                 padding: 10px;
                 min-height: 100vh;
             }
-
+            
             .login-container {
                 width: 100%;
             }
-
+            
             .login-box {
                 border-radius: 15px;
             }
-
+            
             .input-group {
                 margin-bottom: 20px;
             }
-
+            
             .login-subtitle {
                 line-height: 1.4;
             }
@@ -543,7 +543,7 @@
             body {
                 padding: 8px;
             }
-
+            
             .login-box {
                 border-radius: 12px;
             }
@@ -555,19 +555,19 @@
                 padding: 10px;
                 align-items: flex-start;
             }
-
+            
             .login-container {
                 margin-top: 20px;
             }
-
+            
             .login-box {
                 padding: 25px 30px;
             }
-
+            
             .login-subtitle {
                 margin-bottom: 25px;
             }
-
+            
             .input-group {
                 margin-bottom: 20px;
             }
@@ -579,22 +579,62 @@
                 font-size: 20px;
                 letter-spacing: 1px;
             }
+            toggle-password {
+                right: 14px;
+                font-size: 20px;
+                padding: 5px;
+            }
+        }
+  .toggle-password {
+                right: 12px;
+                font-size: 18px;
+            }
+        
+ 
 
-            .login-subtitle {
+        .toggle-password {
+            position: absolute;
+            right: clamp(12px, 3vw, 18px);
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: clamp(18px, 3.8vw, 22px);
+            cursor: pointer;
+            z-index: 2;
+            transition: all 0.3s ease;
+            padding: clamp(4px, 1vw, 6px);
+            user-select: none;
+        }
+
+        .toggle-password:hover {
+            color: rgba(255, 255, 255, 0.95);
+            transform: translateY(-50%) scale(1.15);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .toggle-password:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+  
+        .input-group.password-group input {
+            padding-right: clamp(45px, 9vw, 55px);
+        }
+
+                            .login-subtitle {
                 font-size: 11px;
             }
-
+            
             .input-group input,
             .input-group select {
                 padding-left: 35px;
                 font-size: 14px;
             }
-
+            
             .input-icon {
                 left: 10px;
                 font-size: 14px;
             }
-        }
+        
 
         /* Large screens optimization */
         @media (min-width: 1200px) {
@@ -618,7 +658,7 @@
                 animation-iteration-count: 1 !important;
                 transition-duration: 0.01ms !important;
             }
-
+            
             body::before,
             body::after,
             .login-box::before {
@@ -658,7 +698,7 @@
 
             <form method="POST" action="{{ route('admin.login') }}">
                 @csrf
-
+                
                 <div class="input-group">
                     <div class="input-icon user-icon"></div>
                     <input type="email" name="email" placeholder="Email Address" value="{{ old('email') }}" required>
@@ -678,58 +718,12 @@
                         </select>
                     </div>
                 </div>
-@if ($errors->has('email') && str_contains($errors->first('email'), 'Please try again in'))
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // Extract seconds dynamically from the Laravel error message
-            const message = {!! json_encode($errors->first('email')) !!};
-            const match = message.match(/(\d+)\s*second/);
 
-            if (match) {
-                let remaining = parseInt(match[1]); // use actual remaining time from backend
-
-                Swal.fire({
-                    title: "Too Many Login Attempts",
-                    html: `Please try again in <b>${remaining}</b> second(s).`,
-                    icon: "error",
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    showConfirmButton: false,
-                    backdrop: `rgba(0, 0, 0, 0.7)`,
-                    didOpen: () => {
-                        const b = Swal.getHtmlContainer().querySelector("b");
-                        const interval = setInterval(() => {
-                            remaining--;
-                            b.textContent = remaining;
-
-                            if (remaining <= 0) {
-                                clearInterval(interval);
-                                Swal.update({
-                                    title: "You Can Try Again",
-                                    html: "The lockout period has ended. You can now log in.",
-                                    icon: "success",
-                                    showConfirmButton: false
-                                });
-
-                                setTimeout(() => {
-                                    Swal.close();
-                                    location.reload();
-                                }, 1500);
-                            }
-                        }, 1000);
-                    }
-                });
-            }
-        });
-    </script>
-@endif
-
-
-
-                <div class="input-group">
-                    <div class="input-icon lock-icon"></div>
-                    <input type="password" name="password" placeholder="Password" required>
+                
+ <div class="input-group">
+                    <div class="input-icon">🔒</div>
+                    <input type="password" name="password" id="password" placeholder="Password" required>
+                    <span class="toggle-password" data-target="password">🔒</span>
                 </div>
 
                 <div class="forgot-password">
@@ -739,11 +733,27 @@
                 <button type="submit" class="login-btn">Login</button>
             </form>
 
-            <div class="register-link">
-                Don't have an account?
-                <a href="{{ route('admin.register') }}">Register here</a>
-            </div>
         </div>
     </div>
+     <script>
+        // Toggle password visibility
+        document.querySelector('.toggle-password').addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            const icon = this;
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.textContent = '🔓';
+                icon.style.color = 'rgba(102, 226, 234, 0.9)';
+            } else {
+                input.type = 'password';
+                icon.textContent = '🔒';
+                icon.style.color = 'rgba(255, 255, 255, 0.7)';
+            }
+        });
+
+       
+    </script>
 </body>
 </html>

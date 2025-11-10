@@ -1,291 +1,171 @@
 @extends('layouts.app')
 
-@section('content')
-    <div class="min-h-screen bg-gray-50 py-8 px-4">
-        <div class="max-w-6xl mx-auto">
+@section('header')
+    <h2 class="text-2xl font-bold leading-tight text-gray-800">
+        Officer Dashboard
+    </h2>
+@endsection
 
+@section('content')
+<div class="py-10">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="bg-gradient-to-br from-blue-50 to-blue-100 shadow-xl rounded-2xl p-8 border border-blue-200 transition transform hover:shadow-2xl duration-300">
+            
             <!-- Header -->
-            <div class="bg-white shadow-md rounded-xl p-6 mb-6 flex items-center justify-between">
+            <div class="flex items-center justify-between mb-8">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-700">Officer Dashboard</h1>
-                    <p class="text-gray-500">
-                        Welcome, {{ Auth::guard('officer')->user()->name }}
-                    </p>
+                    <h1 class="text-3xl font-bold text-gray-800">
+                        Welcome, {{ Auth::guard('officer')->user()->name }} 👋
+                    </h1>
+                    <p class="text-gray-600 mt-1">Manage your budget requests below.</p>
                 </div>
 
-                <!-- Logout Button -->
+                <!-- Logout -->
                 <form action="{{ route('officer.logout') }}" method="POST">
                     @csrf
                     <button type="submit"
-                        class="bg-red-600 text-white px-4 py-2 rounded-lg shadow hover:bg-red-700 transition">
-                        Logout
+                        class="bg-gradient-to-r from-red-500 to-red-700 text-white px-5 py-2 rounded-xl shadow-md hover:scale-105 transform transition duration-300">
+                        🔒 Logout
                     </button>
                 </form>
             </div>
 
             <!-- Tabs -->
-            <div x-data="{ tab: 'expenditure' }" class="bg-white shadow-md rounded-xl p-6">
-                <div class="flex space-x-4 border-b mb-6">
-                    <button @click="tab = 'expenditure'"
-                        :class="tab === 'expenditure' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'"
-                        class="p-4 font-semibold transition">
-                        Expenditure Request
-                    </button>
+            <div x-data="{ tab: 'budget' }" class="bg-white rounded-xl shadow-inner p-6">
+                <div class="flex space-x-6 border-b pb-2 mb-6">
                     <button @click="tab = 'budget'"
-                        :class="tab === 'budget' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'"
-                        class="pb-2 font-semibold transition">
-                        Budget Request
+                        :class="tab === 'budget' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-800'"
+                        class="pb-2 font-semibold text-lg transition-all duration-300">
+                        💰 Budget Request
+                    </button>
+                    <button @click="tab = 'history'"
+                        :class="tab === 'history' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-800'"
+                        class="pb-2 font-semibold text-lg transition-all duration-300">
+                        📄 Request History
                     </button>
                 </div>
 
-                <!-- Expenditure Request Tab -->
-                <div x-show="tab === 'expenditure'" x-cloak>
-                    <h2 class="text-xl font-semibold mb-4">Send Expenditure Request</h2>
+                <!-- Budget Request Form -->
+                <div x-show="tab === 'budget'" x-transition.opacity.duration.500ms>
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Create New Budget Request</h2>
 
-                    <form action="{{ route('admin.expenditure.store') }}" method="POST" enctype="multipart/form-data"
-                        class="space-y-4">
-                        @csrf
-                        <input type="hidden" name="type" value="expense">
-
-                        <div>
-                            <label class="block text-gray-700 font-medium">Title</label>
-                            <input type="text" name="title" value="{{ old('title') }}"
-                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-300" required>
-                            @error('title')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label class="block text-gray-700 font-medium">Description</label>
-                            <textarea name="description" rows="3"
-                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-300">{{ old('description') }}</textarea>
-                            @error('description')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label class="block text-gray-700 font-medium">Category</label>
-                            <select name="category"
-                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-300">
-                                <option value="">Select Category</option>
-                                <option value="Infrastructure" {{ old('category') == 'Infrastructure' ? 'selected' : '' }}>
-                                    Infrastructure</option>
-                                <option value="Education" {{ old('category') == 'Education' ? 'selected' : '' }}>Education
-                                </option>
-                                <option value="Healthcare" {{ old('category') == 'Healthcare' ? 'selected' : '' }}>
-                                    Healthcare</option>
-                                <option value="Public Safety" {{ old('category') == 'Public Safety' ? 'selected' : '' }}>
-                                    Public Safety</option>
-                                <option value="Utilities" {{ old('category') == 'Utilities' ? 'selected' : '' }}>Utilities
-                                </option>
-                                <option value="Other" {{ old('category') == 'Other' ? 'selected' : '' }}>Other</option>
-                            </select>
-                            @error('category')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label class="block text-gray-700 font-medium">Amount</label>
-                            <input type="number" step="0.01" name="amount" value="{{ old('amount') }}"
-                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-300" required>
-                            @error('amount')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label class="block text-gray-700 font-medium">Receipt (optional)</label>
-                            <input type="file" name="receipt"
-                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-300">
-                            @error('receipt')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label class="block text-gray-700 font-medium">Resolution Document (Word/PDF)</label>
-                            <input type="file" name="resolution" accept=".doc,.docx,.pdf"
-                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-300">
-                            @error('resolution')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <button type="submit"
-                            class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition">
-                            Submit for Approval
-                        </button>
-                    </form>
-
-                    <!-- Expenditure Requests List -->
-                    <div class="mt-6">
-                        <h2 class="text-xl font-semibold mb-4">My Expenditure Requests</h2>
-                        <table class="w-full border border-gray-200 rounded-lg overflow-hidden">
-                            <thead class="bg-gray-100">
-                                <tr>
-                                    <th class="px-4 py-2 text-left">Title</th>
-                                    <th class="px-4 py-2">Amount</th>
-                                    <th class="px-4 py-2">Status</th>
-                                    <th class="px-4 py-2">Resolution</th>
-                                    <th class="px-4 py-2">Submitted</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($expenditures as $exp)
-                                    <tr class="border-t">
-                                        <td class="px-4 py-2">{{ $exp->title }}</td>
-                                        <td class="px-4 py-2">₱{{ number_format($exp->amount, 2) }}</td>
-                                        <td class="px-4 py-2">
-                                            @if ($exp->status === 'approved')
-                                                <span class="text-green-600 font-semibold">Approved</span>
-                                            @elseif($exp->status === 'declined')
-                                                <span class="text-red-600 font-semibold">Declined</span>
-                                            @else
-                                                <span class="text-yellow-600 font-semibold">Pending</span>
-                                            @endif
-                                        </td>
-                                        <td class="px-4 py-2">
-                                            @if ($exp->resolution)
-                                                <a href="{{ Storage::url($exp->resolution) }}" target="_blank"
-                                                    class="text-blue-600 underline">View</a>
-                                            @else
-                                                <span class="text-gray-400">None</span>
-                                            @endif
-                                        </td>
-                                        <td class="px-4 py-2">{{ $exp->created_at->diffForHumans() }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="px-4 py-3 text-center text-gray-500">No requests yet.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Budget Request Tab -->
-                <div x-show="tab === 'budget'" x-cloak>
-                    <h2 class="text-xl font-semibold mb-4">Send Budget Request</h2>
-
-                    <form action="{{ route('officer.expenditures.store') }}" method="POST" enctype="multipart/form-data"
-                        class="space-y-4">
+                    <form id="budgetForm" action="{{ route('officer.expenditures.store') }}" method="POST" enctype="multipart/form-data"
+                        class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         @csrf
                         <input type="hidden" name="type" value="budget">
 
+                        <!-- Title -->
                         <div>
-                            <label class="block text-gray-700 font-medium">Title</label>
-                            <input type="text" name="title" value="{{ old('title') }}"
-                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-300"
-                                required>
-                            @error('title')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
+                            <label class="block text-gray-700 font-medium mb-1">Title</label>
+                            <input type="text" name="title" id="title" value="{{ old('title') }}"
+                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-300 transition" 
+                                pattern="[A-Za-z\s]+" title="Letters only" required>
                         </div>
 
+                        <!-- Category -->
                         <div>
-                            <label class="block text-gray-700 font-medium">Description</label>
-                            <textarea name="description" rows="3"
-                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-300">{{ old('description') }}</textarea>
-                            @error('description')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label class="block text-gray-700 font-medium">Category</label>
+                            <label class="block text-gray-700 font-medium mb-1">Category</label>
                             <select name="category"
-                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-300">
+                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-300 transition">
                                 <option value="">Select Category</option>
-                                <option value="Infrastructure"
-                                    {{ old('category') == 'Infrastructure' ? 'selected' : '' }}>Infrastructure</option>
-                                <option value="Education" {{ old('category') == 'Education' ? 'selected' : '' }}>Education
-                                </option>
-                                <option value="Healthcare" {{ old('category') == 'Healthcare' ? 'selected' : '' }}>
-                                    Healthcare</option>
-                                <option value="Public Safety" {{ old('category') == 'Public Safety' ? 'selected' : '' }}>
-                                    Public Safety</option>
-                                <option value="Utilities" {{ old('category') == 'Utilities' ? 'selected' : '' }}>Utilities
-                                </option>
-                                <option value="Other" {{ old('category') == 'Other' ? 'selected' : '' }}>Other</option>
+                                <option value="Infrastructure">Infrastructure</option>
+                                <option value="Education">Education</option>
+                                <option value="Healthcare">Healthcare</option>
+                                <option value="Public Safety">Public Safety</option>
+                                <option value="Utilities">Utilities</option>
+                                <option value="Other">Other</option>
                             </select>
-                            @error('category')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
                         </div>
 
+                        <!-- Description -->
+                        <div class="md:col-span-2">
+                            <label class="block text-gray-700 font-medium mb-1">Description</label>
+                            <textarea name="description" id="description" rows="3"
+                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-300 transition" 
+                                pattern="[A-Za-z\s]+" title="Letters only" required>{{ old('description') }}</textarea>
+                        </div>
+
+                        <!-- Requested Amount -->
                         <div>
-                            <label class="block text-gray-700 font-medium">Requested Amount</label>
+                            <label class="block text-gray-700 font-medium mb-1">Requested Amount</label>
                             <input type="number" step="0.01" name="amount" value="{{ old('amount') }}"
-                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-300"
-                                required>
-                            @error('amount')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
+                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-300 transition" required>
                         </div>
 
+                        <!-- Resolution File -->
                         <div>
-                            <label class="block text-gray-700 font-medium">Resolution (Word/PDF)</label>
+                            <label class="block text-gray-700 font-medium mb-1">Resolution (Word/PDF)</label>
                             <input type="file" name="resolution" accept=".doc,.docx,.pdf"
-                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-300">
-                            @error('resolution')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
+                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-300 transition">
                         </div>
 
-                        <button type="submit"
-                            class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition">
-                            Submit Budget Request
-                        </button>
+                        <!-- Submit -->
+                        <div class="md:col-span-2 flex justify-end">
+                            <button type="submit"
+                                class="bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow hover:scale-105 transform transition duration-300">
+                                🚀 Submit Request
+                            </button>
+                        </div>
                     </form>
+                </div>
 
-                    <!-- Budget Requests List -->
-                    <div class="mt-6">
-                        <h2 class="text-xl font-semibold mb-4">My Budget Requests</h2>
-                        <table class="w-full border-collapse">
-                            <thead>
-                                <tr class="bg-gray-100">
-                                    <th class="border px-4 py-2">Name</th>
-                                    <th class="border px-4 py-2">Title</th>
-                                    <th class="border px-4 py-2">Description</th>
-                                    <th class="border px-4 py-2">Amount</th>
-                                    <th class="border px-4 py-2">Resoluton</th>
-                                    <th class="border px-4 py-2">Status</th>
+                <!-- Request History -->
+                <div x-show="tab === 'history'" x-transition.opacity.duration.500ms>
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">My Budget Requests</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full border border-gray-200 bg-white rounded-xl shadow-md overflow-hidden">
+                            <thead class="bg-blue-50 text-blue-800">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold">Title</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold">Description</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold">Amount</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold">Resolution</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold">Status</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold">Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="divide-y divide-gray-200">
                                 @forelse($expenditures as $exp)
-                                    <tr class="border-t">
-                                        <td class="px-4 py-2">{{ $exp->officer->name }}</td>
-                                        <td class="px-4 py-2">{{ $exp->title }}</td>
-                                        <td class="px-4 py-2">{{ $exp->description }}</td>
-                                        <td class="px-4 py-2">₱{{ number_format($exp->amount, 2) }}</td>
-                                        <td class="px-4 py-2">
+                                    <tr class="hover:bg-blue-50 transition duration-200">
+                                        <td class="px-4 py-3">{{ $exp->title }}</td>
+                                        <td class="px-4 py-3">{{ $exp->description }}</td>
+                                        <td class="px-4 py-3 font-semibold text-gray-800">₱{{ number_format($exp->amount, 2) }}</td>
+                                        <td class="px-4 py-3">
                                             @if ($exp->resolution)
                                                 <a href="{{ Storage::url($exp->resolution) }}" target="_blank"
-                                                    class="text-blue-600 underline">View</a>
+                                                    class="text-blue-600 font-medium hover:underline">View</a>
                                             @else
                                                 <span class="text-gray-400">None</span>
                                             @endif
                                         </td>
-                                        <td class="px-4 py-2">
+                                        <td class="px-4 py-3">
                                             @if ($exp->status === 'approved')
-                                                <span class="text-green-600 font-semibold">Approved</span>
+                                                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">Approved</span>
                                             @elseif($exp->status === 'declined')
-                                                <span class="text-red-600 font-semibold">Declined - {{ $exp->decline_reason }}</span>
+                                                <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-semibold">Declined</span>
                                             @else
-                                                <span class="text-yellow-600 font-semibold">Pending</span>
+                                                <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-semibold">Pending</span>
                                             @endif
                                         </td>
+                                        <td class="px-4 py-3 flex space-x-2">
+                                            <a href="{{ route('officer.expenditures.edit', $exp->id) }}"
+                                                class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm shadow transition duration-300">
+                                                ✏️ Edit
+                                            </a>
 
+                                            <form action="{{ route('officer.expenditures.destroy', $exp->id) }}" method="POST" class="delete-form inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                    class="delete-btn bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="px-4 py-3 text-center text-gray-500">No requests yet.
-                                        </td>
+                                        <td colspan="6" class="px-4 py-3 text-center text-gray-500">No requests yet.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -295,7 +175,47 @@
             </div>
         </div>
     </div>
+</div>
+@endsection
 
-    <!-- Alpine.js for tabs -->
-    <script src="//unpkg.com/alpinejs" defer></script>
+@section('scripts')
+<script src="//unpkg.com/alpinejs" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // SweetAlert delete confirmation
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const form = this.closest('.delete-form');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This request will be permanently deleted.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+
+    // Restrict Title and Description to letters only
+    const title = document.getElementById('title');
+    const description = document.getElementById('description');
+
+    [title, description].forEach(field => {
+        field.addEventListener('input', function() {
+            this.value = this.value.replace(/[^A-Za-z\s]/g, '');
+        });
+    });
+});
+</script>
 @endsection

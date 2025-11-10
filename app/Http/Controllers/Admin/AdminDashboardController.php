@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Budget;
+use App\Models\Expenditure;
 use App\Models\Announcement;
 use Illuminate\Support\Facades\Auth;
 
@@ -21,9 +22,16 @@ class AdminDashboardController extends Controller
             ->where('type', 'income')
             ->sum('amount');
 
-        $totalSpent = Budget::where('barangay_role', $barangayRole)
-            ->where('type', 'expense')
-            ->sum('amount');
+        //get expenditure for logged in barangay role
+        $expenditures = Expenditure::whereRaw('LOWER(barangay) = ?', [$barangayRole])
+            ->get();
+
+        // Calculate total spent
+        $totalSpent = $expenditures->sum('amount');
+
+        // $totalSpent = Budget::where('barangay_role', $barangayRole)
+        //     ->where('type', 'expense')
+        //     ->sum('amount');
 
         $totalRemaining = $totalBudget - $totalSpent;
 
@@ -33,9 +41,9 @@ class AdminDashboardController extends Controller
             ->get();
 
         // 💸 Expenditures (filtered by barangay role)
-        $expenditures = Budget::where('barangay_role', $barangayRole)
-            ->where('type', 'expense')
-            ->get();
+        // $expenditures = Budget::where('barangay_role', $barangayRole)
+        //     ->where('type', 'expense')
+        //     ->get();
 
         // 📅 Unique years for filtering (filtered by barangay role)
         $budgetYears = Budget::where('barangay_role', $barangayRole)

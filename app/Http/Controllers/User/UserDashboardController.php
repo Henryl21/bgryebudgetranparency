@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Budget;
+use App\Models\Expenditure;
 use App\Models\Announcement;
 use Illuminate\Support\Facades\Auth;
 
@@ -21,9 +22,11 @@ class UserDashboardController extends Controller
             ->where('type', 'income')
             ->sum('amount'); 
 
-        $totalSpent = Budget::where('barangay_role', $barangayRole)
-            ->where('type', 'expense')
-            ->sum('amount');
+        $expenditures = Expenditure::whereRaw('LOWER(barangay) = ?', [$barangayRole])
+            ->get();
+
+        // Calculate total spent
+        $totalSpent = $expenditures->sum('amount');
 
         $totalRemaining = $totalBudget - $totalSpent;
 
@@ -74,5 +77,20 @@ class UserDashboardController extends Controller
             'announcements',
             'barangayRole'
         ));
+    }
+
+    /**
+     * 🚪 Logout user and redirect to user login page
+     */
+    public function logout(Request $request)
+    {
+        Auth::guard('user')->logout(); // Logs out from 'user' guard
+
+        // Invalidate session
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        // Redirect to user login route
+        return redirect()->route('user.login')->with('success', 'You have been logged out successfully.');
     }
 }

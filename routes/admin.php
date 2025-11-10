@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Officer\OfficerAuthController;
 use App\Http\Controllers\Officer\OfficerDashboardController;
 use App\Http\Controllers\User\FeedbackController as UserFeedbackController;
+use App\Http\Controllers\Admin\UserController; // ✅ added for officer list
 
 /*
 |--------------------------------------------------------------------------
@@ -63,6 +64,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin'])->group(functi
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/budget-dashboard', [BudgetController::class, 'dashboard'])->name('budget.dashboard');
 
+    
+    // ✅ Users list route (for admin to view all registered users)
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    
     // ✅ Admin Profile
     Route::get('/profile', [AdminProfileController::class, 'show'])->name('profile.show');
     Route::put('/profile', [AdminProfileController::class, 'update'])->name('profile.update');
@@ -106,6 +111,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin'])->group(functi
     Route::get('/expenditures/{id}/download-receipt', [ExpenditureController::class, 'downloadReceipt'])->name('expenditure.downloadReceipt');
     Route::post('/expenditures/{id}/upload-receipt', [ExpenditureController::class, 'storeReceipt'])->name('expenditure.storeReceipt');
 
+    
     // ✅ Officer Approvals
     Route::get('/officers/approval', [OfficerApprovalController::class, 'index'])->name('officers.approval');
     Route::post('/officers/{id}/approve', [OfficerApprovalController::class, 'approve'])->name('officers.approve');
@@ -145,7 +151,17 @@ Route::middleware(['auth:officer'])->prefix('officer')->name('officer.')->group(
 
     // ✅ Store Expenditure Request
     Route::post('/expenditures/store', [OfficerDashboardController::class, 'store'])->name('expenditures.store');
+
+    // ✅ Edit Expenditure Request
+    Route::get('/expenditures/{id}/edit', [OfficerDashboardController::class, 'edit'])->name('expenditures.edit');
+
+    // ✅ Update Expenditure Request
+    Route::put('/expenditures/{id}', [OfficerDashboardController::class, 'update'])->name('expenditures.update');
+
+    // ✅ Delete Expenditure Request
+    Route::delete('/expenditures/{id}', [OfficerDashboardController::class, 'destroy'])->name('expenditures.destroy');
 });
+
 
 /*
 |--------------------------------------------------------------------------

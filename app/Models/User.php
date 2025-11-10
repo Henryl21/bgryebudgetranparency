@@ -16,10 +16,15 @@ class User extends Authenticatable
         'number',
         'age',
         'birthdate',
+        'gender',
         'email',
         'password',
         'profile_photo',
-        'barangay_role', // ✅ renamed from barangay_place
+        'barangay_role',
+        'password_changed_at',
+        'is_verified',
+        'otp',
+        'otp_expires_at',
     ];
 
     protected $hidden = [
@@ -27,9 +32,14 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    /**
-     * ✅ List of barangays (for dropdowns etc.)
-     */
+    // ✅ Correct place to cast datetime fields
+    protected $casts = [
+        'birthdate' => 'date',
+        'password_changed_at' => 'datetime',
+        'otp_expires_at' => 'datetime', // <-- fix
+        'is_verified' => 'boolean',
+    ];
+
     public static function getBarangays(): array
     {
         return [
@@ -50,29 +60,19 @@ class User extends Authenticatable
         ];
     }
 
-    /**
-     * ✅ Smart password mutator: only hash plain-text passwords.
-     */
     public function setPasswordAttribute($value)
     {
-        // Only hash if it's not already a bcrypt hash
-        if (!Hash::info($value)['algo']) {
-            $this->attributes['password'] = bcrypt($value);
-        } else {
-            $this->attributes['password'] = $value;
+        if (!empty($value)) {
+            $this->attributes['password'] = Hash::needsRehash($value) ? bcrypt($value) : $value;
         }
     }
 
-    /**
-     * ✅ Profile Photo Accessor
-     */
     public function getProfilePhotoUrlAttribute(): string
     {
         if ($this->profile_photo && file_exists(storage_path('app/public/profile_photos/' . $this->profile_photo))) {
             return asset('storage/profile_photos/' . $this->profile_photo);
         }
 
-        // fallback → auto initials avatar
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->full_name);
     }
 }

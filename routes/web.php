@@ -39,18 +39,22 @@ Route::prefix('user')->name('user.')->group(function () {
     Route::post('/logout', [UserLoginController::class, 'logout'])->name('logout');
 
     // Forgot & Reset Password
-    Route::get('forgot-password', [UserForgotPasswordController::class, 'showForgotPasswordForm'])
-        ->name('forgot.password');
-    Route::post('forgot-password', [UserForgotPasswordController::class, 'sendResetLink'])
-        ->name('forgot.password.send');
-    Route::get('reset-password', [UserForgotPasswordController::class, 'showResetForm'])
-        ->name('reset.password.form');
-    Route::post('reset-password', [UserForgotPasswordController::class, 'resetPassword'])
-        ->name('reset.password.submit');
+    Route::get('forgot-password', [UserForgotPasswordController::class, 'showForgotPasswordForm'])->name('forgot.password');
+    Route::post('forgot-password', [UserForgotPasswordController::class, 'sendResetLink'])->name('forgot.password.send');
+    Route::get('reset-password', [UserForgotPasswordController::class, 'showResetForm'])->name('reset.password.form');
+    Route::post('reset-password', [UserForgotPasswordController::class, 'resetPassword'])->name('reset.password.submit');
 
     // Registration
     Route::get('/register', [UserRegisterController::class, 'showRegisterForm'])->name('register');
     Route::post('/register', [UserRegisterController::class, 'register'])->name('register.store');
+
+    // OTP verification
+    Route::get('/verify-otp', [UserRegisterController::class, 'showVerifyOtpForm'])->name('verify-otp.form');
+    Route::post('/verify-otp', [UserRegisterController::class, 'verifyOtp'])->name('verify-otp.submit');
+       
+  Route::post('/resend-otp', [UserRegisterController::class, 'resendOTP'])->name('resend-otp');
+
+
 
     // Dashboard
     Route::get('/dashboard', [UserDashboardController::class, 'index'])
@@ -59,6 +63,7 @@ Route::prefix('user')->name('user.')->group(function () {
 
     // Authenticated-only routes
     Route::middleware('auth:user')->group(function () {
+
         // Resolutions
         Route::resource('resolutions', ResolutionController::class);
 
@@ -73,13 +78,6 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::get('/profile/edit', [UserProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [UserProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [UserProfileController::class, 'destroy'])->name('profile.destroy');
-
-          // Feedback
-        // Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback.index');
-        // Route::get('/feedback/create', [FeedbackController::class, 'create'])->name('feedback.create');
-        // Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
-        // Route::delete('/feedback/{id}', [FeedbackController::class, 'destroy'])->name('feedback.destroy');
-
     });
 });
 
@@ -100,8 +98,9 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::prefix('admin')->name('admin.')->group(function () {
-        Route::get('feedback', [AdminFeedbackController::class, 'index'])->name('feedback.index');
+    Route::get('feedback', [AdminFeedbackController::class, 'index'])->name('feedback.index');
     Route::delete('feedback/{id}', [AdminFeedbackController::class, 'destroy'])->name('feedback.destroy');
+
     Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotPasswordForm'])->name('forgot.password');
     Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink'])->name('forgot.password.send');
     Route::get('/reset-password', [ResetPasswordController::class, 'showResetPasswordForm'])->name('reset.password');

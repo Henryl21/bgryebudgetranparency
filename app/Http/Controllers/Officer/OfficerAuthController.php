@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
 
 class OfficerAuthController extends Controller
 {
@@ -19,19 +18,22 @@ class OfficerAuthController extends Controller
      */
     public function showLogin()
     {
-        return view('officer.auth.login');
+        // ✅ Fetch all barangays (for login form dropdown)
+        $barangays = Admin::getBarangays();
+
+        return view('officer.auth.login', compact('barangays'));
     }
 
     /**
-     * Show the login page.
+     * Show the register page.
      */
     public function showRegister()
     {
-        $barangays = Admin::getBarangays();;
+        // ✅ Fetch all barangays (for registration form)
+        $barangays = Admin::getBarangays();
 
         return view('officer.auth.register', compact('barangays'));
     }
-
 
     /**
      * Handle officer login (3-attempt limit + countdown + secure sessions)
@@ -41,41 +43,36 @@ class OfficerAuthController extends Controller
         $request->validate([
             'email'    => 'required|email',
             'password' => 'required|string',
-            'password' => 'required|string',
             'role'     => 'required|string',
+            'barangay' => 'required|string',
         ]);
 
         $email = strtolower($request->email);
         $ip = $request->ip();
         $key = Str::lower("officer-login:{$email}|{$ip}");
 
-        // Check if user is locked out
+        // ✅ Check if user is locked out
         if (RateLimiter::tooManyAttempts($key, 3)) {
             $seconds = RateLimiter::availableIn($key);
-
-            // Send back error with countdown message
-            throw ValidationException::withMessages([
-                'email' => "Too many failed attempts. Please try again in {$seconds} seconds.",
-            ]);
+            return back()->with('error', "Too many failed attempts. Please try again in {$seconds} seconds.");
         }
 
-        // Try to find officer account
+        // ✅ Find officer by email, role, and barangay
         $officer = OfficerUser::where('email', $email)
             ->where('role', $request->role)
+            ->where('barangay', $request->barangay)
             ->first();
 
-        // Validate password
+        // ✅ Validate password
         if ($officer && Hash::check($request->password, $officer->password)) {
-            // ✅ Clear login attempts after successful login
+            // Clear login attempts
             RateLimiter::clear($key);
 
-            // ✅ Login securely
+            // Login securely
             Auth::guard('officer')->login($officer, $request->boolean('remember'));
-
-            // ✅ Regenerate session to prevent fixation
             $request->session()->regenerate();
 
-            // ✅ Update last login timestamp (optional)
+            // Update last login timestamp
             $officer->update(['last_login_at' => now()]);
 
             return redirect()->intended(route('officer.dashboard'))
@@ -83,11 +80,9 @@ class OfficerAuthController extends Controller
         }
 
         // ❌ Failed login — increment attempts
-        RateLimiter::hit($key, 60); // lock for 60 seconds after 3 fails
+        RateLimiter::hit($key, 60);
 
-        throw ValidationException::withMessages([
-            'email' => 'Invalid email, password, or role. Please try again.',
-        ]);
+        return back()->with('error', 'Invalid email, password, role, or barangay. Please try again.');
     }
 
     /**
@@ -97,12 +92,11 @@ class OfficerAuthController extends Controller
     {
         Auth::guard('officer')->logout();
 
-        // ✅ Invalidate and regenerate session token
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect()->route('officer.login')
-            ->with('status', 'You have been logged out securely.');
+            ->with('info', 'You have been logged out securely.');
     }
 
     /**
@@ -113,22 +107,34 @@ class OfficerAuthController extends Controller
         $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:officer_users,email',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'regex:/[A-Z]/',      // at least one uppercase
+                'regex:/[a-z]/',      // at least one lowercase
+                'regex:/[0-9]/',      // at least one number
+                'regex:/[@$!%*?&]/',  // at least one special character
+                'confirmed',          // must match password_confirmation
+            ],
             'role'     => 'required|string|max:255',
-            'barangay'     => 'required|string|max:255',
+            'barangay' => 'required|string|max:255',
+        ], [
+            'password.min' => 'Password must be at least 8 characters long.',
+            'password.regex' => 'Password must include uppercase, lowercase, number, and special character.',
         ]);
 
-        $officer = OfficerUser::create([
+        // ✅ Create new officer account
+        OfficerUser::create([
             'name'     => $request->name,
             'email'    => strtolower($request->email),
-            'password' => Hash::make($request->password),
+            'password' => Hash::make($request->password), // 🔒 bcrypt
             'role'     => $request->role,
-            'barangay'     => $request->barangay,
+            'barangay' => $request->barangay,
         ]);
 
-        Auth::guard('officer')->login($officer);
-        $request->session()->regenerate();
-
-        return redirect()->route('officer.dashboard')->with('success', 'Welcome, Officer!');
+        // ✅ Redirect to login with success alert
+        return redirect()->route('officer.login')
+            ->with('success', 'Registration successful! Please log in with your new account.');
     }
 }

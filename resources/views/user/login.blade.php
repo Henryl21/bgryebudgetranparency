@@ -82,7 +82,7 @@
 
     .login-box {
         background: rgba(255,255,255,0.15);
-        border: 1px solid rgba(255,255,255,0.25);
+        border: 1px solid rgba(255, 255, 255, 0.17);
         border-radius: 20px;
         padding: 45px 35px;
         backdrop-filter: blur(12px);
@@ -328,6 +328,106 @@
         from { opacity: 0; transform: scale(0.9); }
         to { opacity: 1; transform: scale(1); }
     }
+/* Terms and Conditions Checkbox */
+.terms-container {
+    margin: 15px 0;
+    text-align: left;
+    font-size: 13px;
+    color: #e0f2fe;
+    text-shadow: 0 0 6px rgba(96,165,250,0.8);
+}
+
+.terms-label input[type="checkbox"] {
+    accent-color: #2563eb;
+    transform: scale(1.1);
+    margin-right: 8px;
+}
+
+.terms-label a {
+    color: #93c5fd;
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.terms-label a:hover {
+    color: #ffffff;
+    text-shadow: 0 0 8px #60a5fa;
+}
+
+/* Modal Styling */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(6px);
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.4s ease;
+}
+
+.modal-content {
+    background: rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 25px 30px;
+    width: 90%;
+    max-width: 600px;
+    color: #e0f2fe;
+    box-shadow: 0 0 20px rgba(37,99,235,0.5), inset 0 0 10px rgba(255,255,255,0.1);
+    text-align: left;
+    animation: slideUp 0.4s ease;
+}
+
+.modal-content h3 {
+    font-size: 22px;
+    color: #ffffff;
+    text-align: center;
+    text-shadow: 0 0 8px rgba(59,130,246,0.9);
+    margin-bottom: 10px;
+}
+
+.modal-content h4 {
+    margin-top: 20px;
+    color: #bfdbfe;
+}
+
+.modal-content ul {
+    margin-left: 20px;
+    list-style: disc;
+}
+
+.modal-content p, .modal-content li {
+    line-height: 1.5;
+    font-size: 14px;
+}
+
+.close-btn {
+    margin-top: 20px;
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background: linear-gradient(135deg, #2563eb, #1e3a8a);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 0 12px rgba(59,130,246,0.6);
+}
+
+.close-btn:hover {
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    box-shadow: 0 0 18px rgba(96,165,250,0.8);
+}
+
+@keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
 
     /* -------------------- RESPONSIVE SECTION -------------------- */
     @media (max-width: 768px) {
@@ -364,6 +464,21 @@
             font-size: 15px;
         }
     }
+.register-disabled {
+  pointer-events: none;    /* not clickable */
+  opacity: 0.55;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+/* enabled state */
+.register-enabled {
+  pointer-events: auto;
+  opacity: 1;
+  cursor: pointer;
+  color: #60a5fa;
+  text-decoration: underline;
+}
 
     @media (max-width: 480px) {
         .login-box {
@@ -394,6 +509,7 @@
             max-width: 100%;
             height: 160px;
         }
+        
     }
 </style>
 </head>
@@ -413,6 +529,8 @@
     <img src="/storage/images/mancilang.jpg">
     <img src="/storage/images/kaongkod.jpg">
     <img src="/storage/images/talangnan.jpg">
+     <img src="/storage/images/kangwayan.jpg">
+       <img src="/storage/images/maalat.jpg">
 </div>
 
 <div class="overlay"></div>
@@ -534,10 +652,17 @@
 
             <button type="submit" class="login-btn">Login</button>
         </form>
+<!-- Terms checkbox -->
+<label class="terms-label">
+  <input type="checkbox" id="termsCheckbox">
+  I agree to the <a href="#" id="openTermsModal">Terms & Conditions</a>
+</label>
+
 
         <div class="register-link">
             Don't have an account?
-            <a href="{{ route('user.register') }}">Register here</a>
+           <!-- Register link (initially disabled) -->
+<a id="registerLink" class="register-disabled" data-href="{{ route('user.register') }}">Register here</a>
         </div>
     </div>
 </div>
@@ -574,6 +699,7 @@ const barangaySelect = document.getElementById("barangay_role");
 const barangayPreviewContainer = document.getElementById("barangayPreviewContainer");
 const barangayImage = document.getElementById("barangayImagePreview");
 
+
 const barangayImages = {
     "malbago": "/storage/images/malbago.jpg",
     "poblacion": "/storage/images/poblacion.jpg",
@@ -586,7 +712,9 @@ const barangayImages = {
     "pili": "/storage/images/pili.jpg",
     "mancilang": "/storage/images/mancilang.jpg",
     "kaongkod": "/storage/images/kaongkod.jpg",
-    "talangnan": "/storage/images/talangnan.jpg"
+    "talangnan": "/storage/images/talangnan.jpg",
+    "kangwayan": "/storage/images/kangwayan.jpg",// ✅ fixed quote here
+    "maalat": "/storage/images/maalat.jpg"
 };
 
 barangaySelect.addEventListener("change", () => {
@@ -598,6 +726,90 @@ barangaySelect.addEventListener("change", () => {
         barangayPreviewContainer.style.display = "none";
         barangayImage.src = "";
     }
+});
+</script>
+<div id="termsModal" class="modal-overlay">
+  <div class="modal-content">
+    <h3>📜 Terms and Conditions</h3>
+    <p>
+      By accessing and using this system, you agree to comply with the following terms:
+    </p>
+    <ul>
+      <li>You will provide accurate and truthful information during registration and login.</li>
+      <li>You will use this platform solely for authorized barangay transparency purposes.</li>
+      <li>Unauthorized access or misuse of system data is strictly prohibited.</li>
+      <li>Violations may result in account suspension or legal action.</li>
+    </ul>
+
+    <h4>🔒 Data Privacy Act of 2012 (Republic Act No. 10173)</h4>
+    <p>
+      The Madridejos Barangay eBudget Transparency System values your privacy.  
+      All collected personal data are handled in accordance with the Data Privacy Act of 2012.  
+      Your information will only be used for legitimate administrative and reporting purposes  
+      and will not be shared without consent, except as required by law.
+    </p>
+
+    <button id="closeTermsModal" class="close-btn">Close</button>
+  </div>
+</div>
+
+<!-- ✅ Place your modal JavaScript just below it -->
+<script>
+const openTerms = document.getElementById("openTermsModal");
+const closeTerms = document.getElementById("closeTermsModal");
+const modal = document.getElementById("termsModal");
+
+openTerms.addEventListener("click", (e) => {
+    e.preventDefault();
+    modal.style.display = "flex";
+});
+
+closeTerms.addEventListener("click", () => {
+    modal.style.display = "none";
+});
+
+window.addEventListener("click", (e) => {
+    if (e.target === modal) modal.style.display = "none";
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const terms = document.getElementById('termsCheckbox');
+  const registerLink = document.getElementById('registerLink');
+
+  // Store the real href in data-href (already set in HTML)
+  function setEnabled(enabled) {
+    if (enabled) {
+      registerLink.classList.remove('register-disabled');
+      registerLink.classList.add('register-enabled');
+      // set the real href so it's navigable
+      registerLink.setAttribute('href', registerLink.getAttribute('data-href'));
+      registerLink.removeAttribute('aria-disabled');
+    } else {
+      registerLink.classList.remove('register-enabled');
+      registerLink.classList.add('register-disabled');
+      registerLink.removeAttribute('href');
+      registerLink.setAttribute('aria-disabled', 'true');
+    }
+  }
+
+  // initialize based on checkbox (in case of page restore)
+  setEnabled(terms.checked);
+
+  // toggle on change
+  terms.addEventListener('change', () => {
+    setEnabled(terms.checked);
+  });
+
+  // Extra safety: block clicks even if someone force-enables with devtools
+  registerLink.addEventListener('click', function (e) {
+    if (!terms.checked) {
+      e.preventDefault();
+      // optional: show modal/snackbar telling user to agree first
+      alert('Please read and accept the Terms & Conditions before registering.');
+    }
+  });
 });
 </script>
 

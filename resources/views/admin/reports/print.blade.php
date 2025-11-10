@@ -71,7 +71,7 @@
             <h4>Municipality of Madridejos</h4>
             <h3>BARANGAY {{ strtoupper($settings->barangay_name ?? 'POBLACION') }}</h3>
             <h2>OFFICE OF THE PUNONG BARANGAY</h2>
-            <small>Tel. #: (032) 439-7421  Email: brgypoblacio.madridejos@gmail.com</small>
+            
         </div>
 
         <!-- Right Logo -->
