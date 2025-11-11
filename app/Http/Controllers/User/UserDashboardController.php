@@ -11,73 +11,61 @@ use Illuminate\Support\Facades\Auth;
 
 class UserDashboardController extends Controller
 {
-    public function index(Request $request)
-    {
-        // ✅ Get current user's barangay
-        $currentUser = Auth::guard('user')->user();
-        $barangayRole = $currentUser->barangay_role; // must exist in users table
+   public function index(Request $request)
+{
+    // ✅ Get current user's barangay
+    $currentUser = Auth::guard('user')->user();
+    $barangayRole = $currentUser->barangay_role;
 
-        // 💰 Totals (filtered by barangay)
-        $totalBudget = Budget::where('barangay_role', $barangayRole)
-            ->where('type', 'income')
-            ->sum('amount'); 
+    // 💰 Totals (filtered by barangay)
+    $totalBudget = Budget::where('barangay_role', $barangayRole)
+        ->where('type', 'income')
+        ->sum('amount');
 
-        $expenditures = Expenditure::whereRaw('LOWER(barangay) = ?', [$barangayRole])
-            ->get();
+    // 💸 Expenditures (from Expenditure model)
+    $expenditures = Expenditure::whereRaw('LOWER(barangay) = ?', [$barangayRole])->get();
 
-        // Calculate total spent
-        $totalSpent = $expenditures->sum('amount');
+    // 🧮 Compute totals
+    $totalSpent = $expenditures->sum('amount');
+    $totalRemaining = $totalBudget - $totalSpent;
 
-        $totalRemaining = $totalBudget - $totalSpent;
+    // 📅 Budgets
+    $budgets = Budget::where('barangay_role', $barangayRole)->latest()->get();
 
-        // 📦 Budgets
-        $budgets = Budget::where('barangay_role', $barangayRole)
-            ->latest()
-            ->get();
+    // 📊 Category Chart
+    $budgetChart = [
+        'labels' => [],
+        'data' => [],
+    ];
 
-        // 💸 Expenditures
-        $expenditures = Budget::where('barangay_role', $barangayRole)
-            ->where('type', 'expense')
-            ->get();
-
-        // 📅 Years for filtering
-        $budgetYears = Budget::where('barangay_role', $barangayRole)
-            ->selectRaw('YEAR(created_at) as year')
-            ->distinct()
-            ->orderBy('year', 'desc')
-            ->pluck('year');
-
-        // 📊 Chart
-        $budgetChart = [
-            'labels' => [],
-            'data' => [],
-        ];
-
-        if ($expenditures->isNotEmpty()) {
-            $grouped = $expenditures->groupBy('category');
-            $budgetChart['labels'] = $grouped->keys()->toArray();
-            $budgetChart['data'] = $grouped->map(fn($item) => $item->sum('amount'))
-                                          ->values()
-                                          ->toArray();
-        }
-
-        // 📢 Announcements
-        $announcements = Announcement::where('barangay_role', $barangayRole)
-            ->latest()
-            ->get();
-
-        return view('user.dashboard', compact(
-            'totalBudget',
-            'totalSpent',
-            'totalRemaining',
-            'budgets',
-            'budgetChart',
-            'budgetYears',
-            'expenditures',
-            'announcements',
-            'barangayRole'
-        ));
+    if ($expenditures->isNotEmpty()) {
+        $grouped = $expenditures->groupBy('category');
+        $budgetChart['labels'] = $grouped->keys()->toArray();
+        $budgetChart['data'] = $grouped->map(fn($item) => $item->sum('amount'))->values()->toArray();
     }
+
+    // 📅 Budget years
+    $budgetYears = Budget::where('barangay_role', $barangayRole)
+        ->selectRaw('YEAR(created_at) as year')
+        ->distinct()
+        ->orderBy('year', 'desc')
+        ->pluck('year');
+
+    // 📢 Announcements
+    $announcements = Announcement::where('barangay_role', $barangayRole)->latest()->get();
+
+    return view('user.dashboard', compact(
+        'totalBudget',
+        'totalSpent',
+        'totalRemaining',
+        'budgets',
+        'budgetChart',
+        'budgetYears',
+        'expenditures',
+        'announcements',
+        'barangayRole'
+    ));
+}
 
     /**
      * 🚪 Logout user and redirect to user login page

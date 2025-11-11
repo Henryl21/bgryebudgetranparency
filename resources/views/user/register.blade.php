@@ -452,6 +452,30 @@
       .register-subtitle {
         font-size: 11px;
       }
+/* Fix for Birthdate label disappearing on mobile */
+@media (max-width: 600px) {
+  .input-group.date-wrapper {
+    display: block !important;
+    padding: 10px 14px !important;
+  }
+
+  .date-wrapper label {
+    display: block;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.85);
+    margin-bottom: 6px;
+  }
+
+  .date-wrapper input[type="date"] {
+    width: 100%;
+    display: block;
+    font-size: 15px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+  }
+}
 
       .profile-preview-container {
         width: 80px;

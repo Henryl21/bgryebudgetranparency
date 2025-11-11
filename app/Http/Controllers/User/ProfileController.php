@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -34,15 +35,37 @@ class ProfileController extends Controller
     {
         $user = Auth::guard('user')->user();
 
+        // Validate all fields
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'full_name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'number' => 'nullable|string|max:20',
+            'barangay_role' => 'nullable|string|max:255',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'password' => 'nullable|min:8|confirmed',
         ]);
 
-        $user->name = $validated['name'];
+        // Update basic info
+        $user->full_name = $validated['full_name'];
         $user->email = $validated['email'];
+        $user->number = $validated['number'] ?? $user->number;
+        $user->barangay_role = $validated['barangay_role'] ?? $user->barangay_role;
 
+        // Handle profile photo upload
+        if ($request->hasFile('profile_photo')) {
+            $file = $request->file('profile_photo');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->storeAs('public/profile_photos', $filename);
+
+            // Delete old photo if exists
+            if ($user->profile_photo && Storage::exists('public/profile_photos/' . $user->profile_photo)) {
+                Storage::delete('public/profile_photos/' . $user->profile_photo);
+            }
+
+            $user->profile_photo = $filename;
+        }
+
+        // Update password if provided
         if (!empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
         }
@@ -58,6 +81,12 @@ class ProfileController extends Controller
     public function destroy()
     {
         $user = Auth::guard('user')->user();
+
+        // Delete profile photo if exists
+        if ($user->profile_photo && Storage::exists('public/profile_photos/' . $user->profile_photo)) {
+            Storage::delete('public/profile_photos/' . $user->profile_photo);
+        }
+
         Auth::guard('user')->logout();
         $user->delete();
 
