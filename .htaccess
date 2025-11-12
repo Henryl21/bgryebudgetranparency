@@ -1,30 +1,15 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # -------------------------
-    # Force HTTPS
-    # -------------------------
+    # Force HTTPS (only if not already HTTPS)
     RewriteCond %{HTTPS} off
-    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 
-    # -------------------------
-    # Remove .php extension from URLs
-    # -------------------------
-    RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /([^\ ]+)\.php
-    RewriteRule ^ %1 [R=301,L]
-
-    # -------------------------
-    # Laravel Front Controller
-    # -------------------------
-    # If the requested resource doesn't exist, route to index.php
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^ index.php [L]
+    # Route all requests to public/ (Laravel front controller)
+    RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
 
-# -------------------------
 # Block common attack patterns in query strings
-# -------------------------
 <IfModule mod_rewrite.c>
     RewriteCond %{QUERY_STRING} union [NC,OR]
     RewriteCond %{QUERY_STRING} select [NC,OR]
@@ -32,21 +17,17 @@
     RewriteRule .* - [F,L]
 </IfModule>
 
-# -------------------------
 # Disable TRACE method (XSS protection)
-# -------------------------
 TraceEnable off
 
-# -------------------------
 # Deny access to sensitive files
-# -------------------------
 <FilesMatch "\.(env|config|ini|log|git|sql|sh|bash)$">
     Require all denied
 </FilesMatch>
 
-# -------------------------
+# ------------------------------------------
 # Security Headers
-# -------------------------
+# ------------------------------------------
 <IfModule mod_headers.c>
     # Enforce HTTPS
     Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
