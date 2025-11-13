@@ -623,7 +623,13 @@
                             .login-subtitle {
                 font-size: 11px;
             }
-            
+            input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #667eea; /* your gradient primary color */
+    cursor: pointer;
+}
+    
             .input-group input,
             .input-group select {
                 padding-left: 35px;
@@ -729,6 +735,10 @@
                 <div class="forgot-password">
                      <a href="{{ route('admin.forgot.password') }}">Lost Password?</a>
                 </div>
+<div class="input-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+    <input type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
+    <label for="remember" style="color: rgba(255, 255, 255, 0.8); font-size: 14px;">Remember Me</label>
+</div>
 
                 <button type="submit" class="login-btn">Login</button>
             </form>

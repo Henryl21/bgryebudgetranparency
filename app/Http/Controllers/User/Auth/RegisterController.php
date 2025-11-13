@@ -20,7 +20,7 @@ class RegisterController extends Controller
     }
 
     /**
-     * Show the user registration form.
+     * Show user registration form
      */
     public function showRegisterForm()
     {
@@ -29,15 +29,15 @@ class RegisterController extends Controller
     }
 
     /**
-     * Handle user registration and send OTP.
+     * Handle registration and send OTP
      */
     public function register(Request $request)
     {
         try {
             $validated = $request->validate([
-                'first_name' => ['required', 'string', 'max:100', 'regex:/^[A-Za-z\s\'\-]+$/'],
-                'middle_initial' => ['nullable', 'string', 'max:2', 'regex:/^[A-Za-z\.]+$/'],
-                'last_name' => ['required', 'string', 'max:100', 'regex:/^[A-Za-z\s\'\-]+$/'],
+                'first_name' => ['required', 'string', 'max:100', 'regex:/^[A-Za-zÑñ\s\'\-]+$/'],
+                'middle_name' => ['nullable', 'string', 'max:100', 'regex:/^[A-Za-zÑñ\s]+$/'],
+                'last_name' => ['required', 'string', 'max:100', 'regex:/^[A-Za-zÑñ\s\'\-]+$/'],
                 'suffix' => ['nullable', 'string', 'max:10', 'regex:/^[A-Za-z.]+$/'],
                 'number' => ['required', 'regex:/^[0-9]{11}$/'],
                 'birthdate' => ['required', 'date'],
@@ -52,60 +52,41 @@ class RegisterController extends Controller
                     'regex:/[a-z]/',
                     'regex:/[A-Z]/',
                     'regex:/[0-9]/',
-                    'regex:/[@$!%*?&]/',
+                    'regex:/[@$!%*?&\-_]/',
                 ],
                 'barangay_role' => ['required', Rule::in(array_keys(User::getBarangays()))],
                 'profile_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png|max:2048'],
             ]);
 
-            // Combine name parts
-            $fullName = $validated['first_name'];
-            if (!empty($validated['middle_initial'])) {
-                $fullName .= ' ' . strtoupper($validated['middle_initial']) . '.';
-            }
-            $fullName .= ' ' . $validated['last_name'];
-            if (!empty($validated['suffix'])) {
-                $fullName .= ', ' . ucfirst($validated['suffix']);
-            }
-
-            // Handle profile photo upload
-            $profilePhotoName = null;
-            if ($request->hasFile('profile_photo')) {
-                $profilePhotoName = time() . '_' . $request->file('profile_photo')->getClientOriginalName();
-                $request->file('profile_photo')->storeAs('profile_photos', $profilePhotoName, 'public');
-            }
+      if ($request->hasFile('profile_photo')) {
+            $path = $request->file('profile_photo')->store('profile_photos', 'public');
+            $validated['profile_photo'] = $path;
+        } else {
+            $validated['profile_photo'] = null;
+        }
 
             // Generate OTP
             $otp = rand(100000, 999999);
 
-            // Create the user with temporary OTP
-            $user = User::create([
-                'full_name' => $fullName,
-                'number' => $validated['number'],
-                'age' => $validated['age'],
-                'birthdate' => $validated['birthdate'],
-                'gender' => $validated['gender'],
-                'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
-                'barangay_role' => $validated['barangay_role'],
-                'profile_photo' => $profilePhotoName,
-                'password_changed_at' => now(),
-                'is_verified' => false,
-                'otp' => $otp,
-                'otp_expires_at' => now()->addSeconds(60), // OTP expires in 1 minute
+            // Store registration data in session
+            session([
+                'registration_data' => $validated,
+                'registration_otp' => $otp,
+                'registration_otp_expires' => now()->addMinutes(5),
             ]);
 
             // Send OTP via PHPMailer
             try {
-                $this->mailerService->sendOtpEmail($user->email, $otp, 1);
+                $this->mailerService->sendOtpEmail($validated['email'], $otp, 5);
             } catch (\Exception $e) {
-                return back()->with('error', '❌ Failed to send OTP. Please check your email configuration.')->withInput();
+                return back()
+                    ->with('error', '❌ Failed to send OTP. Please check your email configuration.')
+                    ->withInput();
             }
 
-            // Redirect to OTP verification page
             return redirect()
-                ->route('user.verify-otp.form', ['email' => $user->email])
-                ->with('success', '✅ Registration successful! A 6-digit OTP was sent to your email. Please verify to activate your account.');
+                ->route('user.verify-otp.form', ['email' => $validated['email']])
+                ->with('success', '✅ OTP sent! Please verify to complete your registration.');
 
         } catch (ValidationException $e) {
             return back()->withErrors($e->errors())->withInput();
@@ -115,23 +96,23 @@ class RegisterController extends Controller
     }
 
     /**
-     * Show the OTP verification form.
+     * Show OTP verification form
      */
     public function showVerifyOtpForm(Request $request)
     {
         $email = $request->query('email');
-        $user = User::where('email', $email)->first();
-
         $remainingSeconds = 0;
-        if ($user && $user->otp_expires_at) {
-            $remainingSeconds = max(0, $user->otp_expires_at->diffInSeconds(now()));
+
+        $data = session('registration_data');
+        if ($data && $data['email'] === $email && session('registration_otp_expires')) {
+            $remainingSeconds = max(0, session('registration_otp_expires')->diffInSeconds(now()));
         }
 
         return view('user.verify-otp', compact('email', 'remainingSeconds'));
     }
 
     /**
-     * Verify OTP and activate user.
+     * Verify OTP and create user
      */
     public function verifyOtp(Request $request)
     {
@@ -140,56 +121,73 @@ class RegisterController extends Controller
             'otp' => 'required|digits:6',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $otp = session('registration_otp');
+        $otpExpires = session('registration_otp_expires');
+        $data = session('registration_data');
 
-        if (!$user) {
-            return back()->with('error', 'User not found.');
+        if (!$otp || !$data || $data['email'] !== $request->email) {
+            return back()->with('error', '⚠️ No registration data found. Please register again.');
         }
 
-        if ($user->otp_expires_at < now()) {
-            return back()->with('error', '⚠️ OTP expired. Please request a new one.');
+        if ($otpExpires < now()) {
+            return back()->with('error', '⚠️ OTP expired. Please register again.');
         }
 
-        if ($user->otp !== $request->otp) {
+        if ($otp != $request->otp) {
             return back()->with('error', '❌ Invalid OTP. Please try again.');
         }
 
-        // Mark user as verified
-        $user->update([
+        // Combine full name
+        $fullName = $data['first_name'];
+        if (!empty($data['middle_name'])) $fullName .= ' ' . $data['middle_name'];
+        $fullName .= ' ' . $data['last_name'];
+        if (!empty($data['suffix'])) $fullName .= ', ' . ucfirst($data['suffix']);
+
+        // Create user
+        User::create([
+            'full_name' => $fullName,
+            'number' => $data['number'],
+            'age' => $data['age'],
+            'birthdate' => $data['birthdate'],
+            'gender' => $data['gender'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+            'barangay_role' => $data['barangay_role'],
+            'profile_photo' => $data['profile_photo'] ?? null,
             'is_verified' => true,
-            'otp' => null,
-            'otp_expires_at' => null,
+            'password_changed_at' => now(),
         ]);
+
+        // Clear session
+        session()->forget(['registration_data', 'registration_otp', 'registration_otp_expires']);
 
         return redirect()->route('user.login')->with('success', '🎉 Account verified successfully! You can now log in.');
     }
 
     /**
-     * Resend OTP (5 minutes validity).
+     * Resend OTP
      */
     public function resendOTP(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-        ]);
+        $request->validate(['email' => 'required|email']);
 
-        $user = User::where('email', $request->email)->first();
+        $data = session('registration_data');
 
-        if (!$user) {
-            return back()->with('error', 'User not found.');
+        if (!$data || $data['email'] !== $request->email) {
+            return back()->with('error', '⚠️ No registration data found. Please register again.');
         }
 
         // Generate new OTP
         $otp = rand(100000, 999999);
-        $user->update([
-            'otp' => $otp,
-            'otp_expires_at' => now()->addMinutes(5), // 5-minute expiry
+        session([
+            'registration_otp' => $otp,
+            'registration_otp_expires' => now()->addMinutes(5)
         ]);
 
         try {
-            $this->mailerService->sendOtpEmail($user->email, $otp, 5);
+            $this->mailerService->sendOtpEmail($request->email, $otp, 5);
         } catch (\Exception $e) {
-            return back()->with('error', '❌ Failed to resend OTP. Please try again.')->withInput();
+            return back()->with('error', '❌ Failed to resend OTP. Please try again.');
         }
 
         return back()->with('success', '✅ A new OTP has been sent to your email. It will expire in 5 minutes.');

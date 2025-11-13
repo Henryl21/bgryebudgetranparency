@@ -37,7 +37,8 @@ Route::prefix('user')->name('user.')->group(function () {
     Route::get('/login', [UserLoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [UserLoginController::class, 'login'])->name('login.attempt');
     Route::post('/logout', [UserLoginController::class, 'logout'])->name('logout');
-
+Route::get('/login/verify-otp', [UserLoginController::class, 'showLoginOtpForm'])->name('login.verify-otp.form');
+Route::post('/login/verify-otp', [userLoginController::class, 'verifyLoginOtp'])->name('login.verify-otp');
     // Forgot & Reset Password
     Route::get('forgot-password', [UserForgotPasswordController::class, 'showForgotPasswordForm'])->name('forgot.password');
     Route::post('forgot-password', [UserForgotPasswordController::class, 'sendResetLink'])->name('forgot.password.send');

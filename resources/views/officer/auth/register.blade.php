@@ -127,11 +127,80 @@
       </div>
     </div>
 
-    <!-- Submit -->
-    <button type="submit"
-            class="w-full bg-green-600 text-white p-3 rounded-lg font-semibold hover:bg-green-700 transition shadow-sm hover:shadow-md">
-      Register
-    </button>
+  <!-- Terms & Conditions Checkbox -->
+<div class="flex items-center mb-4">
+    <input type="checkbox" id="termsCheckbox" class="mr-2 rounded text-green-600 focus:ring-green-500">
+    <label for="termsCheckbox" class="text-sm text-gray-700">
+        I agree to the <a href="#" id="openTermsModal" class="text-green-600 hover:underline">Terms & Conditions</a>
+    </label>
+</div>
+
+<!-- Register Button -->
+<button type="submit" id="registerButton"
+        class="w-full bg-green-600 text-white p-3 rounded-lg font-semibold hover:bg-green-700 transition shadow-sm hover:shadow-md">
+    Register
+</button>
+
+<!-- Terms Modal -->
+<div id="termsModal" class="fixed inset-0 flex items-center justify-center bg-black/50 hidden z-50">
+    <div class="bg-white rounded-xl max-w-2xl w-full p-6 relative modal-content">
+        <h3 class="text-xl font-bold mb-2">📜 Terms and Conditions</h3>
+        <p class="mb-2">
+            By accessing and using this system, you agree to comply with the following terms:
+        </p>
+        <ul class="list-disc list-inside mb-4 text-sm text-gray-700">
+            <li>You will provide accurate and truthful information during registration.</li>
+            <li>You will use this platform solely for authorized barangay transparency purposes.</li>
+            <li>Unauthorized access or misuse of system data is strictly prohibited.</li>
+            <li>Violations may result in account suspension or legal action.</li>
+        </ul>
+
+        <h4 class="font-semibold mb-2">🔒 Data Privacy Act of 2012 (Republic Act No. 10173)</h4>
+        <p class="text-sm text-gray-700 mb-4">
+            All collected personal data are handled according to the Data Privacy Act of 2012 and will only be used for legitimate purposes.
+        </p>
+
+        <button id="closeTermsModal" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 font-bold text-lg">&times;</button>
+    </div>
+</div>
+
+<script>
+    const openTerms = document.getElementById('openTermsModal');
+    const closeTerms = document.getElementById('closeTermsModal');
+    const termsModal = document.getElementById('termsModal');
+    const termsCheckbox = document.getElementById('termsCheckbox');
+    const registerForm = document.getElementById('registerForm');
+
+    // Open and close modal
+    openTerms.addEventListener('click', (e) => {
+        e.preventDefault();
+        termsModal.classList.remove('hidden');
+    });
+
+    closeTerms.addEventListener('click', () => {
+        termsModal.classList.add('hidden');
+    });
+
+    window.addEventListener('click', (e) => {
+        if(e.target === termsModal){
+            termsModal.classList.add('hidden');
+        }
+    });
+
+    // Require Terms checkbox before submitting registration
+    registerForm.addEventListener('submit', function(e){
+        if(!termsCheckbox.checked){
+            e.preventDefault();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Terms Required',
+                text: 'You must agree to the Terms & Conditions before registering.',
+                confirmButtonColor: '#16a34a'
+            });
+        }
+    });
+    
+</script>
 
     <!-- Login Link -->
     <p class="mt-6 text-center text-sm text-gray-700">
@@ -141,6 +210,20 @@
       </a>
     </p>
   </form>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    @if(session('success'))
+        Swal.fire('Success!', "{{ session('success') }}", 'success');
+    @endif
+
+    @if(session('error'))
+        Swal.fire('Error!', "{{ session('error') }}", 'error');
+    @endif
+
+    @if(session('info'))
+        Swal.fire('Info', "{{ session('info') }}", 'info');
+    @endif
+</script>
 
   <!-- JS -->
   <script>

@@ -357,6 +357,105 @@
     .login-link a:hover {
       color: #dbeafe;
     }
+/* Terms and Conditions Checkbox */
+.terms-container {
+    margin: 15px 0;
+    text-align: left;
+    font-size: 13px;
+    color: #e0f2fe;
+    text-shadow: 0 0 6px rgba(96,165,250,0.8);
+}
+
+.terms-label input[type="checkbox"] {
+    accent-color: #2563eb;
+    transform: scale(1.1);
+    margin-right: 8px;
+}
+
+.terms-label a {
+    color: #93c5fd;
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.terms-label a:hover {
+    color: #ffffff;
+    text-shadow: 0 0 8px #60a5fa;
+}
+/* Modal Styling */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(6px);
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.4s ease;
+}
+
+.modal-content {
+    background: rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 25px 30px;
+    width: 90%;
+    max-width: 600px;
+    color: #e0f2fe;
+    box-shadow: 0 0 20px rgba(37,99,235,0.5), inset 0 0 10px rgba(255,255,255,0.1);
+    text-align: left;
+    animation: slideUp 0.4s ease;
+}
+
+.modal-content h3 {
+    font-size: 22px;
+    color: #ffffff;
+    text-align: center;
+    text-shadow: 0 0 8px rgba(59,130,246,0.9);
+    margin-bottom: 10px;
+}
+
+.modal-content h4 {
+    margin-top: 20px;
+    color: #bfdbfe;
+}
+
+.modal-content ul {
+    margin-left: 20px;
+    list-style: disc;
+}
+
+.modal-content p, .modal-content li {
+    line-height: 1.5;
+    font-size: 14px;
+}
+
+.close-btn {
+    margin-top: 20px;
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background: linear-gradient(135deg, #2563eb, #1e3a8a);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 0 12px rgba(59,130,246,0.6);
+}
+
+.close-btn:hover {
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    box-shadow: 0 0 18px rgba(96,165,250,0.8);
+}
+
+@keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
 
     /* === Error Display === */
     #formErrors {
@@ -554,133 +653,179 @@
         <div class="register-subtitle">Barangay eBudget Transparency System</div>
       </div>
 
-      <form method="POST" action="{{ route('user.register.store') }}" enctype="multipart/form-data">
-        @csrf
-        <div class="profile-preview-container">
-          <img id="preview-image" src="https://ui-avatars.com/api/?name=User&background=3b82f6&color=fff&size=110" class="profile-preview" alt="Preview">
-        </div>
+      <form method="POST" action="{{ route('user.register.store') }}" enctype="multipart/form-data" novalidate>
+  @csrf
 
-        <div class="form-grid">
-          <div class="form-row">
-            <div class="input-group">
-              <input
-                type="text"
-                name="first_name"
-                placeholder="First Name"
-                required
-                pattern="^[A-Za-z\s'-]+$"
-                title="First name may only contain letters, spaces, hyphens and apostrophes."
-              >
-            </div>
+  <div class="profile-preview-container">
+    <img id="preview-image" 
+         src="{{ old('profile_photo') ? asset('storage/' . old('profile_photo')) : 'https://ui-avatars.com/api/?name=' . urlencode(old('first_name', 'User')) . '&background=3b82f6&color=fff&size=110' }}" 
+         class="profile-preview" alt="Preview">
+  </div>
 
-            <div class="input-group">
-              <input
-                type="text"
-                name="middle_initial"
-                placeholder="M.I."
-                pattern="^[A-Za-z]\.?$"
-                title="Middle initial may only contain one letter."
-              >
-            </div>
-          </div>
+  <div class="form-grid">
+    <div class="form-row">
+      <div class="input-group">
+        <input type="text" name="first_name" placeholder="First Name" 
+               required pattern="^[A-Za-z\s'-]+$"
+               title="Only letters, spaces, hyphens, apostrophes."
+               value="{{ old('first_name') }}">
+      </div>
+      @error('first_name')
+        <div class="text-red-400 text-sm mt-1">{{ $message }}</div>
+      @enderror
 
-          <div class="form-row">
-            <div class="input-group">
-              <input
-                type="text"
-                name="last_name"
-                placeholder="Last Name"
-                required
-                pattern="^[A-Za-z\s'-]+$"
-                title="Last name may only contain letters, spaces, hyphens and apostrophes."
-              >
-            </div>
+     <div class="input-group">
+        <input type="text" name="middle_name" placeholder="Middle Name" 
+                pattern="^[A-Za-zÑñ\s]+$"
+                style="text-transform: capitalize;"
+               value="{{ old('middle_name') }}">
+      </div>
+      @error('middle_name')
+        <div class="text-red-400 text-sm mt-1">{{ $message }}</div>
+      @enderror
+    </div> 
 
-            <div class="input-group">
-              <input
-                type="text"
-                name="suffix"
-                placeholder="Suffix"
-                pattern="^[A-Za-z.]+$"
-                title="Suffix may only contain letters and period."
-              >
-            </div>
-          </div>
+    <div class="form-row">
+      <div class="input-group">
+        <input type="text" name="last_name" placeholder="Last Name" required
+               pattern="^[A-Za-z\s'-]+$"
+               value="{{ old('last_name') }}">
+      </div>
+      @error('last_name')
+        <div class="text-red-400 text-sm mt-1">{{ $message }}</div>
+      @enderror
 
-          <div class="input-group">
-            <input
-              type="tel"
-              name="number"
-              id="number"
-              placeholder="Contact Number (11 digits)"
-              required
-              pattern="^\d{11}$"
-              maxlength="11"
-              inputmode="numeric"
-              title="Enter an 11-digit contact number."
-            >
-          </div>
+     <div class="input-group">
+  <input type="text" name="suffix" placeholder="Suffix"
+         pattern="^[A-Za-z]{1,2,3}\.?$"
+         title="Suffix must be 1–3 letters and may end with a period"
+         value="{{ old('suffix') }}">
+</div>
 
-          <div id="formErrors" style="display:none;"></div>
+      @error('suffix')
+        <div class="text-red-400 text-sm mt-1">{{ $message }}</div>
+      @enderror
+    </div>
 
-          <div class="form-row">
-            <div class="input-group">
-              <input type="date" id="birthdate" name="birthdate" required>
-            </div>
+    <div class="input-group">
+      <input type="tel" name="number" id="number"
+             placeholder="Contact Number (11 digits)" required
+             pattern="^\d{11}$"
+             maxlength="11"
+             inputmode="numeric"
+             title="Must be exactly 11 digits."
+             value="{{ old('number') }}">
+    </div>
+    @error('number')
+      <div class="text-red-400 text-sm mt-1">{{ $message }}</div>
+    @enderror
 
-            <div class="input-group">
-              <input type="number" id="age" name="age" placeholder="Age" readonly required>
-            </div>
-          </div>
+    <div class="form-row">
+      <div class="input-group">
+        <input type="date" id="birthdate" name="birthdate" required value="{{ old('birthdate') }}">
+      </div>
+      @error('birthdate')
+        <div class="text-red-400 text-sm mt-1">{{ $message }}</div>
+      @enderror
 
-          <div class="input-group">
-            <select name="gender" required>
-              <option value="">-- Select Gender --</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="rather_not_say">Rather Not to Say</option>
-            </select>
-          </div>
+      <div class="input-group">
+        <input type="number" id="age" name="age" placeholder="Age" readonly required value="{{ old('age') }}">
+      </div>
+      @error('age')
+        <div class="text-red-400 text-sm mt-1">{{ $message }}</div>
+      @enderror
+    </div>
 
-          <div class="input-group">
-            <select name="barangay_role" required>
-              <option value="">-- Select Barangay --</option>
-              @foreach (\App\Models\User::getBarangays() as $key => $name)
-                <option value="{{ $key }}">{{ $name }}</option>
-              @endforeach
-            </select>
-          </div>
+    <div class="input-group">
+      <select name="gender" required>
+        <option value="">-- Select Gender --</option>
+        <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Male</option>
+        <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Female</option>
+        <option value="rather_not_say" {{ old('gender') == 'rather_not_say' ? 'selected' : '' }}>Rather Not to Say</option>
+      </select>
+    </div>
+    @error('gender')
+      <div class="text-red-400 text-sm mt-1">{{ $message }}</div>
+    @enderror
 
-          <div class="input-group file-input-wrapper">
-            <label class="file-input-label">
-              Upload Profile Photo
-              <input type="file" name="profile_photo" accept="image/*" onchange="previewFile(event)">
-            </label>
-          </div>
+    <div class="input-group">
+      <select name="barangay_role" required>
+        <option value="">-- Select Barangay --</option>
+        @foreach (\App\Models\User::getBarangays() as $key => $name)
+          <option value="{{ $key }}" {{ old('barangay_role') == $key ? 'selected' : '' }}>{{ $name }}</option>
+        @endforeach
+      </select>
+    </div>
+    @error('barangay_role')
+      <div class="text-red-400 text-sm mt-1">{{ $message }}</div>
+    @enderror
 
-          <div class="input-group">
-            <input type="email" name="email" placeholder="Email Address" required>
-          </div>
+    <div class="input-group file-input-wrapper">
+        <label class="file-input-label">
+            Upload Profile Photo
+            <input type="file" name="profile_photo" accept="image/*" onchange="previewFile(event)">
+        </label>
+    </div>
+    @error('profile_photo')
+        <div class="text-red-400 text-sm mt-1">{{ $message }}</div>
+    @enderror
 
-          <div class="input-group">
-            <input type="password" name="password" id="password" placeholder="Password" required>
-            <span class="toggle-password" onclick="togglePassword('password', this)">👁️</span>
-          </div>
 
-          <div class="input-group">
-            <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Confirm Password" required>
-            <span class="toggle-password" onclick="togglePassword('password_confirmation', this)">👁️</span>
-          </div>
-        </div>
+    <div class="input-group">
+      <input type="email" name="email" placeholder="Email Address" required value="{{ old('email') }}">
+    </div>
+    @error('email')
+      <div class="text-red-400 text-sm mt-1">{{ $message }}</div>
+    @enderror
 
-        <button type="submit" class="register-btn">Register</button>
-      </form>
+    <div class="input-group">
+      <input type="password" name="password" id="password" placeholder="Password" required>
+      <span class="toggle-password" onclick="togglePassword('password', this)">👁️</span>
+    </div>
+    @error('password')
+      <div class="text-red-400 text-sm mt-1">{{ $message }}</div>
+    @enderror
+
+    <div class="input-group">
+      <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Confirm Password" required>
+      <span class="toggle-password" onclick="togglePassword('password_confirmation', this)">👁️</span>
+    </div>
+  </div>
+<!-- Terms checkbox -->
+<label class="terms-label">
+  <input type="checkbox" id="termsCheckbox">
+  I agree to the <a href="#" id="openTermsModal">Terms & Conditions</a>
+</label>
+  <button type="submit" class="register-btn">Register</button>
+</form>
 
       <div class="login-link">
         Already have an account? <a href="{{ route('user.login') }}">Login here</a>
       </div>
     </div>
   </div>
+<div id="termsModal" class="modal-overlay">
+  <div class="modal-content">
+    <h3>📜 Terms and Conditions</h3>
+    <p>By accessing and using this system, you agree to comply with the following terms:</p>
+    <ul>
+      <li>You will provide accurate and truthful information during registration and login.</li>
+      <li>You will use this platform solely for authorized barangay transparency purposes.</li>
+      <li>Unauthorized access or misuse of system data is strictly prohibited.</li>
+      <li>Violations may result in account suspension or legal action.</li>
+    </ul>
+
+    <h4>🔒 Data Privacy Act of 2012 (Republic Act No. 10173)</h4>
+    <p>
+      The Madridejos Barangay eBudget Transparency System values your privacy.  
+      All collected personal data are handled in accordance with the Data Privacy Act of 2012.  
+      Your information will only be used for legitimate administrative and reporting purposes  
+      and will not be shared without consent, except as required by law.
+    </p>
+
+    <button id="closeTermsModal" class="close-btn">Close</button>
+  </div>
+</div>
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -707,6 +852,51 @@
             confirmButtonColor: '#2563eb'
         });
     @endif
+// Client-side validation with preserved inputs
+document.querySelector('form').addEventListener('submit', function(e) {
+  const fields = this.querySelectorAll('input[required], select[required]');
+  let invalids = [];
+
+  fields.forEach(field => {
+    field.style.borderColor = '';
+    if (!field.checkValidity()) {
+      invalids.push({
+        name: field.name,
+        message: field.title || field.validationMessage
+      });
+      field.style.borderColor = '#ef4444';
+    }
+  });
+
+  if (invalids.length) {
+    e.preventDefault();
+    Swal.fire({
+      icon: 'error',
+      title: 'Invalid Input',
+      html: invalids.map(f => `• <b>${f.name}</b>: ${f.message}`).join('<br>'),
+      confirmButtonColor: '#2563eb'
+    });
+    invalids[0].field?.focus();
+  }
+});
+<!-- ✅ Place your modal JavaScript just below it -->
+
+const openTerms = document.getElementById("openTermsModal");
+const closeTerms = document.getElementById("closeTermsModal");
+const modal = document.getElementById("termsModal");
+
+openTerms.addEventListener("click", (e) => {
+    e.preventDefault();
+    modal.style.display = "flex";
+});
+
+closeTerms.addEventListener("click", () => {
+    modal.style.display = "none";
+});
+
+window.addEventListener("click", (e) => {
+    if (e.target === modal) modal.style.display = "none";
+});
 
     // SweetAlert success
     @if (session('success'))
@@ -742,12 +932,25 @@
     function previewFile(event) {
       const file = event.target.files[0];
       if (file) {
+        // ✅ Check if the file is an image
+        if (!file.type.startsWith('image/')) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Invalid File',
+            text: 'Please upload a valid image file (JPG, PNG, etc.)',
+            confirmButtonColor: '#2563eb'
+          });
+          event.target.value = ''; // Reset the input
+          return;
+        }
+
         const reader = new FileReader();
-        reader.onload = e => document.getElementById('preview-image').src = e.target.result;
+        reader.onload = e => {
+          document.getElementById('preview-image').src = e.target.result;
+        };
         reader.readAsDataURL(file);
       }
     }
-
     // Toggle password visibility
     function togglePassword(id, icon) {
       const field = document.getElementById(id);
@@ -759,6 +962,21 @@
         icon.textContent = "👁️";
       }
     }
+// Terms checkbox enforcement
+document.querySelector('form').addEventListener('submit', function(e) {
+    const termsCheckbox = document.getElementById('termsCheckbox');
+
+    if (!termsCheckbox.checked) {
+        e.preventDefault(); // Stop form submission
+        Swal.fire({
+            icon: 'warning',
+            title: 'Agreement Required',
+            text: 'You must agree to the Terms & Conditions before registering.',
+            confirmButtonColor: '#2563eb'
+        });
+        return false;
+    }
+});
 
     // Form validation
     document.addEventListener('DOMContentLoaded', function () {

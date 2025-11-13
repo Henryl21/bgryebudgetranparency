@@ -1,9 +1,9 @@
 <?php
-
 namespace App\Http\Controllers\User\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\PHPMailerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -13,6 +13,13 @@ use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
+    protected $mailerService;
+
+    public function __construct(PHPMailerService $mailerService)
+    {
+        $this->mailerService = $mailerService;
+    }
+
     /**
      * Show the user login form.
      */
@@ -24,10 +31,11 @@ class LoginController extends Controller
 
     /**
      * Handle user login request.
+     * Sends OTP if credentials are correct.
      */
     public function login(Request $request)
     {
-        // Check if locked out
+        // Check lockout
         if ($this->isLockedOut($request)) {
             return $this->sendLockoutResponse($request);
         }
@@ -56,30 +64,75 @@ class LoginController extends Controller
 
         if (!Hash::check($request->password, $user->password)) {
             $this->incrementLoginAttempts($request);
-
             $attemptsLeft = $this->retriesLeft($request);
             $errorMessage = 'Incorrect password.';
-
-            if ($attemptsLeft > 0) {
-                $errorMessage .= " You have {$attemptsLeft} attempt(s) remaining.";
-            }
-
-            return back()->withErrors([
-                'password' => $errorMessage,
-            ])->withInput($request->only('email', 'barangay_role'));
+            if ($attemptsLeft > 0) $errorMessage .= " You have {$attemptsLeft} attempt(s) remaining.";
+            return back()->withErrors(['password' => $errorMessage])
+                         ->withInput($request->only('email', 'barangay_role'));
         }
 
-        // Password correct → reset attempt counter
+        // Reset attempts
         $this->clearLoginAttempts($request);
 
-        // Rehash old passwords if necessary
-        if (Hash::needsRehash($user->password)) {
-            $user->password = Hash::make($request->password);
-            $user->save();
+        // Check if OTP login is required
+        $otp = rand(100000, 999999);
+        session([
+            'login_user_id' => $user->id,
+            'login_otp' => $otp,
+            'login_otp_expires' => now()->addMinutes(5)
+        ]);
+
+        try {
+            $this->mailerService->sendOtpEmail($user->email, $otp, 5);
+        } catch (\Exception $e) {
+            return back()->withErrors(['email' => '❌ Failed to send OTP. Please try again.'])->withInput();
         }
 
-        Auth::guard('user')->login($user);
-        $request->session()->regenerate();
+        return redirect()->route('user.login.verify-otp.form')->with('success', '✅ OTP sent! Check your email to complete login.');
+    }
+
+    /**
+     * Show OTP verification form for login.
+     */
+    public function showLoginOtpForm()
+    {
+        return view('user.login-verify-otp');
+    }
+
+    /**
+     * Verify OTP for login.
+     */
+    public function verifyLoginOtp(Request $request)
+    {
+        $request->validate([
+            'otp' => 'required|digits:6'
+        ]);
+
+        $otp = session('login_otp');
+        $otpExpires = session('login_otp_expires');
+        $userId = session('login_user_id');
+
+        if (!$otp || !$userId) {
+            return redirect()->route('user.login')->withErrors(['email' => '⚠️ Login session expired. Please try again.']);
+        }
+
+        if ($otpExpires < now()) {
+            session()->forget(['login_user_id','login_otp','login_otp_expires']);
+            return redirect()->route('user.login')->withErrors(['email' => '⚠️ OTP expired. Please login again.']);
+        }
+
+        if ($request->otp != $otp) {
+            return back()->withErrors(['otp' => '❌ Invalid OTP. Please try again.']);
+        }
+
+        // OTP correct → log in
+        $user = User::find($userId);
+$remember = session('login_remember', false); // default false
+Auth::guard('user')->login($user, $remember); // <-- use remember token
+$request->session()->regenerate();
+
+// Clear OTP & remember sessions
+session()->forget(['login_user_id','login_otp','login_otp_expires','login_remember']);
 
         return redirect()->route('user.dashboard')->with(
             'success',
@@ -87,21 +140,7 @@ class LoginController extends Controller
         );
     }
 
-    /**
-     * Logout user.
-     */
-    public function logout(Request $request)
-    {
-        Auth::guard('user')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect()->route('user.login')->with('status', 'You have been successfully logged out.');
-    }
-
-    // ============================================================
-    // == CUSTOM RATE LIMIT (3 attempts then 60s lockout) ==
-    // ============================================================
+    // ====================== Existing lockout functions ======================
 
     protected function lockoutKey(Request $request): string
     {
@@ -119,13 +158,12 @@ class LoginController extends Controller
         $lockoutKey = $this->lockoutKey($request);
 
         $attempts = Cache::get($attemptKey, 0) + 1;
-        Cache::put($attemptKey, $attempts, 60); // attempts reset after 60 seconds
+        Cache::put($attemptKey, $attempts, 60);
 
         if ($attempts >= 3) {
-            // store lockout end timestamp (fixed bug)
             $lockoutEndsAt = now()->addSeconds(60)->timestamp;
-            Cache::put($lockoutKey, $lockoutEndsAt, 60); // lockout lasts 60s
-            Cache::forget($attemptKey); // reset attempts after lockout starts
+            Cache::put($lockoutKey, $lockoutEndsAt, 60);
+            Cache::forget($attemptKey);
         }
     }
 
@@ -151,13 +189,21 @@ class LoginController extends Controller
     {
         $lockoutTimestamp = Cache::get($this->lockoutKey($request));
         $seconds = $lockoutTimestamp ? $lockoutTimestamp - time() : 60;
-
-        if ($seconds <= 0 || $seconds > 60) {
-            $seconds = 60; // ensure valid countdown
-        }
+        if ($seconds <= 0 || $seconds > 60) $seconds = 60;
 
         throw ValidationException::withMessages([
             'email' => ["Too many login attempts. Please try again in {$seconds} second(s)."],
         ])->status(429);
+    }
+
+    /**
+     * Logout user.
+     */
+    public function logout(Request $request)
+    {
+        Auth::guard('user')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->route('user.login')->with('status', 'You have been successfully logged out.');
     }
 }

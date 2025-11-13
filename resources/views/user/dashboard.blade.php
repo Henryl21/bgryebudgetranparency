@@ -586,26 +586,51 @@
     </style>
 </head>
 <body>
-  <!-- Header -->
+    <!-- Header -->
 <header>
-    <div class="header-container">
-        <div class="header-left">
-            <div class="brgy-logo">BRGY<br>SEAL</div>
-            <h1>Barangay eBudget Transparency</h1>
+    <div class="header-container flex items-center justify-between p-4 bg-white shadow">
+        <!-- Left side: Barangay Icon + Title -->
+        <div class="header-left flex items-center gap-4">
+            <!-- Barangay Icon (House + People inside circle) -->
+            <div class="relative flex items-center justify-center w-16 h-16 rounded-full bg-green-100 border-2 border-green-500 shadow-md">
+                <i class="fa-solid fa-house text-green-600 text-3xl"></i>
+                <i class="fa-solid fa-users absolute text-green-800 text-xs translate-y-3"></i>
+            </div>
+
+            <div class="flex flex-col">
+               
+                <h1 class="text-3xl font-bold text-gray-800 leading-tight">Barangay eBudget Transparency</h1>
+            </div>
         </div>
 
-        <div class="profile-wrapper">
-            <button id="profile-button">
-                <img src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->full_name }}">
+        <!-- Right side: Profile -->
+        <div class="profile-wrapper relative">
+            <button id="profile-button" class="flex items-center focus:outline-none group">
+                <img src="{{ $user->profile_photo ? asset('storage/' . $user->profile_photo) : asset('images/default-avatar.png') }}" 
+                     alt="{{ $user->full_name }}" 
+                     class="w-12 h-12 rounded-full object-cover border-2 border-green-400 shadow-md transition-transform transform hover:scale-110">
             </button>
 
-            <div id="profile-dropdown">
-                <a href="{{ route('user.profile.edit') }}">Profile</a>
-                <button onclick="confirmLogout()">Logout</button>
+            <!-- Dropdown -->
+            <div id="profile-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
+                <a href="{{ route('user.profile.edit') }}" 
+                   class="block px-4 py-2 text-gray-700 hover:bg-green-100 rounded-lg transition">
+                    Profile
+                </a>
+                <form action="{{ route('user.logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" 
+                            class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-100 rounded-lg transition">
+                        Logout
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 </header>
+
+<!-- Font Awesome CDN -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
 
     <!-- Feedback Modal -->

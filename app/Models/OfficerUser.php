@@ -15,33 +15,25 @@ class OfficerUser extends Authenticatable
         'name',
         'email',
         'password',
-        'position',
-        'barangay',
-        'role', // ✅ Added for role-based login
+        'role',       // Role-based login
+        'barangay',   // Officer's barangay
+        'otp',        // OTP for login/registration
+        'otp_expires_at', // Expiry time for OTP
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
+        'otp',
     ];
 
-    /**
-     * Optional: cast attributes
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'otp_expires_at' => 'datetime', // important for comparison
     ];
 
     /**
-     * Get the password reset table for this guard.
-     */
-    public function getPasswordResetTable()
-    {
-        return 'officer_password_resets';
-    }
-
-    /**
-     * Relationship to Officer profile (optional)
+     * Optional: relationship to officer profile
      */
     public function officerProfile()
     {
@@ -49,10 +41,18 @@ class OfficerUser extends Authenticatable
     }
 
     /**
-     * ✅ Helper method: Check if officer has a specific role
+     * Helper method: check role
      */
     public function hasRole($role)
     {
         return $this->role === $role;
+    }
+
+    /**
+     * Password reset table for this guard
+     */
+    public function getPasswordResetTable()
+    {
+        return 'officer_password_resets';
     }
 }

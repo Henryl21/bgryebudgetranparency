@@ -120,14 +120,7 @@
             <label for="remember" class="text-sm text-gray-700">Remember Me</label>
         </div>
 
-        <!-- Terms & Conditions Checkbox -->
-        <div class="flex items-center mb-4">
-            <input type="checkbox" id="termsCheckbox" class="mr-2 rounded text-green-600 focus:ring-green-500">
-            <label for="termsCheckbox" class="text-sm text-gray-700">
-                I agree to the <a href="#" id="openTermsModal" class="text-green-600 hover:underline">Terms & Conditions</a>
-            </label>
-        </div>
-
+      
         <button type="submit"
                 class="w-full bg-green-600 text-white p-3 rounded-lg font-semibold hover:bg-green-700 transition">
             Login
@@ -142,69 +135,25 @@
         <!-- Register Link -->
         <p class="mt-4 text-center text-sm text-gray-700">
             Don’t have an account?
-            <a href="{{ route('officer.register') }}" id="registerLink" class="text-green-600 font-medium hover:underline pointer-events-none opacity-50">Register</a>
+            <a href="{{ route('officer.register') }}" class="text-green-600 font-medium hover:underline">Register</a>
         </p>
     </form>
 
-    <!-- Terms Modal -->
-    <div id="termsModal" class="fixed inset-0 flex items-center justify-center bg-black/50 hidden z-50">
-        <div class="bg-white rounded-xl max-w-2xl w-full p-6 relative modal-content">
-            <h3 class="text-xl font-bold mb-2">📜 Terms and Conditions</h3>
-            <p class="mb-2">
-                By accessing and using this system, you agree to comply with the following terms:
-            </p>
-            <ul class="list-disc list-inside mb-4 text-sm text-gray-700">
-                <li>You will provide accurate and truthful information during registration and login.</li>
-                <li>You will use this platform solely for authorized barangay transparency purposes.</li>
-                <li>Unauthorized access or misuse of system data is strictly prohibited.</li>
-                <li>Violations may result in account suspension or legal action.</li>
-            </ul>
-
-            <h4 class="font-semibold mb-2">🔒 Data Privacy Act of 2012 (Republic Act No. 10173)</h4>
-            <p class="text-sm text-gray-700 mb-4">
-                The Madridejos Barangay eBudget Transparency System values your privacy.  
-                All collected personal data are handled in accordance with the Data Privacy Act of 2012.  
-                Your information will only be used for legitimate administrative and reporting purposes  
-                and will not be shared without consent, except as required by law.
-            </p>
-
-            <button id="closeTermsModal" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 font-bold text-lg">&times;</button>
-        </div>
-    </div>
+   
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-@if (session('success'))
 <script>
-Swal.fire({
-    icon: 'success',
-    title: 'Success',
-    text: '{{ session('success') }}',
-    confirmButtonColor: '#3085d6'
-});
-</script>
-@endif
+    @if(session('success'))
+        Swal.fire('Success!', "{{ session('success') }}", 'success');
+    @endif
 
-@if (session('error'))
-<script>
-Swal.fire({
-    icon: 'error',
-    title: 'Error',
-    text: '{{ session('error') }}',
-    confirmButtonColor: '#d33'
-});
-</script>
-@endif
+    @if(session('error'))
+        Swal.fire('Error!', "{{ session('error') }}", 'error');
+    @endif
 
-@if (session('info'))
-<script>
-Swal.fire({
-    icon: 'info',
-    title: 'Info',
-    text: '{{ session('info') }}',
-    confirmButtonColor: '#3085d6'
-});
+    @if(session('info'))
+        Swal.fire('Info', "{{ session('info') }}", 'info');
+    @endif
 </script>
-@endif
 
 <script>
     const openTerms = document.getElementById('openTermsModal');
@@ -216,44 +165,8 @@ Swal.fire({
     const togglePassword = document.getElementById("togglePassword");
     const loginForm = document.getElementById('loginForm');
 
-    // Open and close modal
-    openTerms.addEventListener('click', (e) => {
-        e.preventDefault();
-        termsModal.classList.remove('hidden');
-    });
-
-    closeTerms.addEventListener('click', () => {
-        termsModal.classList.add('hidden');
-    });
-
-    window.addEventListener('click', (e) => {
-        if(e.target === termsModal){
-            termsModal.classList.add('hidden');
-        }
-    });
-
-    // Enable Register link only if checkbox is checked
-    termsCheckbox.addEventListener('change', () => {
-        if(termsCheckbox.checked){
-            registerLink.classList.remove('pointer-events-none', 'opacity-50');
-        } else {
-            registerLink.classList.add('pointer-events-none', 'opacity-50');
-        }
-    });
-
-    // Require Terms checkbox before login
-    loginForm.addEventListener('submit', function(e){
-        if(!termsCheckbox.checked){
-            e.preventDefault();
-            Swal.fire({
-                icon: 'warning',
-                title: 'Terms Required',
-                text: 'You must agree to the Terms & Conditions before logging in.',
-                confirmButtonColor: '#16a34a'
-            });
-        }
-    });
-
+    
+    
     // Password toggle
     togglePassword.addEventListener('click', () => {
         const type = passwordInput.type === "password" ? "text" : "password";

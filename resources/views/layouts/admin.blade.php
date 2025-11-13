@@ -353,15 +353,15 @@
             <div class="nav-section">
                 <div class="nav-section-title">Administration</div>
                 <a href="{{ route('admin.officers.approval') }}" class="nav-item flex items-center gap-4 text-white text-opacity-90 hover:text-white hover:bg-white hover:bg-opacity-10 rounded-xl px-4 py-3 group">
-                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center group-hover:bg-opacity-30 transition-all duration-300 relative flex-shrink-0">
-                        <i class="fas fa-user-check text-lg"></i>
-                        <div class="notification-badge">3</div>
-                    </div>
-                    <div class="nav-text">
-                        <div class="font-medium">Officer Approval</div>
-                        <div class="text-xs text-white text-opacity-60">Approve Officers</div>
-                    </div>
-                </a>
+    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center group-hover:bg-opacity-30 transition-all duration-300 relative flex-shrink-0">
+        <i class="fas fa-user-check text-lg"></i>
+    
+    </div>
+    <div class="nav-text">
+        <div class="font-medium">Officer Approval</div>
+        <div class="text-xs text-white text-opacity-60">Approve Officers</div>
+    </div>
+</a>
 
                 <a href="{{ route('admin.feedback.index') }}" class="nav-item flex items-center gap-4 text-white text-opacity-90 hover:text-white hover:bg-white hover:bg-opacity-10 rounded-xl px-4 py-3 group">
                     <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center group-hover:bg-opacity-30 transition-all duration-300 flex-shrink-0">
@@ -405,7 +405,21 @@
         <div class="text-xs text-white text-opacity-60">User Management</div>
     </div>
 </a>
+<a href="{{ route('admin.database') }}" 
+   class="nav-item flex items-center gap-4 text-white text-opacity-90 hover:text-white 
+          hover:bg-white hover:bg-opacity-10 rounded-xl px-4 py-3 group mt-2">
+    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center 
+                justify-center group-hover:bg-opacity-30 transition-all duration-300 flex-shrink-0">
+        <i class="fas fa-database text-lg"></i>
+    </div>
+    <div class="nav-text">
+        <div class="font-medium">Database</div>
+        <div class="text-xs text-white text-opacity-60">Backup & Export</div>
+    </div>
+</a>
+
         </div>
+        
     </aside>
 
     <main class="main-content">

@@ -22,54 +22,35 @@ class AdminDashboardController extends Controller
             ->where('type', 'income')
             ->sum('amount');
 
-        //get expenditure for logged in barangay role
-        $expenditures = Expenditure::whereRaw('LOWER(barangay) = ?', [$barangayRole])
-            ->get();
+        // Get expenditure for logged-in barangay role
+        $expenditures = Expenditure::whereRaw('LOWER(barangay) = ?', [$barangayRole])->get();
 
-        // Calculate total spent
+        // Calculate totals
         $totalSpent = $expenditures->sum('amount');
-
-        // $totalSpent = Budget::where('barangay_role', $barangayRole)
-        //     ->where('type', 'expense')
-        //     ->sum('amount');
-
         $totalRemaining = $totalBudget - $totalSpent;
 
-        // 📦 All budgets (filtered by barangay role)
+        // 📦 Budgets for this barangay
         $budgets = Budget::where('barangay_role', $barangayRole)
             ->latest()
             ->get();
 
-        // 💸 Expenditures (filtered by barangay role)
-        // $expenditures = Budget::where('barangay_role', $barangayRole)
-        //     ->where('type', 'expense')
-        //     ->get();
-
-        // 📅 Unique years for filtering (filtered by barangay role)
+        // 📅 Unique years
         $budgetYears = Budget::where('barangay_role', $barangayRole)
             ->selectRaw('YEAR(created_at) as year')
             ->distinct()
             ->orderBy('year', 'desc')
             ->pluck('year');
 
-        // 📊 Chart data preparation
-        $budgetChart = [
-            'labels' => [],
-            'data' => [],
-        ];
-
+        // 📊 Chart data
+        $budgetChart = ['labels' => [], 'data' => []];
         if ($expenditures->isNotEmpty()) {
             $grouped = $expenditures->groupBy('category');
             $budgetChart['labels'] = $grouped->keys()->toArray();
-            $budgetChart['data'] = $grouped->map(fn($item) => $item->sum('amount'))
-                                          ->values()
-                                          ->toArray();
+            $budgetChart['data'] = $grouped->map(fn($item) => $item->sum('amount'))->values()->toArray();
         }
 
-        // 📢 Announcements (filtered by barangay role)
+        // 📢 Announcements
         $query = Announcement::where('barangay_role', $barangayRole);
-
-        // 🔍 Search filter
         if ($request->filled('search')) {
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
@@ -77,29 +58,21 @@ class AdminDashboardController extends Controller
                   ->orWhere('content', 'LIKE', "%{$searchTerm}%");
             });
         }
-
-        // 📅 Month filter
         if ($request->filled('month')) {
             $query->whereMonth('created_at', $request->month);
         }
-
-        // 📆 Year filter
         if ($request->filled('year')) {
             $query->whereYear('created_at', $request->year);
         }
-
-        // 🏷️ Category filter
         if ($request->filled('category')) {
             $query->where('category', $request->category);
         }
 
-        // ✅ Final announcements query
         $announcements = $query->orderBy('created_at', 'desc')->get();
 
-        // Barangay info for display
         $barangayName = $currentAdmin->barangay_name ?? ucfirst($barangayRole);
 
-        // 🔄 Return to dashboard view
+        // Return dashboard view
         return view('admin.dashboard', compact(
             'totalBudget',
             'totalSpent',
@@ -114,15 +87,13 @@ class AdminDashboardController extends Controller
         ));
     }
 
-    // Optional AJAX search endpoint
+    // 🔍 Optional search function
     public function searchAnnouncements(Request $request)
     {
         $currentAdmin = Auth::guard('admin')->user();
         $barangayRole = $currentAdmin->barangay_role;
-
         $searchTerm = $request->get('search', '');
 
-        // Filter announcements by barangay role
         $announcements = Announcement::where('barangay_role', $barangayRole)
             ->where(function ($q) use ($searchTerm) {
                 $q->where('title', 'LIKE', "%{$searchTerm}%")
@@ -139,5 +110,50 @@ class AdminDashboardController extends Controller
         }
 
         return redirect()->route('admin.dashboard', ['search' => $searchTerm]);
+    }
+
+    // 💾 Download Database (Windows/XAMPP compatible)
+    public function downloadDatabase()
+    {
+        try {
+            $dbHost = env('DB_HOST', '127.0.0.1');
+            $dbName = env('DB_DATABASE', 'barangay_db');
+            $dbUser = env('DB_USERNAME', 'root');
+            $dbPass = env('DB_PASSWORD', '');
+
+            // File name and path
+            $fileName = 'database_backup_' . date('Y_m_d_His') . '.sql';
+            $backupPath = storage_path('app/backups/');
+            $filePath = $backupPath . $fileName;
+
+            // Ensure directory exists
+            if (!file_exists($backupPath)) {
+                mkdir($backupPath, 0755, true);
+            }
+
+            // Full path to mysqldump.exe on Windows/XAMPP
+            $mysqldumpPath = "C:\\xampp\\mysql\\bin\\mysqldump.exe";
+            $command = "\"{$mysqldumpPath}\" --user={$dbUser} --password={$dbPass} --host={$dbHost} {$dbName} > \"{$filePath}\"";
+
+            exec($command, $output, $returnVar);
+
+            if ($returnVar !== 0) {
+                throw new \Exception('mysqldump command failed. Make sure the path and credentials are correct.');
+            }
+
+            return response()->download($filePath)->deleteFileAfterSend(true);
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to download database: ' . $e->getMessage());
+        }
+    }
+
+    // 🗂️ Show Database Page Blade
+    public function showDatabasePage()
+    {
+        $currentAdmin = Auth::guard('admin')->user();
+        $barangayName = $currentAdmin->barangay_name ?? ucfirst($currentAdmin->barangay_role);
+
+        return view('admin.database', compact('barangayName'));
     }
 }

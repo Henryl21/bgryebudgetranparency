@@ -94,7 +94,9 @@ class LoginController extends Controller
 
         $this->clearLoginAttempts($request);
 
-        Auth::guard('admin')->login($admin);
+       $remember = $request->has('remember'); // true if checkbox is checked
+Auth::guard('admin')->login($admin, $remember);
+
         $request->session()->regenerate();
 
         return redirect()->route('admin.dashboard')->with(

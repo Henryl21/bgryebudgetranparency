@@ -59,7 +59,8 @@ Route::get('/admin/expenditure/{id}/upload-receipt', function ($id) {
 |--------------------------------------------------------------------------
 */
 Route::prefix('admin')->name('admin.')->middleware(['auth:admin'])->group(function () {
-
+Route::get('/admin/database', [AdminDashboardController::class, 'showDatabasePage'])->name('database');
+Route::get('/admin/download-database', [AdminDashboardController::class, 'downloadDatabase'])->name('downloadDatabase');
     // ✅ Dashboard
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/budget-dashboard', [BudgetController::class, 'dashboard'])->name('budget.dashboard');
@@ -67,7 +68,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin'])->group(functi
     
     // ✅ Users list route (for admin to view all registered users)
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
-    
+    Route::get('/activity-logs', [UserController::class, 'activityLogs'])->name('activity.logs');
     // ✅ Admin Profile
     Route::get('/profile', [AdminProfileController::class, 'show'])->name('profile.show');
     Route::put('/profile', [AdminProfileController::class, 'update'])->name('profile.update');
@@ -131,14 +132,26 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin'])->group(functi
 |--------------------------------------------------------------------------
 */
 Route::prefix('officer')->name('officer.')->group(function () {
+    // Registration
     Route::get('/register', [OfficerAuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [OfficerAuthController::class, 'register'])->name('register.submit');
 
+    // Registration OTP
+    Route::get('/register/otp', [OfficerAuthController::class, 'showRegisterOtp'])->name('register.otp');
+    Route::post('/register/otp', [OfficerAuthController::class, 'verifyRegisterOtp'])->name('register.verifyOtp');
+
+    // Login
     Route::get('/login', [OfficerAuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [OfficerAuthController::class, 'login'])->name('login.submit');
 
+    // Login OTP
+    Route::get('/otp', [OfficerAuthController::class, 'showOtp'])->name('otp');
+    Route::post('/otp', [OfficerAuthController::class, 'verifyOtp'])->name('verifyOtp');
+
+    // Logout
     Route::post('/logout', [OfficerAuthController::class, 'logout'])->name('logout');
 });
+
 
 /*
 |--------------------------------------------------------------------------

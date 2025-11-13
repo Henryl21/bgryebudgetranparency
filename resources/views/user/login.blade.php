@@ -649,21 +649,29 @@
             <div class="forgot-password">
                 <a href="{{ route('user.forgot.password') }}">Lost Password?</a>
             </div>
+<div class="flex items-center space-x-2 mb-4">
+  <label for="remember" class="flex items-center text-sm text-blue-100 select-none cursor-pointer">
+    <input 
+      type="checkbox" 
+      name="remember" 
+      id="remember" 
+      class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 mr-2"
+    >
+    Remember Me
+  </label>
+</div>
+
 
             <button type="submit" class="login-btn">Login</button>
         </form>
-<!-- Terms checkbox -->
-<label class="terms-label">
-  <input type="checkbox" id="termsCheckbox">
-  I agree to the <a href="#" id="openTermsModal">Terms & Conditions</a>
-</label>
+
 
 
         <div class="register-link">
-            Don't have an account?
-           <!-- Register link (initially disabled) -->
-<a id="registerLink" class="register-disabled" data-href="{{ route('user.register') }}">Register here</a>
-        </div>
+    Don't have an account?
+    <a id="registerLink" href="{{ route('user.register') }}" class="register-enabled">Register here</a>
+</div>
+
     </div>
 </div>
 
@@ -728,50 +736,9 @@ barangaySelect.addEventListener("change", () => {
     }
 });
 </script>
-<div id="termsModal" class="modal-overlay">
-  <div class="modal-content">
-    <h3>📜 Terms and Conditions</h3>
-    <p>
-      By accessing and using this system, you agree to comply with the following terms:
-    </p>
-    <ul>
-      <li>You will provide accurate and truthful information during registration and login.</li>
-      <li>You will use this platform solely for authorized barangay transparency purposes.</li>
-      <li>Unauthorized access or misuse of system data is strictly prohibited.</li>
-      <li>Violations may result in account suspension or legal action.</li>
-    </ul>
 
-    <h4>🔒 Data Privacy Act of 2012 (Republic Act No. 10173)</h4>
-    <p>
-      The Madridejos Barangay eBudget Transparency System values your privacy.  
-      All collected personal data are handled in accordance with the Data Privacy Act of 2012.  
-      Your information will only be used for legitimate administrative and reporting purposes  
-      and will not be shared without consent, except as required by law.
-    </p>
 
-    <button id="closeTermsModal" class="close-btn">Close</button>
-  </div>
-</div>
 
-<!-- ✅ Place your modal JavaScript just below it -->
-<script>
-const openTerms = document.getElementById("openTermsModal");
-const closeTerms = document.getElementById("closeTermsModal");
-const modal = document.getElementById("termsModal");
-
-openTerms.addEventListener("click", (e) => {
-    e.preventDefault();
-    modal.style.display = "flex";
-});
-
-closeTerms.addEventListener("click", () => {
-    modal.style.display = "none";
-});
-
-window.addEventListener("click", (e) => {
-    if (e.target === modal) modal.style.display = "none";
-});
-</script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
