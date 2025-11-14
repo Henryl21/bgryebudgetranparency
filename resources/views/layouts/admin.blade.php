@@ -402,8 +402,8 @@ class="nav-item flex items-center gap-4 text-white text-opacity-90 hover:text-wh
         <i class="fas fa-users text-lg"></i>
     </div>
     <div class="nav-text">
-        <div class="font-medium">Registered Users</div>
-        <div class="text-xs text-white text-opacity-60">User Management</div>
+        <div class="font-medium">Activity Logs</div>
+        <div class="text-xs text-white text-opacity-60">User/officers Management</div>
     </div>
 </a>
 <a href="{{ route('admin.database') }}" 
