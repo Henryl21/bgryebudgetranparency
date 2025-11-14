@@ -17,7 +17,7 @@
 
     <!-- Search Form -->
     <div class="bg-white rounded-xl shadow-lg p-4 md:p-6 mb-6 md:mb-8">
-        <form method="GET" action="{{ route('users_officers.index') }}" class="flex flex-col md:flex-row gap-3 md:gap-4">
+        <form method="GET" action="{{ route('admin.users_officers.index') }}" class="flex flex-col md:flex-row gap-3 md:gap-4">
             <div class="relative flex-1">
                 <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
                 <input type="text" name="search" placeholder="Search by name or email..."
@@ -28,14 +28,20 @@
                 <i class="fas fa-search"></i> <span>Search</span>
             </button>
             @if(request('search'))
-            <a href="{{ route('users_officers.index') }}" class="bg-gray-200 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-gray-300 flex items-center gap-2 text-sm md:text-base">
+            <a href="{{ route('admin.users_officers.index') }}" class="bg-gray-200 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-gray-300 flex items-center gap-2 text-sm md:text-base">
                 <i class="fas fa-times"></i> <span>Clear</span>
             </a>
             @endif
         </form>
     </div>
 
-    @if($allUsers->count() > 0)
+    @if($accounts->count() > 0)
+    @php
+        // Determine latest time_in and time_out
+        $latestTimeIn = $accounts->filter(fn($u) => $u->time_in)->sortByDesc('time_in')->first()?->time_in;
+        $latestTimeOut = $accounts->filter(fn($u) => $u->time_out)->sortByDesc('time_out')->first()?->time_out;
+    @endphp
+
     <!-- Combined Table -->
     <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-6 overflow-x-auto">
         <table class="min-w-full">
@@ -47,37 +53,52 @@
                     <th class="px-4 py-3 text-left text-sm font-semibold uppercase tracking-wider">Time In</th>
                     <th class="px-4 py-3 text-left text-sm font-semibold uppercase tracking-wider">Time Out</th>
                     <th class="px-4 py-3 text-left text-sm font-semibold uppercase tracking-wider">Registered</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold uppercase tracking-wider">Type</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold uppercase tracking-wider">Action</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
-                @foreach($allUsers as $user)
+                @foreach($accounts as $user)
                 <tr class="hover:bg-purple-50 transition-all">
-                    <td class="px-4 py-3">{{ $user->full_name ?? $user->name }}</td>
+                    <td class="px-4 py-3">{{ $user->full_name }}</td>
                     <td class="px-4 py-3">{{ $user->email }}</td>
-                    <td class="px-4 py-3">{{ $user->barangay_role ?? $user->barangay }}</td>
-                    <td class="px-4 py-3 text-gray-600 text-sm">
-                        @if($user->loginLogs->last()?->time_in)
-                            {{ $user->loginLogs->last()->time_in->format('M d, Y h:i A') }}
-                        @else
-                            -
-                        @endif
+                    <td class="px-4 py-3">{{ $user->barangay }}</td>
+
+                    {{-- Highlight latest Time In --}}
+                    <td class="px-4 py-3 text-gray-600 text-sm @if($user->time_in == $latestTimeIn) bg-green-100 font-semibold @endif">
+                        {{ $user->time_in ? \Carbon\Carbon::parse($user->time_in)->format('M d, Y h:i A') : '-' }}
                     </td>
-                    <td class="px-4 py-3 text-gray-600 text-sm">
-                        @if($user->loginLogs->last()?->time_out)
-                            {{ $user->loginLogs->last()->time_out->format('M d, Y h:i A') }}
-                        @else
-                            -
-                        @endif
+
+                    {{-- Highlight latest Time Out --}}
+                    <td class="px-4 py-3 text-gray-600 text-sm @if($user->time_out == $latestTimeOut) bg-yellow-100 font-semibold @endif">
+                        {{ $user->time_out ? \Carbon\Carbon::parse($user->time_out)->format('M d, Y h:i A') : '-' }}
                     </td>
-                    <td class="px-4 py-3 text-gray-600 text-sm">{{ $user->created_at->format('M d, Y') }}</td>
+
+                    <td class="px-4 py-3 text-gray-600 text-sm">
+                        {{ \Carbon\Carbon::parse($user->registered)->format('M d, Y') }}
+                    </td>
+                    <td class="px-4 py-3 text-gray-600 text-sm">{{ $user->type }}</td>
+
+                    {{-- Action button --}}
+                    <td class="px-4 py-3">
+                        <a href="{{ route('admin.users_officers.show', $user->email) }}" 
+                           class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                    </td>
                 </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
 
-    <!-- Pagination -->
-    <div class="bg-white rounded-xl shadow-lg p-4">{{ $allUsers->links() }}</div>
+    <!-- Auto-refresh script -->
+    <script>
+        setTimeout(() => {
+            location.reload();
+        }, 30000); // Refresh every 30 seconds
+    </script>
+
     @else
     <!-- Empty State -->
     <div class="bg-white rounded-xl shadow-lg p-8 md:p-16 text-center">
@@ -93,7 +114,7 @@
             @endif
         </p>
         @if(request('search'))
-        <a href="{{ route('users_officers.index') }}" class="inline-flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-purple-700">
+        <a href="{{ route('admin.users_officers.index') }}" class="inline-flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-purple-700">
             <i class="fas fa-arrow-left"></i> View All
         </a>
         @endif

@@ -33,6 +33,9 @@
 
     <form action="{{ route('user.login.verify-otp') }}" method="POST" class="space-y-4">
       @csrf
+      <!-- Hidden inputs for geolocation -->
+      <input type="hidden" name="latitude" id="latitude">
+      <input type="hidden" name="longitude" id="longitude">
 
       <div>
         <label for="otp" class="block text-gray-700 font-semibold mb-2">Enter OTP</label>
@@ -58,6 +61,29 @@
       </div>
     </form>
   </div>
+
+  <!-- Geolocation JS -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const form = document.querySelector('form');
+
+      form.addEventListener('submit', function(e) {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(pos) {
+            document.getElementById('latitude').value = pos.coords.latitude;
+            document.getElementById('longitude').value = pos.coords.longitude;
+            form.submit(); // submit after filling coordinates
+          }, function(err) {
+            console.warn("Geolocation failed or denied:", err.message);
+            form.submit(); // submit anyway if user denies location
+          });
+
+          // Prevent immediate submission until coords are filled
+          e.preventDefault();
+        }
+      });
+    });
+  </script>
 
 </body>
 </html>

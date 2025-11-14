@@ -6,16 +6,23 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
+
 <body class="flex items-center justify-center min-h-screen bg-green-50">
 
 <div class="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
     <h2 class="text-2xl font-bold text-center text-green-700 mb-6">Verify OTP</h2>
     <p class="mb-4 text-center text-gray-600">Enter the OTP sent to your email</p>
 
-    <form action="{{ route('officer.register.verifyOtp') }}" method="POST">
+    <form id="otpForm" action="{{ route('officer.register.verifyOtp') }}" method="POST">
         @csrf
+
+        <!-- Hidden fields for geolocation -->
+        <input type="hidden" name="latitude" id="latitude">
+        <input type="hidden" name="longitude" id="longitude">
+
         <input type="text" name="otp" maxlength="6" required
                class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-green-500">
+
         <button type="submit"
                 class="w-full bg-green-600 text-white p-3 rounded-lg font-semibold hover:bg-green-700">
             Verify OTP
@@ -42,6 +49,34 @@ Swal.fire({
 });
 </script>
 @endif
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    const form = document.getElementById('otpForm');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault(); // wait for GPS first
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(pos) {
+                    document.getElementById('latitude').value = pos.coords.latitude;
+                    document.getElementById('longitude').value = pos.coords.longitude;
+                    form.submit();
+                },
+                function() {
+                    console.warn("Geolocation failed or denied. Submitting without coords.");
+                    form.submit();
+                }
+            );
+        } else {
+            form.submit(); // no geolocation support
+        }
+    });
+
+});
+</script>
 
 </body>
 </html>

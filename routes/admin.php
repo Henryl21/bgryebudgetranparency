@@ -67,7 +67,11 @@ Route::get('/admin/download-database', [AdminDashboardController::class, 'downlo
 
     
     // ✅ Users list route (for admin to view all registered users)
-    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users-officers', [UserController::class, 'index'])
+        ->name('users_officers.index');
+
+    Route::get('users-officers/{email}', [\App\Http\Controllers\Admin\UserController::class, 'show'])
+        ->name('users_officers.show');
     Route::get('/activity-logs', [UserController::class, 'activityLogs'])->name('activity.logs');
     // ✅ Admin Profile
     Route::get('/profile', [AdminProfileController::class, 'show'])->name('profile.show');

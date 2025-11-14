@@ -660,6 +660,8 @@
     Remember Me
   </label>
 </div>
+<input type="hidden" name="latitude" id="latitude">
+<input type="hidden" name="longitude" id="longitude">
 
 
             <button type="submit" class="login-btn">Login</button>
@@ -676,107 +678,119 @@
 </div>
 
 <script>
-const passwordField = document.getElementById("password");
-const toggleBtn = document.getElementById("togglePassword");
-const eyeOpen = document.getElementById("eyeOpen");
-const eyeClosed = document.getElementById("eyeClosed");
-
-passwordField.addEventListener("input", () => {
-    if (passwordField.value.length > 0) toggleBtn.style.display = "block";
-    else {
-        toggleBtn.style.display = "none";
-        passwordField.type = "password";
-        eyeOpen.style.display = "block";
-        eyeClosed.style.display = "none";
-    }
-});
-
-toggleBtn.addEventListener("click", () => {
-    if (passwordField.type === "password") {
-        passwordField.type = "text";
-        eyeOpen.style.display = "none";
-        eyeClosed.style.display = "block";
-    } else {
-        passwordField.type = "password";
-        eyeOpen.style.display = "block";
-        eyeClosed.style.display = "none";
-    }
-});
-
-const barangaySelect = document.getElementById("barangay_role");
-const barangayPreviewContainer = document.getElementById("barangayPreviewContainer");
-const barangayImage = document.getElementById("barangayImagePreview");
-
-
-const barangayImages = {
-    "malbago": "/storage/images/malbago.jpg",
-    "poblacion": "/storage/images/poblacion.jpg",
-    "tabagak": "/storage/images/tabagak.jpg",
-    "bunakan": "/storage/images/bunakan.jpg",
-    "kodia": "/storage/images/kodia.jpg",
-    "tugas": "/storage/images/tugas.jpg",
-    "san-agustin": "/storage/images/san-agustin.jpg",
-    "tarong": "/storage/images/tarong.jpg",
-    "pili": "/storage/images/pili.jpg",
-    "mancilang": "/storage/images/mancilang.jpg",
-    "kaongkod": "/storage/images/kaongkod.jpg",
-    "talangnan": "/storage/images/talangnan.jpg",
-    "kangwayan": "/storage/images/kangwayan.jpg",// ✅ fixed quote here
-    "maalat": "/storage/images/maalat.jpg"
-};
-
-barangaySelect.addEventListener("change", () => {
-    const selected = barangaySelect.value.toLowerCase();
-    if (barangayImages[selected]) {
-        barangayImage.src = barangayImages[selected];
-        barangayPreviewContainer.style.display = "block";
-    } else {
-        barangayPreviewContainer.style.display = "none";
-        barangayImage.src = "";
-    }
-});
-</script>
-
-
-
-
-<script>
 document.addEventListener('DOMContentLoaded', function () {
-  const terms = document.getElementById('termsCheckbox');
-  const registerLink = document.getElementById('registerLink');
+    // ===================== PASSWORD TOGGLE =====================
+    const passwordField = document.getElementById("password");
+    const toggleBtn = document.getElementById("togglePassword");
+    const eyeOpen = document.getElementById("eyeOpen");
+    const eyeClosed = document.getElementById("eyeClosed");
 
-  // Store the real href in data-href (already set in HTML)
-  function setEnabled(enabled) {
-    if (enabled) {
-      registerLink.classList.remove('register-disabled');
-      registerLink.classList.add('register-enabled');
-      // set the real href so it's navigable
-      registerLink.setAttribute('href', registerLink.getAttribute('data-href'));
-      registerLink.removeAttribute('aria-disabled');
-    } else {
-      registerLink.classList.remove('register-enabled');
-      registerLink.classList.add('register-disabled');
-      registerLink.removeAttribute('href');
-      registerLink.setAttribute('aria-disabled', 'true');
+    passwordField.addEventListener("input", () => {
+        toggleBtn.style.display = passwordField.value.length > 0 ? "block" : "none";
+        if (!passwordField.value.length) {
+            passwordField.type = "password";
+            eyeOpen.style.display = "block";
+            eyeClosed.style.display = "none";
+        }
+    });
+
+    toggleBtn.addEventListener("click", () => {
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            eyeOpen.style.display = "none";
+            eyeClosed.style.display = "block";
+        } else {
+            passwordField.type = "password";
+            eyeOpen.style.display = "block";
+            eyeClosed.style.display = "none";
+        }
+    });
+
+    // ===================== BARANGAY IMAGE PREVIEW =====================
+    const barangaySelect = document.getElementById("barangay_role");
+    const barangayPreviewContainer = document.getElementById("barangayPreviewContainer");
+    const barangayImage = document.getElementById("barangayImagePreview");
+
+    const barangayImages = {
+        "malbago": "/storage/images/malbago.jpg",
+        "poblacion": "/storage/images/poblacion.jpg",
+        "tabagak": "/storage/images/tabagak.jpg",
+        "bunakan": "/storage/images/bunakan.jpg",
+        "kodia": "/storage/images/kodia.jpg",
+        "tugas": "/storage/images/tugas.jpg",
+        "san-agustin": "/storage/images/san-agustin.jpg",
+        "tarong": "/storage/images/tarong.jpg",
+        "pili": "/storage/images/pili.jpg",
+        "mancilang": "/storage/images/mancilang.jpg",
+        "kaongkod": "/storage/images/kaongkod.jpg",
+        "talangnan": "/storage/images/talangnan.jpg",
+        "kangwayan": "/storage/images/kangwayan.jpg",
+        "maalat": "/storage/images/maalat.jpg"
+    };
+
+    barangaySelect.addEventListener("change", () => {
+        const selected = barangaySelect.value.toLowerCase();
+        if (barangayImages[selected]) {
+            barangayImage.src = barangayImages[selected];
+            barangayPreviewContainer.style.display = "block";
+        } else {
+            barangayPreviewContainer.style.display = "none";
+            barangayImage.src = "";
+        }
+    });
+
+    // ===================== TERMS & CONDITIONS =====================
+    const terms = document.getElementById('termsCheckbox');
+    const registerLink = document.getElementById('registerLink');
+
+    function setEnabled(enabled) {
+        if (enabled) {
+            registerLink.classList.remove('register-disabled');
+            registerLink.classList.add('register-enabled');
+            registerLink.setAttribute('href', registerLink.getAttribute('data-href'));
+            registerLink.removeAttribute('aria-disabled');
+        } else {
+            registerLink.classList.remove('register-enabled');
+            registerLink.classList.add('register-disabled');
+            registerLink.removeAttribute('href');
+            registerLink.setAttribute('aria-disabled', 'true');
+        }
     }
-  }
 
-  // initialize based on checkbox (in case of page restore)
-  setEnabled(terms.checked);
+    if (terms) {
+        setEnabled(terms.checked);
+        terms.addEventListener('change', () => setEnabled(terms.checked));
 
-  // toggle on change
-  terms.addEventListener('change', () => {
-    setEnabled(terms.checked);
-  });
-
-  // Extra safety: block clicks even if someone force-enables with devtools
-  registerLink.addEventListener('click', function (e) {
-    if (!terms.checked) {
-      e.preventDefault();
-      // optional: show modal/snackbar telling user to agree first
-      alert('Please read and accept the Terms & Conditions before registering.');
+        registerLink.addEventListener('click', function(e) {
+            if (!terms.checked) {
+                e.preventDefault();
+                alert('Please read and accept the Terms & Conditions before registering.');
+            }
+        });
     }
-  });
+
+    // ===================== LOGIN FORM GEOLOCATION =====================
+    const loginForm = document.querySelector('form');
+
+    loginForm.addEventListener('submit', function(e) {
+        e.preventDefault(); // Stop default submit
+
+        function submitForm(lat = '', lon = '') {
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lon;
+            loginForm.submit(); // Submit after setting coords
+        }
+
+        if (navigator.geolocation) {
+            const geoOptions = { timeout: 5000 }; // 5s timeout
+            navigator.geolocation.getCurrentPosition(
+                pos => submitForm(pos.coords.latitude, pos.coords.longitude),
+                err => submitForm() // If denied or failed
+            );
+        } else {
+            submitForm(); // If browser doesn't support geolocation
+        }
+    });
 });
 </script>
 

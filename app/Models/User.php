@@ -11,35 +11,43 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    protected $fillable = [
-        'full_name',
-        'number',
-        'age',
-        'birthdate',
-        'gender',
-        'email',
-        'password',
-        'profile_photo',
-        'barangay_role',
-        'password_changed_at',
-        'is_verified',
-        'otp',
-        'otp_expires_at',
-    ];
+  protected $fillable = [
+    'full_name',
+    'number',
+    'age',
+    'birthdate',
+    'gender',
+    'email',
+    'password',
+    'profile_photo',
+    'barangay_role',
+    'password_changed_at',
+    'is_verified',
+    'otp',
+    'otp_expires_at',
+    'time_in',
+    'time_out',
+    'latitude',      // add this
+    'longitude',     // add this
+];
+
 
     protected $hidden = [
         'password',
         'remember_token',
+        'otp',
     ];
 
-    // ✅ Correct place to cast datetime fields
     protected $casts = [
         'birthdate' => 'date',
         'password_changed_at' => 'datetime',
-        'otp_expires_at' => 'datetime', // <-- fix
+        'otp_expires_at' => 'datetime',
         'is_verified' => 'boolean',
     ];
 
+    /**
+     * 🔥 Barangay list
+     */
     public static function getBarangays(): array
     {
         return [
@@ -60,13 +68,20 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * 🔥 Automatically hash password
+     */
     public function setPasswordAttribute($value)
     {
         if (!empty($value)) {
-            $this->attributes['password'] = Hash::needsRehash($value) ? bcrypt($value) : $value;
+            $this->attributes['password'] =
+                Hash::needsRehash($value) ? bcrypt($value) : $value;
         }
     }
 
+    /**
+     * 🔥 Profile photo URL
+     */
     public function getProfilePhotoUrlAttribute(): string
     {
         if ($this->profile_photo && file_exists(storage_path('app/public/profile_photos/' . $this->profile_photo))) {
@@ -74,5 +89,21 @@ class User extends Authenticatable
         }
 
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->full_name);
+    }
+
+    /**
+     * 🔥 User has many login logs
+     */
+    public function loginLogs()
+    {
+        return $this->hasMany(LoginLog::class, 'user_id');
+    }
+
+    /**
+     * 🔥 Latest login log
+     */
+    public function latestLoginLog()
+    {
+        return $this->hasOne(LoginLog::class, 'user_id')->latestOfMany();
     }
 }

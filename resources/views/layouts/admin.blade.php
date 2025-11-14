@@ -396,7 +396,8 @@
         
 <!-- Add this inside your Administration section in the sidebar, after the Settings link -->
 
-<a href="{{ route('admin.users.index') }}" class="nav-item flex items-center gap-4 text-white text-opacity-90 hover:text-white hover:bg-white hover:bg-opacity-10 rounded-xl px-4 py-3 group">
+<a href="{{ route('admin.users_officers.index') }}"
+class="nav-item flex items-center gap-4 text-white text-opacity-90 hover:text-white hover:bg-white hover:bg-opacity-10 rounded-xl px-4 py-3 group">
     <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center group-hover:bg-opacity-30 transition-all duration-300 flex-shrink-0">
         <i class="fas fa-users text-lg"></i>
     </div>

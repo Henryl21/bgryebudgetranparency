@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Officer;
 use App\Http\Controllers\Controller;
 use App\Models\OfficerUser;
 use App\Models\Admin;
+use App\Models\LoginLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -37,7 +38,8 @@ class OfficerAuthController extends Controller
      */
     protected function sendOtp(OfficerUser $officer)
     {
-        $otp = rand(100000, 999999); // 6-digit OTP
+        $otp = rand(100000, 999999);
+
         $officer->update([
             'otp' => $otp,
             'otp_expires_at' => now()->addMinutes(5),
@@ -54,37 +56,27 @@ class OfficerAuthController extends Controller
      */
     public function register(Request $request)
     {
-    $request->validate([
-    'name'     => 'required|string|max:255',
-    'email'    => 'required|email|unique:officer_users,email',
-    'password' => [
-        'required',
-        'string',
-        'min:8',
-        'regex:/[A-Z]/',
-        'regex:/[a-z]/',
-        'regex:/[0-9]/',
-        'regex:/[@$!%*?&]/',
-        'confirmed',
-    ],
-    'role'     => 'required|string|max:255',
-    'barangay' => 'required|string|max:255',
-], [
-    'password.min' => 'Password must be at least 8 characters long.',
-    'password.regex' => 'Password must include uppercase, lowercase, number, and special character.',
-]);
+        $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:officer_users,email',
+            'password' => [
+                'required','string','min:8',
+                'regex:/[A-Z]/','regex:/[a-z]/',
+                'regex:/[0-9]/','regex:/[@$!%*?&]/',
+                'confirmed',
+            ],
+            'role'     => 'required|string|max:255',
+            'barangay' => 'required|string|max:255',
+        ]);
 
-// Check if the role already exists in the selected barangay
-$exists = OfficerUser::where('role', $request->role)
-    ->where('barangay', $request->barangay)
-    ->exists();
+        $exists = OfficerUser::where('role', $request->role)
+            ->where('barangay', $request->barangay)
+            ->exists();
 
-if ($exists) {
-    return back()->withInput()->with('error', "The role '{$request->role}' is already assigned in this barangay.");
-}
+        if ($exists) {
+            return back()->withInput()->with('error', "The role '{$request->role}' is already assigned in this barangay.");
+        }
 
-
-        // Create officer
         $officer = OfficerUser::create([
             'name'     => $request->name,
             'email'    => strtolower($request->email),
@@ -93,10 +85,7 @@ if ($exists) {
             'barangay' => $request->barangay,
         ]);
 
-        // Send OTP
         $this->sendOtp($officer);
-
-        // Store officer ID in session
         session(['officer_id' => $officer->id]);
 
         return redirect()->route('officer.register.otp')
@@ -111,6 +100,7 @@ if ($exists) {
         if (!session('officer_id')) {
             return redirect()->route('officer.register')->with('error', 'Please register first.');
         }
+
         return view('officer.auth.register-otp');
     }
 
@@ -119,9 +109,7 @@ if ($exists) {
      */
     public function verifyRegisterOtp(Request $request)
     {
-        $request->validate([
-            'otp' => 'required|digits:6',
-        ]);
+        $request->validate(['otp' => 'required|digits:6']);
 
         $officer = OfficerUser::find(session('officer_id'));
 
@@ -130,9 +118,13 @@ if ($exists) {
         }
 
         if ($request->otp == $officer->otp && now()->lessThan($officer->otp_expires_at)) {
+
+            // 🚀 Save latitude & longitude
             $officer->update([
                 'otp' => null,
                 'otp_expires_at' => null,
+                'latitude' => $request->latitude ?? $officer->latitude,
+                'longitude' => $request->longitude ?? $officer->longitude,
             ]);
 
             Auth::guard('officer')->login($officer);
@@ -148,49 +140,47 @@ if ($exists) {
     /**
      * Officer login, OTP sent after password verification
      */
-   public function login(Request $request)
-{
-    $request->validate([
-        'email'    => 'required|email',
-        'password' => 'required|string',
-        'role'     => 'required|string',
-        'barangay' => 'required|string',
-    ]);
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required|string',
+            'role'     => 'required|string',
+            'barangay' => 'required|string',
+        ]);
 
-    $email = strtolower($request->email);
-    $ip = $request->ip();
-    $key = Str::lower("officer-login:{$email}|{$ip}");
+        $email = strtolower($request->email);
+        $ip = $request->ip();
+        $key = Str::lower("officer-login:{$email}|{$ip}");
 
-    if (RateLimiter::tooManyAttempts($key, 3)) {
-        $seconds = RateLimiter::availableIn($key);
-        return back()->with('error', "Too many failed attempts. Try again in {$seconds} seconds.");
+        if (RateLimiter::tooManyAttempts($key, 3)) {
+            $seconds = RateLimiter::availableIn($key);
+            return back()->with('error', "Too many failed attempts. Try again in {$seconds} seconds.");
+        }
+
+        $officer = OfficerUser::where('email', $email)->first();
+
+        if (!$officer) {
+            RateLimiter::hit($key, 60);
+            return back()->with('error', 'Email is not registered.');
+        }
+
+        if (!Hash::check($request->password, $officer->password)) {
+            RateLimiter::hit($key, 60);
+            return back()->with('error', 'Incorrect password.');
+        }
+
+        if ($officer->role !== $request->role || $officer->barangay !== $request->barangay) {
+            RateLimiter::hit($key, 60);
+            return back()->with('error', 'Role or barangay does not match.');
+        }
+
+        $this->sendOtp($officer);
+        session(['officer_id' => $officer->id]);
+
+        return redirect()->route('officer.otp')
+            ->with('info', 'OTP sent to your email.');
     }
-
-    $officer = OfficerUser::where('email', $email)->first();
-
-    if (!$officer) {
-        RateLimiter::hit($key, 60);
-        return back()->with('error', 'Email is not registered. Please register first.');
-    }
-
-    if (!Hash::check($request->password, $officer->password)) {
-        RateLimiter::hit($key, 60);
-        return back()->with('error', 'Incorrect password.');
-    }
-
-    if ($officer->role !== $request->role || $officer->barangay !== $request->barangay) {
-        RateLimiter::hit($key, 60);
-        return back()->with('error', 'Role or barangay does not match.');
-    }
-
-    // Send OTP
-    $this->sendOtp($officer);
-    session(['officer_id' => $officer->id]);
-
-    return redirect()->route('officer.otp')
-        ->with('info', 'OTP sent to your email. Enter it to complete login.');
-}
-
 
     /**
      * Show login OTP page
@@ -205,13 +195,11 @@ if ($exists) {
     }
 
     /**
-     * Verify login OTP
+     * Verify login OTP and log time_in
      */
     public function verifyOtp(Request $request)
     {
-        $request->validate([
-            'otp' => 'required|digits:6',
-        ]);
+        $request->validate(['otp' => 'required|digits:6']);
 
         $officer = OfficerUser::find(session('officer_id'));
 
@@ -220,27 +208,59 @@ if ($exists) {
         }
 
         if ($request->otp == $officer->otp && now()->lessThan($officer->otp_expires_at)) {
+
             Auth::guard('officer')->login($officer);
             session()->forget('officer_id');
 
+            // 🚀 Save new latitude & longitude if provided
+            if ($request->filled('latitude') && $request->filled('longitude')) {
+                $officer->latitude = $request->latitude;
+                $officer->longitude = $request->longitude;
+                $officer->save();
+            }
+
+            // Log login time
+            LoginLog::create([
+                'officer_id' => $officer->id,
+                'time_in' => now(),
+                'latitude' => $request->latitude ?? $officer->latitude,
+                'longitude' => $request->longitude ?? $officer->longitude,
+            ]);
+
+            // Update officer account login timestamps
             $officer->update([
+                'time_in' => now(),
                 'last_login_at' => now(),
                 'otp' => null,
                 'otp_expires_at' => null,
             ]);
 
             return redirect()->route('officer.dashboard')
-                ->with('success', 'Welcome back, ' . $officer->name . '!');
+                ->with('success', 'Welcome back, ' . $officer->name . '! Location saved.');
         }
 
         return back()->with('error', 'Invalid or expired OTP.');
     }
 
     /**
-     * Officer logout
+     * Officer logout and log time_out
      */
     public function logout(Request $request)
     {
+        $officer = Auth::guard('officer')->user();
+
+        if ($officer) {
+           $latestLog = $officer->latestLoginLog()->first();
+
+            if ($latestLog && !$latestLog->time_out) {
+                $latestLog->update(['time_out' => now()]);
+            }
+
+            $officer->update([
+                'time_out' => now(),
+            ]);
+        }
+
         Auth::guard('officer')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

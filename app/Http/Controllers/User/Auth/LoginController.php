@@ -1,8 +1,10 @@
 <?php
+
 namespace App\Http\Controllers\User\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\LoginLog;
 use App\Services\PHPMailerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,7 +23,7 @@ class LoginController extends Controller
     }
 
     /**
-     * Show the user login form.
+     * Show user login form
      */
     public function showLoginForm()
     {
@@ -30,12 +32,10 @@ class LoginController extends Controller
     }
 
     /**
-     * Handle user login request.
-     * Sends OTP if credentials are correct.
+     * Handle login request and send OTP
      */
     public function login(Request $request)
     {
-        // Check lockout
         if ($this->isLockedOut($request)) {
             return $this->sendLockoutResponse($request);
         }
@@ -44,38 +44,25 @@ class LoginController extends Controller
 
         $request->validate([
             'email' => 'required|email',
-            'password' => ['required', 'string', 'min:8'],
+            'password' => ['required','string','min:8'],
             'barangay_role' => ['required', Rule::in($barangayKeys)],
-        ], [
-            'barangay_role.required' => 'Please select your barangay.',
-            'barangay_role.in' => 'Please select a valid barangay.',
         ]);
 
         $user = User::where('email', $request->email)
             ->whereRaw('LOWER(barangay_role) = ?', [strtolower($request->barangay_role)])
             ->first();
 
-        if (!$user) {
+        if (!$user || !Hash::check($request->password, $user->password)) {
             $this->incrementLoginAttempts($request);
-            return back()->withErrors([
-                'email' => 'No account found with these details. Please check your email and barangay.',
-            ])->withInput($request->only('email', 'barangay_role'));
+            $error = !$user ? 'No account found.' : 'Incorrect password.';
+            return back()->withErrors(['email' => $error])
+                         ->withInput($request->only('email','barangay_role'));
         }
 
-        if (!Hash::check($request->password, $user->password)) {
-            $this->incrementLoginAttempts($request);
-            $attemptsLeft = $this->retriesLeft($request);
-            $errorMessage = 'Incorrect password.';
-            if ($attemptsLeft > 0) $errorMessage .= " You have {$attemptsLeft} attempt(s) remaining.";
-            return back()->withErrors(['password' => $errorMessage])
-                         ->withInput($request->only('email', 'barangay_role'));
-        }
-
-        // Reset attempts
         $this->clearLoginAttempts($request);
 
-        // Check if OTP login is required
-        $otp = rand(100000, 999999);
+        // Generate OTP
+        $otp = rand(100000,999999);
         session([
             'login_user_id' => $user->id,
             'login_otp' => $otp,
@@ -85,14 +72,15 @@ class LoginController extends Controller
         try {
             $this->mailerService->sendOtpEmail($user->email, $otp, 5);
         } catch (\Exception $e) {
-            return back()->withErrors(['email' => '❌ Failed to send OTP. Please try again.'])->withInput();
+            return back()->withErrors(['email' => 'Failed to send OTP.'])->withInput();
         }
 
-        return redirect()->route('user.login.verify-otp.form')->with('success', '✅ OTP sent! Check your email to complete login.');
+        return redirect()->route('user.login.verify-otp.form')
+            ->with('success', 'OTP sent! Check your email.');
     }
 
     /**
-     * Show OTP verification form for login.
+     * Show OTP verification form
      */
     public function showLoginOtpForm()
     {
@@ -100,56 +88,95 @@ class LoginController extends Controller
     }
 
     /**
-     * Verify OTP for login.
+     * Verify OTP and login
      */
     public function verifyLoginOtp(Request $request)
     {
-        $request->validate([
-            'otp' => 'required|digits:6'
-        ]);
+        $request->validate(['otp'=>'required|digits:6']);
 
         $otp = session('login_otp');
         $otpExpires = session('login_otp_expires');
         $userId = session('login_user_id');
 
         if (!$otp || !$userId) {
-            return redirect()->route('user.login')->withErrors(['email' => '⚠️ Login session expired. Please try again.']);
+            return redirect()->route('user.login')->withErrors(['email'=>'Login session expired.']);
         }
 
         if ($otpExpires < now()) {
             session()->forget(['login_user_id','login_otp','login_otp_expires']);
-            return redirect()->route('user.login')->withErrors(['email' => '⚠️ OTP expired. Please login again.']);
+            return redirect()->route('user.login')->withErrors(['email'=>'OTP expired.']);
         }
 
         if ($request->otp != $otp) {
-            return back()->withErrors(['otp' => '❌ Invalid OTP. Please try again.']);
+            return back()->withErrors(['otp'=>'Invalid OTP.']);
         }
 
         // OTP correct → log in
         $user = User::find($userId);
-$remember = session('login_remember', false); // default false
-Auth::guard('user')->login($user, $remember); // <-- use remember token
-$request->session()->regenerate();
+        $remember = session('login_remember', false);
+        Auth::guard('user')->login($user, $remember);
+        $request->session()->regenerate();
 
-// Clear OTP & remember sessions
-session()->forget(['login_user_id','login_otp','login_otp_expires','login_remember']);
+        // ================= LOGIN LOG =================
+        LoginLog::create([
+            'user_id' => $user->id,
+            'time_in' => now(),
+        ]);
+
+        $user->time_in = now();
+        $user->time_out = null;
+
+        // ====== SAVE LATITUDE & LONGITUDE ======
+        $user->latitude = $request->latitude ?? $user->latitude;
+        $user->longitude = $request->longitude ?? $user->longitude;
+        // =======================================
+
+        $user->save();
+        // ============================================
+
+        session()->forget(['login_user_id','login_otp','login_otp_expires','login_remember']);
 
         return redirect()->route('user.dashboard')->with(
             'success',
-            'Welcome back, ' . $user->full_name . '! You are logged in as a resident of ' . ucfirst($user->barangay_role) . '.'
+            'Welcome back, ' . $user->full_name . '!'
         );
     }
 
-    // ====================== Existing lockout functions ======================
+    /**
+     * Logout user and update time_out
+     */
+    public function logout(Request $request)
+    {
+        $user = Auth::guard('user')->user();
 
+        if ($user) {
+            $latestLog = $user->latestLoginLog;
+            if ($latestLog && !$latestLog->time_out) {
+                $latestLog->time_out = now();
+                $latestLog->save();
+            }
+
+            $user->time_out = now();
+            $user->save();
+        }
+
+        Auth::guard('user')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('user.login')
+            ->with('status', 'You have been successfully logged out.');
+    }
+
+    // ====================== LOCKOUT FUNCTIONS ======================
     protected function lockoutKey(Request $request): string
     {
-        return 'login_lockout_' . sha1($request->ip() . '|' . strtolower($request->input('email')));
+        return 'login_lockout_'.sha1($request->ip().'|'.strtolower($request->input('email')));
     }
 
     protected function attemptKey(Request $request): string
     {
-        return 'login_attempts_' . sha1($request->ip() . '|' . strtolower($request->input('email')));
+        return 'login_attempts_'.sha1($request->ip().'|'.strtolower($request->input('email')));
     }
 
     protected function incrementLoginAttempts(Request $request): void
@@ -157,12 +184,12 @@ session()->forget(['login_user_id','login_otp','login_otp_expires','login_rememb
         $attemptKey = $this->attemptKey($request);
         $lockoutKey = $this->lockoutKey($request);
 
-        $attempts = Cache::get($attemptKey, 0) + 1;
-        Cache::put($attemptKey, $attempts, 60);
+        $attempts = Cache::get($attemptKey,0) + 1;
+        Cache::put($attemptKey,$attempts,60);
 
         if ($attempts >= 3) {
             $lockoutEndsAt = now()->addSeconds(60)->timestamp;
-            Cache::put($lockoutKey, $lockoutEndsAt, 60);
+            Cache::put($lockoutKey,$lockoutEndsAt,60);
             Cache::forget($attemptKey);
         }
     }
@@ -179,12 +206,6 @@ session()->forget(['login_user_id','login_otp','login_otp_expires','login_rememb
         Cache::forget($this->lockoutKey($request));
     }
 
-    protected function retriesLeft(Request $request): int
-    {
-        $attempts = Cache::get($this->attemptKey($request), 0);
-        return max(0, 3 - $attempts);
-    }
-
     protected function sendLockoutResponse(Request $request)
     {
         $lockoutTimestamp = Cache::get($this->lockoutKey($request));
@@ -192,18 +213,7 @@ session()->forget(['login_user_id','login_otp','login_otp_expires','login_rememb
         if ($seconds <= 0 || $seconds > 60) $seconds = 60;
 
         throw ValidationException::withMessages([
-            'email' => ["Too many login attempts. Please try again in {$seconds} second(s)."],
+            'email'=>["Too many login attempts. Please try again in {$seconds} second(s)."],
         ])->status(429);
-    }
-
-    /**
-     * Logout user.
-     */
-    public function logout(Request $request)
-    {
-        Auth::guard('user')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect()->route('user.login')->with('status', 'You have been successfully logged out.');
     }
 }

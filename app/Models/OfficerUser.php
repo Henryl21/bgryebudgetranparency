@@ -4,21 +4,26 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Hash;
 
 class OfficerUser extends Authenticatable
 {
-    use Notifiable;
-
-    protected $table = 'officer_users';
+    use HasFactory, Notifiable;
 
     protected $fillable = [
         'name',
         'email',
         'password',
-        'role',       // Role-based login
-        'barangay',   // Officer's barangay
-        'otp',        // OTP for login/registration
-        'otp_expires_at', // Expiry time for OTP
+        'role',
+        'barangay',
+        'otp',
+        'otp_expires_at',
+        'time_in',
+        'time_out',
+        'latitude',
+        'longitude',
+        'last_login_at',
     ];
 
     protected $hidden = [
@@ -28,31 +33,57 @@ class OfficerUser extends Authenticatable
     ];
 
     protected $casts = [
-        'email_verified_at' => 'datetime',
-        'otp_expires_at' => 'datetime', // important for comparison
+        'otp_expires_at' => 'datetime',
+        'last_login_at' => 'datetime',
     ];
 
     /**
-     * Optional: relationship to officer profile
+     * 🔥 Automatically hash password
      */
-    public function officerProfile()
+    public function setPasswordAttribute($value)
     {
-        return $this->hasOne(Officer::class, 'email', 'email');
+        if (!empty($value)) {
+            $this->attributes['password'] =
+                Hash::needsRehash($value) ? bcrypt($value) : $value;
+        }
     }
 
     /**
-     * Helper method: check role
+     * 🔥 Officer has many login logs
      */
-    public function hasRole($role)
+    public function loginLogs()
     {
-        return $this->role === $role;
+        return $this->hasMany(LoginLog::class, 'officer_id');
     }
 
     /**
-     * Password reset table for this guard
+     * 🔥 Latest login log
      */
-    public function getPasswordResetTable()
+    public function latestLoginLog()
     {
-        return 'officer_password_resets';
+        return $this->hasOne(LoginLog::class, 'officer_id')->latestOfMany();
+    }
+
+    /**
+     * 🔥 Barangay list helper
+     */
+    public static function getBarangays(): array
+    {
+        return [
+            'bunakan' => 'Bunakan',
+            'kangwayan' => 'Kangwayan',
+            'kaongkod' => 'Kaongkod',
+            'kodia' => 'Kodia',
+            'maalat' => 'Maalat',
+            'malbago' => 'Malbago',
+            'mancilang' => 'Mancilang',
+            'tarong' => 'Tarong',
+            'pili' => 'Pili',
+            'poblacion' => 'Poblacion',
+            'san-agustin' => 'San-agustin',
+            'tabagak' => 'Tabagak',
+            'talangnan' => 'Talangnan',
+            'tugas' => 'Tugas',
+        ];
     }
 }
