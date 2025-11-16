@@ -128,7 +128,8 @@
                     <span class="text-white font-bold text-sm sm:text-base lg:text-lg hidden xs:inline">Barangay Ebudget Transparency</span>
                     <span class="text-white font-bold text-sm xs:hidden">eBudget</span>
                 </div>
-                
+                <div id="top"></div>
+
                 <!-- Desktop Login Buttons -->
                 <div class="hidden md:flex items-center space-x-3">
                     <!-- Role Selection Dropdown -->
@@ -239,14 +240,31 @@
                     </div>
                     
                     <!-- CTA Buttons -->
-                    <div class="flex flex-col sm:flex-row gap-6 justify-center stagger-animation">
-                        <button class="bg-accent-gold hover:bg-accent-gold/90 text-white px-8 py-4 rounded-lg transition-all duration-300 font-semibold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105">
-                            Explore Budget Data
-                        </button>
-                        <button class="bg-white/20 backdrop-blur-sm border-2 border-white/50 text-white px-8 py-4 rounded-lg hover:bg-white/30 transition-all duration-300 font-semibold text-lg">
-                            View Transparency Reports
-                        </button>
-                    </div>
+                   <div class="flex flex-col md:flex-row gap-6 justify-center mt-10">
+
+    <!-- Explore Budget Data -->
+    <button 
+        type="button"
+        onclick="loginFirst('{{ route('user.login') }}')"
+        class="relative inline-block px-10 py-4 font-semibold text-lg text-white rounded-xl bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600
+        shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-105
+        overflow-hidden">
+        <span class="absolute inset-0 bg-white/10 backdrop-blur-sm rounded-xl opacity-0 hover:opacity-30 transition-opacity duration-500"></span>
+        Explore Budget Data
+    </button>
+
+    <!-- View Transparency Reports -->
+    <button 
+        type="button"
+        onclick="loginFirst('{{ route('user.login') }}')"
+        class="relative inline-block px-10 py-4 font-semibold text-lg text-white rounded-xl border-2 border-white/50
+        bg-white/10 backdrop-blur-sm shadow-md hover:shadow-xl transition-all duration-500 transform hover:scale-105
+        overflow-hidden hover:bg-white/20">
+        <span class="absolute inset-0 bg-white/5 rounded-xl opacity-0 hover:opacity-20 transition-opacity duration-500"></span>
+        View Transparency Reports
+    </button>
+</div>
+
                 </div>
                 
                 <!-- Scroll Indicator -->
@@ -337,6 +355,7 @@
             </div>
         </div>
     </main>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Statistics Section -->
     <section class="py-20 bg-gradient-to-r from-primary-blue via-blue-600 to-secondary-green relative overflow-hidden">
@@ -373,12 +392,18 @@
             <h2 class="text-4xl lg:text-5xl font-bold text-gray-800 mb-8">Ready to Experience Transparent Governance?</h2>
             <p class="text-xl text-gray-600 mb-12 max-w-3xl mx-auto">Join thousands of citizens who are actively monitoring and participating in their local government's financial decisions.</p>
             <div class="flex flex-col sm:flex-row gap-6 justify-center">
-                <button class="bg-primary-blue hover:bg-blue-700 text-white px-10 py-4 rounded-xl transition-all duration-300 font-semibold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105">
-                    Explore Budget Data
-                </button>
-                <button class="border-2 border-secondary-green text-secondary-green px-10 py-4 rounded-xl hover:bg-secondary-green hover:text-white transition-all duration-300 font-semibold text-lg">
-                    Download Reports
-                </button>
+               <a href="{{ route('user.login') }}">
+    <button class="bg-primary-blue hover:bg-blue-700 text-white px-10 py-4 rounded-xl transition-all duration-300 font-semibold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105">
+        Explore Budget Data
+    </button>
+</a>
+
+<a href="{{ route('user.login') }}">
+    <button class="border-2 border-secondary-green text-secondary-green px-10 py-4 rounded-xl hover:bg-secondary-green hover:text-white transition-all duration-300 font-semibold text-lg">
+        Download Reports
+    </button>
+</a>
+
             </div>
         </div>
     </section>
@@ -400,12 +425,13 @@
                 </div>
                 <div>
                     <h4 class="text-lg font-semibold mb-6">Quick Links</h4>
-                    <ul class="space-y-3 text-gray-400">
-                        <li><a href="#" class="hover:text-white transition-colors">Budget Reports</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Project Updates</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Public Announcements</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Contact Us</a></li>
-                    </ul>
+                   <ul class="space-y-3 text-gray-400">
+    <li><a href="{{ route('user.login') }}" class="hover:text-white transition-colors">Budget Reports</a></li>
+    <li><a href="{{ route('user.login') }}" class="hover:text-white transition-colors">Project Updates</a></li>
+    <li><a href="{{ route('user.login') }}" class="hover:text-white transition-colors">Public Announcements</a></li>
+    <li><a href="{{ route('user.login') }}" class="hover:text-white transition-colors">Contact Us</a></li>
+</ul>
+
                 </div>
                 <div>
                     <h4 class="text-lg font-semibold mb-6">Contact Information</h4>
@@ -415,29 +441,45 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
-                            <span>Barangay Hall, Bacolod City</span>
+                            <span>Madridejos</span>
                         </p>
                         <p class="flex items-center space-x-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
                             </svg>
-                            <span>(034) 123-4567</span>
+                            <span>09092732056</span>
                         </p>
                         <p class="flex items-center space-x-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                             </svg>
-                            <span>ebudget@barangay.gov.ph</span>
+                            <span>ebudget@barangay.ph</span>
                         </p>
                     </div>
                 </div>
             </div>
             <div class="border-t border-gray-700 mt-12 pt-8 text-center text-gray-400">
-                <p>&copy; 2024 Barangay eBudget Transparency System. All rights reserved.</p>
+                <p>&copy; 2025 Barangay eBudget Transparency System. All rights reserved.</p>
             </div>
         </div>
     </footer>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function loginFirst(loginUrl) {
+    Swal.fire({
+        title: "Login Required",
+        text: "You must log in first to access this feature.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Go to Login",
+        cancelButtonText: "Cancel",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = loginUrl;
+        }
+    });
+}
+</script>
     <script>
         // Wait for DOM to be fully loaded
         document.addEventListener('DOMContentLoaded', function() {
@@ -532,6 +574,7 @@
                         }
                     }
                 });
+
 
                 // Close mobile menu when pressing Escape key
                 document.addEventListener('keydown', function(e) {

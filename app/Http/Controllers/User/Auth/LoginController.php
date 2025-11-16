@@ -65,6 +65,7 @@ class LoginController extends Controller
         $otp = rand(100000,999999);
         session([
             'login_user_id' => $user->id,
+            'login_email' => $user->email,
             'login_otp' => $otp,
             'login_otp_expires' => now()->addMinutes(5)
         ]);
@@ -84,7 +85,8 @@ class LoginController extends Controller
      */
     public function showLoginOtpForm()
     {
-        return view('user.login-verify-otp');
+        $email = session('login_email'); // So UI can show "OTP sent to your email"
+        return view('user.login-verify-otp', compact('email'));
     }
 
     /**
@@ -132,7 +134,6 @@ class LoginController extends Controller
         // =======================================
 
         $user->save();
-        // ============================================
 
         session()->forget(['login_user_id','login_otp','login_otp_expires','login_remember']);
 
@@ -140,6 +141,43 @@ class LoginController extends Controller
             'success',
             'Welcome back, ' . $user->full_name . '!'
         );
+    }
+
+    /**
+     * RESEND OTP
+     */
+    public function resendLoginOtp()
+    {
+        $userId = session('login_user_id');
+        $email  = session('login_email');
+
+        if (!$userId || !$email) {
+            return redirect()->route('user.login')
+                ->withErrors(['email' => 'Session expired. Please login again.']);
+        }
+
+        $user = User::find($userId);
+
+        if (!$user) {
+            return redirect()->route('user.login')
+                ->withErrors(['email' => 'User not found.']);
+        }
+
+        // Generate new OTP
+        $otp = rand(100000, 999999);
+
+        session([
+            'login_otp' => $otp,
+            'login_otp_expires' => now()->addMinutes(5),
+        ]);
+
+        try {
+            $this->mailerService->sendOtpEmail($email, $otp, 5);
+        } catch (\Exception $e) {
+            return back()->withErrors(['otp' => 'Failed to resend OTP. Try again later.']);
+        }
+
+        return back()->with('success', 'A new OTP has been sent to your email.');
     }
 
     /**

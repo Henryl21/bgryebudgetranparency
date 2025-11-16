@@ -11,37 +11,33 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminDashboardController extends Controller
 {
+    // Dashboard
     public function index(Request $request)
     {
-        // Get the authenticated admin's barangay role
         $currentAdmin = Auth::guard('admin')->user();
         $barangayRole = $currentAdmin->barangay_role;
 
-        // 💰 Totals (filtered by barangay role)
+        // Totals (income)
         $totalBudget = Budget::where('barangay_role', $barangayRole)
             ->where('type', 'income')
             ->sum('amount');
 
-        // Get expenditure for logged-in barangay role
+        // Expenditures
         $expenditures = Expenditure::whereRaw('LOWER(barangay) = ?', [$barangayRole])->get();
-
-        // Calculate totals
         $totalSpent = $expenditures->sum('amount');
         $totalRemaining = $totalBudget - $totalSpent;
 
-        // 📦 Budgets for this barangay
-        $budgets = Budget::where('barangay_role', $barangayRole)
-            ->latest()
-            ->get();
+        // Budgets for this barangay
+        $budgets = Budget::where('barangay_role', $barangayRole)->latest()->get();
 
-        // 📅 Unique years
+        // Unique years
         $budgetYears = Budget::where('barangay_role', $barangayRole)
             ->selectRaw('YEAR(created_at) as year')
             ->distinct()
             ->orderBy('year', 'desc')
             ->pluck('year');
 
-        // 📊 Chart data
+        // Chart data
         $budgetChart = ['labels' => [], 'data' => []];
         if ($expenditures->isNotEmpty()) {
             $grouped = $expenditures->groupBy('category');
@@ -49,7 +45,7 @@ class AdminDashboardController extends Controller
             $budgetChart['data'] = $grouped->map(fn($item) => $item->sum('amount'))->values()->toArray();
         }
 
-        // 📢 Announcements
+        // Announcements
         $query = Announcement::where('barangay_role', $barangayRole);
         if ($request->filled('search')) {
             $searchTerm = $request->search;
@@ -72,7 +68,6 @@ class AdminDashboardController extends Controller
 
         $barangayName = $currentAdmin->barangay_name ?? ucfirst($barangayRole);
 
-        // Return dashboard view
         return view('admin.dashboard', compact(
             'totalBudget',
             'totalSpent',
@@ -87,7 +82,7 @@ class AdminDashboardController extends Controller
         ));
     }
 
-    // 🔍 Optional search function
+    // Search announcements
     public function searchAnnouncements(Request $request)
     {
         $currentAdmin = Auth::guard('admin')->user();
@@ -112,48 +107,47 @@ class AdminDashboardController extends Controller
         return redirect()->route('admin.dashboard', ['search' => $searchTerm]);
     }
 
-    // 💾 Download Database (Windows/XAMPP compatible)
+    // Download Database
     public function downloadDatabase()
     {
-        try {
-            $dbHost = env('DB_HOST', '127.0.0.1');
-            $dbName = env('DB_DATABASE', 'barangay_db');
-            $dbUser = env('DB_USERNAME', 'root');
-            $dbPass = env('DB_PASSWORD', '');
+        $dbHost = env('DB_HOST', '127.0.0.1');
+        $dbName = env('DB_DATABASE', 'barangar');
+        $dbUser = env('DB_USERNAME', 'root');
+        $dbPass = env('DB_PASSWORD', '');
 
-            // File name and path
-            $fileName = 'database_backup_' . date('Y_m_d_His') . '.sql';
-            $backupPath = storage_path('app/backups/');
-            $filePath = $backupPath . $fileName;
+        $backupPath = storage_path('app/backups/');
+        if (!file_exists($backupPath)) mkdir($backupPath, 0755, true);
 
-            // Ensure directory exists
-            if (!file_exists($backupPath)) {
-                mkdir($backupPath, 0755, true);
-            }
+        $fileName = 'database_backup_' . date('Y_m_d_His') . '.sql';
+        $filePath = $backupPath . $fileName;
 
-            // Full path to mysqldump.exe on Windows/XAMPP
-            $mysqldumpPath = "C:\\xampp\\mysql\\bin\\mysqldump.exe";
-            $command = "\"{$mysqldumpPath}\" --user={$dbUser} --password={$dbPass} --host={$dbHost} {$dbName} > \"{$filePath}\"";
+        $mysqldumpPath = "D:\\xampp\\mysql\\bin\\mysqldump.exe";
+        $command = "\"{$mysqldumpPath}\" --user=\"{$dbUser}\" --password=\"{$dbPass}\" --host=\"{$dbHost}\" {$dbName} > \"{$filePath}\"";
 
-            exec($command, $output, $returnVar);
+        exec($command, $output, $returnVar);
 
-            if ($returnVar !== 0) {
-                throw new \Exception('mysqldump command failed. Make sure the path and credentials are correct.');
-            }
-
-            return response()->download($filePath)->deleteFileAfterSend(true);
-
-        } catch (\Exception $e) {
-            return back()->with('error', 'Failed to download database: ' . $e->getMessage());
+        if ($returnVar !== 0 || !file_exists($filePath)) {
+            return back()->with('error', 'mysqldump command failed. Please check the path and credentials.');
         }
+
+        return response()->download($filePath)->deleteFileAfterSend(true);
     }
 
-    // 🗂️ Show Database Page Blade
+    // Show Database Page
     public function showDatabasePage()
     {
         $currentAdmin = Auth::guard('admin')->user();
         $barangayName = $currentAdmin->barangay_name ?? ucfirst($currentAdmin->barangay_role);
 
         return view('admin.database', compact('barangayName'));
+    }
+
+    // Logout admin and redirect to welcome
+    public function logout()
+    {
+        Auth::guard('admin')->logout();       // Logout admin
+        session()->invalidate();               // Clear session
+        session()->regenerateToken();          // Regenerate CSRF token
+        return redirect()->route('welcome');  // Redirect to welcome.blade.php
     }
 }

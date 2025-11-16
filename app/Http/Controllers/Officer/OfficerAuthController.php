@@ -10,8 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use App\Services\PHPMailerService;
 
 class OfficerAuthController extends Controller
 {
@@ -34,7 +34,7 @@ class OfficerAuthController extends Controller
     }
 
     /**
-     * Send OTP to officer's email
+     * Send OTP using PHPMailerService (same HTML design as Admin/User)
      */
     protected function sendOtp(OfficerUser $officer)
     {
@@ -45,10 +45,9 @@ class OfficerAuthController extends Controller
             'otp_expires_at' => now()->addMinutes(5),
         ]);
 
-        Mail::raw("Your OTP is: {$otp}. It expires in 5 minutes.", function ($message) use ($officer) {
-            $message->to($officer->email)
-                    ->subject('Officer OTP Verification');
-        });
+        // Use PHPMailerService to send styled HTML OTP email
+        $mailer = new PHPMailerService();
+        $mailer->sendOtpEmail($officer->email, $otp, 5);
     }
 
     /**
@@ -119,7 +118,7 @@ class OfficerAuthController extends Controller
 
         if ($request->otp == $officer->otp && now()->lessThan($officer->otp_expires_at)) {
 
-            // 🚀 Save latitude & longitude
+            // Save latitude & longitude (if provided) and clear OTP
             $officer->update([
                 'otp' => null,
                 'otp_expires_at' => null,
@@ -212,7 +211,7 @@ class OfficerAuthController extends Controller
             Auth::guard('officer')->login($officer);
             session()->forget('officer_id');
 
-            // 🚀 Save new latitude & longitude if provided
+            // Save new latitude & longitude if provided
             if ($request->filled('latitude') && $request->filled('longitude')) {
                 $officer->latitude = $request->latitude;
                 $officer->longitude = $request->longitude;
@@ -227,7 +226,7 @@ class OfficerAuthController extends Controller
                 'longitude' => $request->longitude ?? $officer->longitude,
             ]);
 
-            // Update officer account login timestamps
+            // Update officer account login timestamps and clear OTP
             $officer->update([
                 'time_in' => now(),
                 'last_login_at' => now(),
@@ -250,7 +249,7 @@ class OfficerAuthController extends Controller
         $officer = Auth::guard('officer')->user();
 
         if ($officer) {
-           $latestLog = $officer->latestLoginLog()->first();
+            $latestLog = $officer->latestLoginLog()->first();
 
             if ($latestLog && !$latestLog->time_out) {
                 $latestLog->update(['time_out' => now()]);

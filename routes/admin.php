@@ -46,8 +46,10 @@ Route::get('/admin/login', [LoginController::class, 'showLoginForm'])->name('adm
 Route::post('/admin/login', [LoginController::class, 'login']);
 Route::get('/admin/register', [RegisterController::class, 'showRegisterForm'])->name('admin.register');
 Route::post('/admin/register', [RegisterController::class, 'register']);
-Route::post('/admin/logout', [LoginController::class, 'logout'])->name('admin.logout');
 
+Route::get('/admin/otp', [LoginController::class, 'showOtpForm'])->name('admin.otp.form');
+Route::post('/admin/otp', [LoginController::class, 'verifyOtp'])->name('admin.otp.verify');
+Route::post('admin/otp/resend', [LoginController::class, 'resendOtp'])->name('admin.otp.resend');
 // Redirect legacy upload-receipt route
 Route::get('/admin/expenditure/{id}/upload-receipt', function ($id) {
     return redirect("/admin/expenditures/{$id}/upload-receipt");
@@ -65,7 +67,8 @@ Route::get('/admin/download-database', [AdminDashboardController::class, 'downlo
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/budget-dashboard', [BudgetController::class, 'dashboard'])->name('budget.dashboard');
 
-    
+    Route::post('/admin/logout', [AdminDashboardController::class, 'logout'])->name('logout');
+
     // ✅ Users list route (for admin to view all registered users)
     Route::get('/users-officers', [UserController::class, 'index'])
         ->name('users_officers.index');

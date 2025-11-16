@@ -78,6 +78,6 @@ class UserDashboardController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('user.login')->with('success', 'You have been logged out successfully.');
+        return redirect()->route('welcome')->with('success', 'You have been logged out successfully.');
     }
 }
