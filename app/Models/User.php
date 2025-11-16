@@ -82,12 +82,14 @@ class User extends Authenticatable
     /**
      * 🔥 Profile photo URL
      */
-    public function getProfilePhotoUrlAttribute(): string
+   public function getProfilePhotoUrlAttribute(): string
     {
-        if ($this->profile_photo && file_exists(storage_path('app/public/profile_photos/' . $this->profile_photo))) {
-            return asset('storage/profile_photos/' . $this->profile_photo);
+        // Check if image exists in storage
+        if ($this->profile_photo && Storage::disk('public')->exists($this->profile_photo)) {
+            return asset('storage/' . $this->profile_photo);
         }
 
+        // Default photo (UI Avatar API)
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->full_name);
     }
 
