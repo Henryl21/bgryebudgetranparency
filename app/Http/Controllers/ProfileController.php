@@ -5,79 +5,95 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
     /**
-     * Show the user's profile.
+     * Show user profile.
      */
-    public function show(Request $request): View
+    public function show()
     {
-        return view('profile.show', [
-            'user' => $request->user(),
-        ]);
+        $user = Auth::guard('user')->user();
+        return view('user.profile.show', compact('user'));
     }
 
     /**
-     * Show the profile edit form.
+     * Show edit form.
      */
-    public function edit(Request $request): View
+    public function edit()
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
+        $user = Auth::guard('user')->user();
+        return view('user.profile.edit', compact('user'));
     }
 
     /**
-     * Update profile info (full name, email, number, barangay_role, profile photo).
+     * Update user profile.
      */
     public function update(Request $request)
     {
-        $user = $request->user();
+        $user = Auth::guard('user')->user();
 
-        $request->validate([
+        // ✅ Validate inputs
+        $validated = $request->validate([
             'full_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
+            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
             'number' => 'nullable|string|max:20',
-            'barangay_role' => 'nullable|string',
-            'profile_photo' => 'nullable|image|max:2048',
+            'barangay_role' => 'nullable|string|max:255',
+            'profile_photo' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'password' => 'nullable|min:8|confirmed',
         ]);
 
-        $user->full_name = $request->full_name;
-        $user->email = $request->email;
-        $user->number = $request->number;
-        $user->barangay_role = $request->barangay_role;
+        // ✅ Update basic info
+        $user->full_name = $validated['full_name'];
+        $user->email = $validated['email'];
+        $user->number = $validated['number'] ?? $user->number;
+        $user->barangay_role = $validated['barangay_role'] ?? $user->barangay_role;
 
+        // ✅ Handle profile photo upload
         if ($request->hasFile('profile_photo')) {
+
+            // Delete old photo if exists
+            if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
+                Storage::disk('public')->delete($user->profile_photo);
+            }
+
+            // Save new uploaded image correctly
             $path = $request->file('profile_photo')->store('profile_photos', 'public');
+
+            // Store path like: profile_photos/xxxx.jpg
             $user->profile_photo = $path;
+        }
+
+
+        // ✅ Handle password update
+        if (!empty($validated['password'])) {
+            $user->password = Hash::make($validated['password']);
         }
 
         $user->save();
 
-        return redirect()->route('user.profile.show')->with('status', 'Profile updated successfully.');
+        return redirect()->route('user.profile.show')
+            ->with('success', '✅ Profile updated successfully!');
     }
 
     /**
-     * Delete the user account.
+     * Delete account.
      */
-    public function destroy(Request $request)
+    public function destroy()
     {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
-        ]);
+        $user = Auth::guard('user')->user();
 
-        $user = $request->user();
+        // ✅ Delete profile photo if exists
+        if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
+            Storage::disk('public')->delete($user->profile_photo);
+        }
 
-        Auth::logout();
-
+        Auth::guard('user')->logout();
         $user->delete();
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
+        return redirect()->route('user.login')
+            ->with('success', '🗑️ Your account has been deleted successfully.');
     }
 }
