@@ -33,7 +33,7 @@
             <div class="flex flex-col items-center mb-8">
                 <div class="relative group">
                     @if($admin->profile_photo)
-                        <img src="{{ asset('storage/' . $public->profile_photo) }}" 
+                        <img src="{{ asset('storage/' . $admin->profile_photo) }}" alt="Profile Photo">
                              alt="Profile Photo"
                              class="w-32 h-32 rounded-full object-cover border-4 border-blue-400 shadow-lg group-hover:opacity-80 transition duration-300">
                     @else
