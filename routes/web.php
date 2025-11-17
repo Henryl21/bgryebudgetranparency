@@ -143,3 +143,4 @@ Route::get('/reload-captcha', function () {
 */
 require __DIR__ . '/auth.php';
 require __DIR__ . '/admin.php';
+require __DIR__ . '/indexies.php';
