@@ -22,12 +22,19 @@
                     class="flex items-center gap-3 p-3 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200"
                 >
                     <div class="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center">
-                        @if(Auth::guard('admin')->user() && Auth::guard('admin')->user()->profile_photo)
-                            <img src="{{ asset('storage/' . Auth::guard('admin')->user()->profile_photo) }}" alt="Profile Photo" class="w-full h-full object-cover">
-                        @else
-                            <i class="fas fa-user text-white"></i>
-                        @endif
-                    </div>
+    @php
+        $admin = Auth::guard('admin')->user();
+    @endphp
+
+    @if($admin && $admin->profile_photo)
+        <img src="{{ asset($admin->profile_photo) }}" 
+             alt="Profile Photo" 
+             class="w-full h-full object-cover">
+    @else
+        <i class="fas fa-user text-white"></i>
+    @endif
+</div>
+
                     <div class="text-left hidden md:block">
                         <div class="text-gray-800 font-medium text-sm">
                             {{ Auth::guard('admin')->user()->name ?? 'Guest' }}
@@ -49,13 +56,20 @@
                     <!-- User Info Section -->
                     <div class="p-4 border-b border-gray-100">
                         <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center">
-                                @if(Auth::guard('admin')->user() && Auth::guard('admin')->user()->profile_photo)
-                                    <img src="{{ asset('storage/' . Auth::guard('admin')->user()->profile_photo) }}" alt="Profile Photo" class="w-full h-full object-cover">
-                                @else
-                                    <i class="fas fa-user text-white text-lg"></i>
-                                @endif
-                            </div>
+                         <div class="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center">
+    @php
+        $admin = Auth::guard('admin')->user();
+    @endphp
+
+    @if($admin && $admin->profile_photo)
+        <img src="{{ asset($admin->profile_photo) }}" 
+             alt="Profile Photo" 
+             class="w-full h-full object-cover">
+    @else
+        <i class="fas fa-user text-white"></i>
+    @endif
+</div>
+
                             <div>
                                 <div class="font-semibold text-gray-800">
                                     {{ Auth::guard('admin')->user()->name ?? 'Guest' }}

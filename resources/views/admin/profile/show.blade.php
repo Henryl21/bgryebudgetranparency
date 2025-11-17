@@ -6,7 +6,7 @@
     <!-- Profile Card -->
     <div class="w-full max-w-3xl bg-white shadow-2xl rounded-2xl p-8 sm:p-10 relative transition-transform transform hover:scale-[1.01] hover:shadow-3xl duration-300">
 
-        <!-- Header with Go Back Button -->
+        <!-- Header -->
         <div class="flex items-center justify-between mb-6">
             <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight flex items-center gap-2">
                 <i class="fas fa-user-circle text-blue-600"></i> Admin Profile
@@ -17,7 +17,7 @@
             </a>
         </div>
 
-        <!-- Success Message -->
+        <!-- Success Flash Message -->
         @if (session('success'))
             <div class="bg-green-100 text-green-800 p-3 rounded-lg mb-6 border border-green-300 animate-fade-in">
                 {{ session('success') }}
@@ -32,8 +32,9 @@
             <!-- Profile Image -->
             <div class="flex flex-col items-center mb-8">
                 <div class="relative group">
+
                     @if($admin->profile_photo)
-                        <img src="{{ asset('storage/' . $admin->profile_photo) }}"
+                        <img src="{{ asset($admin->profile_photo) }}"
                              alt="Profile Photo"
                              class="w-32 h-32 rounded-full object-cover border-4 border-blue-400 shadow-lg group-hover:opacity-80 transition duration-300">
                     @else
@@ -41,12 +42,15 @@
                             {{ strtoupper(substr($admin->name, 0, 1)) }}
                         </div>
                     @endif
+
+                    <!-- Hover Overlay + File Input -->
                     <div class="absolute inset-0 bg-black bg-opacity-30 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition duration-300">
                         <label class="bg-white text-blue-700 text-sm px-3 py-1 rounded-md cursor-pointer shadow-md hover:bg-blue-50">
                             Change
                             <input type="file" name="profile_photo" class="hidden">
                         </label>
                     </div>
+
                 </div>
             </div>
 
@@ -76,7 +80,9 @@
                     Save Changes
                 </button>
             </div>
+
         </form>
+
     </div>
 </div>
 
@@ -91,3 +97,4 @@
 }
 </style>
 @endsection
+    
