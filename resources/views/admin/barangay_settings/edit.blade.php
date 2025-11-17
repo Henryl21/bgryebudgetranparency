@@ -68,7 +68,7 @@
                                         <p class="text-xs font-semibold text-teal-700 mb-2 uppercase tracking-wide">Current Logo</p>
                                         <div class="flex justify-center">
                                             <div class="relative">
-                                                <img src="{{ asset('storage/'.$settings->poblacion_logo) }}" 
+                                                <img src="{{ asset($settings->poblacion_logo) }}" 
                                                      class="w-32 h-32 object-cover rounded-xl shadow-lg border-4 border-white ring-2 ring-teal-200"
                                                      alt="Current Barangay Logo">
                                                 <div class="absolute -top-2 -right-2 bg-teal-500 text-white rounded-full p-1.5 shadow-lg">
@@ -127,7 +127,7 @@
                                         <p class="text-xs font-semibold text-blue-700 mb-2 uppercase tracking-wide">Current Logo</p>
                                         <div class="flex justify-center">
                                             <div class="relative">
-                                                <img src="{{ asset('storage/'.$settings->barangay_logo) }}" 
+                                                <img src="{{ asset($settings->barangay_logo) }}" 
                                                      class="w-32 h-32 object-cover rounded-xl shadow-lg border-4 border-white ring-2 ring-blue-200"
                                                      alt="Current Municipality Logo">
                                                 <div class="absolute -top-2 -right-2 bg-blue-500 text-white rounded-full p-1.5 shadow-lg">

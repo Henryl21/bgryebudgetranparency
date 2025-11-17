@@ -59,7 +59,7 @@
     <div class="header">
         <!-- Left Logo -->
         @if($settings && $settings->poblacion_logo)
-            <img  src="{{ asset('storage/'.$settings->poblacion_logo) }}" alt="Poblacion Logo">
+            <img  src="{{ asset($settings->poblacion_logo) }}" alt="Poblacion Logo">
         @else
             <div style="width:100px; height:100px; background:#ccc;"></div>
         @endif
@@ -76,7 +76,7 @@
 
         <!-- Right Logo -->
         @if($settings && $settings->barangay_logo)
-            <img  src="{{ asset('storage/'.$settings->barangay_logo) }}" alt="Barangay Logo">
+              <img src="{{ asset($settings->barangay_logo) }}" alt="Barangay Logo">
         @else
             <div style="width:100px; height:100px; background:#ccc;"></div>
         @endif

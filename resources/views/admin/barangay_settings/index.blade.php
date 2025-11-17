@@ -25,18 +25,19 @@
                     <!-- Logo Section -->
                     <div class="flex-shrink-0 animate-scaleIn" style="animation-delay: 0.2s">
                         @if($settings?->barangay_logo)
-                            <div class="relative group">
-                                <div class="absolute -inset-1 bg-gradient-to-r from-teal-500 to-blue-500 rounded-full opacity-75 group-hover:opacity-100 blur transition duration-300"></div>
-                                <img src="{{ asset('storage/'.$settings->barangay_logo) }}"
-                                     alt="Barangay Logo" 
-                                     class="relative w-32 h-32 md:w-40 md:h-40 object-cover rounded-full border-4 border-white shadow-xl">
-                                <div class="absolute -bottom-2 -right-2 bg-green-500 text-white rounded-full p-2 shadow-lg">
-                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
-                            </div>
-                        @else
+    <div class="relative group">
+        <div class="absolute -inset-1 bg-gradient-to-r from-teal-500 to-blue-500 rounded-full opacity-75 group-hover:opacity-100 blur transition duration-300"></div>
+        <img src="{{ asset($settings->barangay_logo) }}"
+             alt="Barangay Logo" 
+             class="relative w-32 h-32 md:w-40 md:h-40 object-cover rounded-full border-4 border-white shadow-xl">
+        <div class="absolute -bottom-2 -right-2 bg-green-500 text-white rounded-full p-2 shadow-lg">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+    </div>
+@else
+
                             <div class="relative group">
                                 <div class="absolute -inset-1 bg-gradient-to-r from-gray-300 to-gray-400 rounded-full opacity-50 blur"></div>
                                 <div class="relative w-32 h-32 md:w-40 md:h-40 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 rounded-full border-4 border-white shadow-xl">
