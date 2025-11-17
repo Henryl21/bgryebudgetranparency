@@ -5,6 +5,18 @@
 
     <div class="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-xl border-t-4 border-blue-700">
 
+        <!-- Cute Back Button -->
+        <a href="{{ url()->previous() }}"
+           class="inline-flex items-center gap-2 mb-6 bg-white border border-blue-300 text-blue-700 
+                  px-4 py-2 rounded-full shadow-sm hover:shadow-md hover:bg-blue-50 transition-all">
+
+            <span class="flex h-8 w-8 items-center justify-center bg-blue-100 text-blue-600 rounded-full">
+                <i class="fa-solid fa-arrow-left text-sm"></i>
+            </span>
+
+            <span class="font-medium">Back</span>
+        </a>
+
         <!-- Header -->
         <h2 class="text-3xl font-bold text-blue-800 mb-6 flex items-center gap-3">
             <i class="fa-solid fa-comment-dots text-blue-600 text-3xl"></i>
