@@ -614,12 +614,13 @@
     <!-- Dropdown -->
     <div id="profile-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
 
-        <!-- ⭐ Feedback Button -->
-        <button id="open-feedback-modal"
-                class="w-full text-left px-4 py-2 text-blue-700 font-medium hover:bg-blue-100 rounded-lg transition flex items-center gap-2">
-            <i class="fa-solid fa-comment-dots text-blue-600"></i>
-            Feedback
-        </button>
+    <!-- ⭐ Feedback Button -->
+<a href="{{ route('user.feedback.index') }}"
+   class="w-full text-left px-4 py-2 text-blue-700 font-medium hover:bg-blue-100 rounded-lg 
+          transition flex items-center gap-2">
+    <i class="fa-solid fa-comment-dots text-blue-600"></i>
+    Feedback
+</a>
 
         <a href="{{ route('user.profile.edit') }}" 
            class="block px-4 py-2 text-gray-700 hover:bg-green-100 rounded-lg transition">

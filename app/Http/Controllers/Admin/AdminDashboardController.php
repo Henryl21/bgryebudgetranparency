@@ -124,7 +124,7 @@ class AdminDashboardController extends Controller
         $mysqldumpPath = "D:\\xampp\\mysql\\bin\\mysqldump.exe";
         $command = "\"{$mysqldumpPath}\" --user=\"{$dbUser}\" --password=\"{$dbPass}\" --host=\"{$dbHost}\" {$dbName} > \"{$filePath}\"";
 
-        exec($command, $output, $returnVar);
+        \exec($command, $output, $returnVar);
 
         if ($returnVar !== 0 || !file_exists($filePath)) {
             return back()->with('error', 'mysqldump command failed. Please check the path and credentials.');
