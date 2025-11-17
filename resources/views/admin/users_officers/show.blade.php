@@ -348,33 +348,39 @@
     </div>
 
     {{-- Map Section --}}
-    @if(isset($account->latitude) && isset($account->longitude))
     <div class="barangay-card rounded-2xl shadow-xl p-6 md:p-8 mb-6">
         <div class="section-header">
             <i class="fas fa-map-location-dot text-2xl"></i>
             <span>Location Tracking</span>
         </div>
-        
+
         <div class="map-container">
             <div id="userMap" style="height: 450px;" class="w-full"></div>
         </div>
-        
+
         <div class="mt-4 bg-purple-50 rounded-lg p-4">
             <div class="flex items-start gap-3">
                 <i class="fas fa-info-circle text-purple-600 text-xl mt-1"></i>
                 <div>
                     <h4 class="font-semibold text-purple-900 mb-1">Location Information</h4>
+                    @php
+                        $lat = !empty($account->latitude) ? $account->latitude : '10.2877';
+                        $lng = !empty($account->longitude) ? $account->longitude : '123.9414';
+                        $isDefault = empty($account->latitude) || empty($account->longitude);
+                    @endphp
                     <p class="text-sm text-purple-700">
-                        <strong>Coordinates:</strong> {{ $account->latitude }}, {{ $account->longitude }}
+                        <strong>Coordinates:</strong> {{ $lat }}, {{ $lng }}
+                        @if($isDefault)
+                            (Default location)
+                        @endif
                     </p>
                     <p class="text-xs text-purple-600 mt-1">
-                        This map shows the registered location of the user within {{ $account->barangay }} barangay.
+                        This map shows the registered location of {{ $account->full_name }} within {{ $account->barangay ?? 'the area' }} barangay.
                     </p>
                 </div>
             </div>
         </div>
     </div>
-    @endif
 
     {{-- Action Buttons --}}
     <div class="flex flex-wrap gap-4">
@@ -383,7 +389,7 @@
             <i class="fas fa-arrow-left"></i> 
             <span>Back to Activity Logs</span>
         </a>
-        
+
         <button onclick="window.print()" 
                 class="action-button inline-flex items-center gap-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white px-8 py-4 rounded-xl font-bold hover:shadow-2xl text-lg relative z-10">
             <i class="fas fa-print"></i>
@@ -392,66 +398,51 @@
     </div>
 </div>
 
-{{-- Leaflet JS --}}
-@if(isset($account->latitude) && isset($account->longitude))
+{{-- =================== LEAFLET MAP =================== --}}
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    // Ensure latitude and longitude are numbers
-    const lat = parseFloat("{{ $account->latitude }}");
-    const lng = parseFloat("{{ $account->longitude }}");
+    const lat = parseFloat("{{ $lat }}");
+    const lng = parseFloat("{{ $lng }}");
 
-    if (!isNaN(lat) && !isNaN(lng)) {
-        const map = L.map('userMap').setView([lat, lng], 16);
+    const map = L.map('userMap').setView([lat, lng], 16);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
 
-        // Custom purple marker icon
-        const purpleIcon = L.divIcon({
-            className: 'custom-marker',
-            html: '<div style="background: linear-gradient(135deg, #6d28d9, #4f46e5); width: 40px; height: 40px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 4px solid white; box-shadow: 0 4px 12px rgba(109, 40, 217, 0.5); display: flex; align-items: center; justify-content: center;"><i class="fas fa-user" style="color: white; transform: rotate(45deg); font-size: 16px;"></i></div>',
-            iconSize: [40, 40],
-            iconAnchor: [20, 40],
-            popupAnchor: [0, -40]
-        });
+    const purpleIcon = L.divIcon({
+        className: 'custom-marker',
+        html: '<div style="background: linear-gradient(135deg, #6d28d9, #4f46e5); width: 40px; height: 40px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 4px solid white; box-shadow: 0 4px 12px rgba(109, 40, 217, 0.5); display: flex; align-items: center; justify-content: center;"><i class="fas fa-user" style="color: white; transform: rotate(45deg); font-size: 16px;"></i></div>',
+        iconSize: [40, 40],
+        iconAnchor: [20, 40],
+        popupAnchor: [0, -40]
+    });
 
-        L.marker([lat, lng], { icon: purpleIcon })
-            .addTo(map)
-            .bindPopup(`
-                <div style="text-align: center; padding: 8px;">
-                    <h3 style="margin: 0 0 8px 0; color: #6d28d9; font-weight: bold; font-size: 16px;">
-                        <i class="fas fa-user-circle"></i> {{ $account->full_name }}
-                    </h3>
-                    <p style="margin: 4px 0; color: #666; font-size: 14px;">
-                        <i class="fas fa-map-marker-alt" style="color: #6d28d9;"></i> {{ $account->barangay }}
-                    </p>
-                    <p style="margin: 4px 0; color: #666; font-size: 12px;">
-                        <i class="fas fa-envelope" style="color: #6d28d9;"></i> {{ $account->email }}
-                    </p>
-                </div>
-            `)
-            .openPopup();
+    L.marker([lat, lng], { icon: purpleIcon })
+        .addTo(map)
+        .bindPopup(`
+            <div style="text-align: center; padding: 8px;">
+                <h3 style="margin: 0 0 8px 0; color: #6d28d9; font-weight: bold; font-size: 16px;">
+                    <i class="fas fa-user-circle"></i> {{ $account->full_name }}
+                </h3>
+                <p style="margin: 4px 0; color: #666; font-size: 14px;">
+                    <i class="fas fa-map-marker-alt" style="color: #6d28d9;"></i> {{ $account->barangay ?? 'Unknown' }}
+                </p>
+                <p style="margin: 4px 0; color: #666; font-size: 12px;">
+                    <i class="fas fa-envelope" style="color: #6d28d9;"></i> {{ $account->email }}
+                </p>
+            </div>
+        `)
+        .openPopup();
 
-        // Optional: make map responsive
-        window.addEventListener('resize', () => {
-            map.invalidateSize();
-        });
-    } else {
-        console.error("Invalid latitude or longitude for user map.");
-    }
+    window.addEventListener('resize', () => {
+        map.invalidateSize();
+    });
 });
 </script>
-@endif
-
-{{-- Print Styles --}}
-<style media="print">
-    .barangay-pattern { background: white !important; }
-    .action-button { display: none !important; }
-    .section-header { background: #6d28d9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-</style>
+{{-- ==================================================== --}}
 
 @endsection
