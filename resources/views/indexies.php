@@ -1,9 +1,10 @@
-
 <?php
+
 use Illuminate\Support\Facades\Route;
 
-Route::get('/extra-indexies', function () {
+Route::get('/indexies', function () {
     return view('indexies');
+});
 /*
 THIS IS FOR TESTING PURPOSES ONLY 
 */
