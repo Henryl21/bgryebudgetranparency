@@ -53,16 +53,14 @@
                 @enderror
             </div>
 
-           
-
             {{-- Profile Photo --}}
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Profile Photo</label>
 
                 <div class="flex items-center gap-4">
                     <div class="relative group">
-                        @if($user->profile_photo)
-                            <img id="photoPreview" src="{{ asset('storage/' . $user->profile_photo) }}"
+                        @if($user->profile_photo && file_exists(public_path('profile_photos/' . $user->profile_photo)))
+                            <img id="photoPreview" src="{{ asset('profile_photos/' . $user->profile_photo) }}"
                                  class="w-24 h-24 rounded-full object-cover border-4 border-green-300 shadow-md group-hover:shadow-lg transition duration-300"
                                  alt="Profile Photo">
                         @else

@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -51,16 +50,27 @@ class ProfileController extends Controller
         $user->number = $validated['number'] ?? $user->number;
         $user->barangay_role = $validated['barangay_role'] ?? $user->barangay_role;
 
-        // ✅ Handle profile photo upload
+        // ✅ Handle profile photo upload (directly in /public/profile_photos)
         if ($request->hasFile('profile_photo')) {
-            // Delete old photo if it exists
-            if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
-                Storage::disk('public')->delete($user->profile_photo);
+            $file = $request->file('profile_photo');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $destinationPath = public_path('profile_photos');
+
+            // Create folder if not exists
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0777, true);
             }
 
-            // Store new photo in public/profile_photos
-            $path = $request->file('profile_photo')->store('profile_photos', 'public');
-            $user->profile_photo = $path;
+            // Delete old photo if exists
+            if ($user->profile_photo && file_exists($destinationPath . '/' . $user->profile_photo)) {
+                unlink($destinationPath . '/' . $user->profile_photo);
+            }
+
+            // Move new file
+            $file->move($destinationPath, $filename);
+
+            // Save filename in DB
+            $user->profile_photo = $filename;
         }
 
         // ✅ Handle password update
@@ -80,10 +90,11 @@ class ProfileController extends Controller
     public function destroy()
     {
         $user = Auth::guard('user')->user();
+        $photoPath = public_path('profile_photos/' . $user->profile_photo);
 
         // ✅ Delete profile photo if exists
-        if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
-            Storage::disk('public')->delete($user->profile_photo);
+        if ($user->profile_photo && file_exists($photoPath)) {
+            unlink($photoPath);
         }
 
         Auth::guard('user')->logout();

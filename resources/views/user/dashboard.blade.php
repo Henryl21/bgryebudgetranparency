@@ -605,11 +605,14 @@
 
         <!-- Right side: Profile -->
       <div class="profile-wrapper relative">
-    <button id="profile-button" class="flex items-center focus:outline-none group">
-        <img src="{{ $user->profile_photo ? asset('storage/' . $user->profile_photo) : asset('images/default-avatar.png') }}" 
-             alt="{{ $user->full_name }}" 
-             class="w-12 h-12 rounded-full object-cover border-2 border-green-400 shadow-md transition-transform transform hover:scale-110">
-    </button>
+   <button id="profile-button" class="flex items-center focus:outline-none group">
+    <img src="{{ $user->profile_photo && file_exists(public_path('profile_photos/' . $user->profile_photo)) 
+                 ? asset('profile_photos/' . $user->profile_photo) 
+                 : asset('images/default-avatar.png') }}" 
+         alt="{{ $user->full_name }}" 
+         class="w-12 h-12 rounded-full object-cover border-2 border-green-400 shadow-md transition-transform transform hover:scale-110">
+</button>
+
 
     <!-- Dropdown -->
     <div id="profile-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">

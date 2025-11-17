@@ -20,8 +20,8 @@
         <!-- Profile Section -->
         <div class="flex flex-col items-center mb-6">
             <div class="relative">
-                @if($user->profile_photo)
-                    <img src="{{ asset('storage/' . $user->profile_photo) }}" 
+                @if($user->profile_photo && file_exists(public_path('profile_photos/' . $user->profile_photo)))
+                    <img src="{{ asset('profile_photos/' . $user->profile_photo) }}" 
                          class="w-32 h-32 rounded-full object-cover border-4 border-green-400 shadow-md hover:scale-105 transition duration-300" 
                          alt="Profile Photo">
                 @else
@@ -37,7 +37,7 @@
             <p><strong class="text-gray-700">Full Name:</strong> {{ $user->full_name }}</p>
             <p><strong class="text-gray-700">Email:</strong> {{ $user->email }}</p>
             <p><strong class="text-gray-700">Number:</strong> {{ $user->number ?? 'N/A' }}</p>
-          
+            <p><strong class="text-gray-700">Role:</strong> {{ $user->barangay_role ?? 'N/A' }}</p>
         </div>
 
         <!-- Buttons -->
