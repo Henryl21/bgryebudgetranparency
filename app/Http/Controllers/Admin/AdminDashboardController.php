@@ -8,6 +8,7 @@ use App\Models\Budget;
 use App\Models\Expenditure;
 use App\Models\Announcement;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AdminDashboardController extends Controller
 {
@@ -27,17 +28,17 @@ class AdminDashboardController extends Controller
         $totalSpent = $expenditures->sum('amount');
         $totalRemaining = $totalBudget - $totalSpent;
 
-        // Budgets for this barangay
+        // Budgets
         $budgets = Budget::where('barangay_role', $barangayRole)->latest()->get();
 
-        // Unique years
+        // Years
         $budgetYears = Budget::where('barangay_role', $barangayRole)
             ->selectRaw('YEAR(created_at) as year')
             ->distinct()
             ->orderBy('year', 'desc')
             ->pluck('year');
 
-        // Chart data
+        // Chart Data
         $budgetChart = ['labels' => [], 'data' => []];
         if ($expenditures->isNotEmpty()) {
             $grouped = $expenditures->groupBy('category');
@@ -47,6 +48,7 @@ class AdminDashboardController extends Controller
 
         // Announcements
         $query = Announcement::where('barangay_role', $barangayRole);
+
         if ($request->filled('search')) {
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
@@ -54,12 +56,15 @@ class AdminDashboardController extends Controller
                   ->orWhere('content', 'LIKE', "%{$searchTerm}%");
             });
         }
+
         if ($request->filled('month')) {
             $query->whereMonth('created_at', $request->month);
         }
+
         if ($request->filled('year')) {
             $query->whereYear('created_at', $request->year);
         }
+
         if ($request->filled('category')) {
             $query->where('category', $request->category);
         }
@@ -82,7 +87,7 @@ class AdminDashboardController extends Controller
         ));
     }
 
-    // Search announcements
+    // AJAX announcement search
     public function searchAnnouncements(Request $request)
     {
         $currentAdmin = Auth::guard('admin')->user();
@@ -107,33 +112,47 @@ class AdminDashboardController extends Controller
         return redirect()->route('admin.dashboard', ['search' => $searchTerm]);
     }
 
-    // Download Database
+    // SAFE Database Backup (NO exec(), works online)
     public function downloadDatabase()
     {
-        $dbHost = env('DB_HOST', '127.0.0.1');
-        $dbName = env('DB_DATABASE', 'barangar');
-        $dbUser = env('DB_USERNAME', 'root');
-        $dbPass = env('DB_PASSWORD', '');
+        $dbName = env('DB_DATABASE');
 
-        $backupPath = storage_path('app/backups/');
-        if (!file_exists($backupPath)) mkdir($backupPath, 0755, true);
+        // Fetch all tables
+        $tables = DB::select("SHOW TABLES");
 
-        $fileName = 'database_backup_' . date('Y_m_d_His') . '.sql';
-        $filePath = $backupPath . $fileName;
+        $sqlDump = "-- Laravel MySQL Backup\n-- " . date('Y-m-d H:i:s') . "\n\n";
 
-        $mysqldumpPath = "D:\\xampp\\mysql\\bin\\mysqldump.exe";
-        $command = "\"{$mysqldumpPath}\" --user=\"{$dbUser}\" --password=\"{$dbPass}\" --host=\"{$dbHost}\" {$dbName} > \"{$filePath}\"";
+        foreach ($tables as $table) {
+            $tableName = array_values((array)$table)[0];
 
-        \exec($command, $output, $returnVar);
+            // CREATE TABLE
+            $create = DB::select("SHOW CREATE TABLE `$tableName`")[0]->{'Create Table'};
+            $sqlDump .= "DROP TABLE IF EXISTS `$tableName`;\n";
+            $sqlDump .= $create . ";\n\n";
 
-        if ($returnVar !== 0 || !file_exists($filePath)) {
-            return back()->with('error', 'mysqldump command failed. Please check the path and credentials.');
+            // INSERT DATA
+            $rows = DB::table($tableName)->get();
+
+            foreach ($rows as $row) {
+                $values = array_map(function ($value) {
+                    return $value === null ? "NULL" : "'" . addslashes($value) . "'";
+                }, (array)$row);
+
+                $sqlDump .= "INSERT INTO `$tableName` VALUES(" . implode(",", $values) . ");\n";
+            }
+
+            $sqlDump .= "\n";
         }
 
-        return response()->download($filePath)->deleteFileAfterSend(true);
+        // Filename
+        $backupName = "backup_" . date('Y-m-d_H-i-s') . ".sql";
+
+        return response($sqlDump)
+            ->header("Content-Type", "application/sql")
+            ->header("Content-Disposition", "attachment; filename=$backupName");
     }
 
-    // Show Database Page
+    // Show DB Management Page
     public function showDatabasePage()
     {
         $currentAdmin = Auth::guard('admin')->user();
@@ -142,12 +161,13 @@ class AdminDashboardController extends Controller
         return view('admin.database', compact('barangayName'));
     }
 
-    // Logout admin and redirect to welcome
+    // Logout admin
     public function logout()
     {
-        Auth::guard('admin')->logout();       // Logout admin
-        session()->invalidate();               // Clear session
-        session()->regenerateToken();          // Regenerate CSRF token
-        return redirect()->route('welcome');  // Redirect to welcome.blade.php
+        Auth::guard('admin')->logout();
+        session()->invalidate();
+        session()->regenerateToken();
+
+        return redirect()->route('welcome');
     }
 }
