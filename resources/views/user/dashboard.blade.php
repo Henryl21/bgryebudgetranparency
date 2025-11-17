@@ -604,29 +604,38 @@
         </div>
 
         <!-- Right side: Profile -->
-        <div class="profile-wrapper relative">
-            <button id="profile-button" class="flex items-center focus:outline-none group">
-                <img src="{{ $user->profile_photo ? asset('storage/' . $user->profile_photo) : asset('images/default-avatar.png') }}" 
-                     alt="{{ $user->full_name }}" 
-                     class="w-12 h-12 rounded-full object-cover border-2 border-green-400 shadow-md transition-transform transform hover:scale-110">
-            </button>
+      <div class="profile-wrapper relative">
+    <button id="profile-button" class="flex items-center focus:outline-none group">
+        <img src="{{ $user->profile_photo ? asset('storage/' . $user->profile_photo) : asset('images/default-avatar.png') }}" 
+             alt="{{ $user->full_name }}" 
+             class="w-12 h-12 rounded-full object-cover border-2 border-green-400 shadow-md transition-transform transform hover:scale-110">
+    </button>
 
-            <!-- Dropdown -->
-            <div id="profile-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
-                <a href="{{ route('user.profile.edit') }}" 
-                   class="block px-4 py-2 text-gray-700 hover:bg-green-100 rounded-lg transition">
-                    Profile
-                </a>
-                <form action="{{ route('user.logout') }}" method="POST">
-                    @csrf
-                    <button type="submit" 
-                            class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-100 rounded-lg transition">
-                        Logout
-                    </button>
-                </form>
-            </div>
-        </div>
+    <!-- Dropdown -->
+    <div id="profile-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
+
+        <!-- ⭐ Feedback Button -->
+        <button id="open-feedback-modal"
+                class="w-full text-left px-4 py-2 text-blue-700 font-medium hover:bg-blue-100 rounded-lg transition flex items-center gap-2">
+            <i class="fa-solid fa-comment-dots text-blue-600"></i>
+            Feedback
+        </button>
+
+        <a href="{{ route('user.profile.edit') }}" 
+           class="block px-4 py-2 text-gray-700 hover:bg-green-100 rounded-lg transition">
+            Profile
+        </a>
+
+        <form action="{{ route('user.logout') }}" method="POST">
+            @csrf
+            <button type="submit" 
+                    class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-100 rounded-lg transition">
+                Logout
+            </button>
+        </form>
     </div>
+</div>
+
 </header>
 
 <!-- Font Awesome CDN -->
