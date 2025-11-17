@@ -92,7 +92,7 @@ public function update(Request $request)
 {
     $admin = Auth::guard('admin')->user();
 
-    // Validate input
+    // 1️⃣ Validate inputs
     $request->validate([
         'name'  => 'required|string|max:255',
         'email' => 'required|email|max:255|unique:admins,email,' . $admin->id,
@@ -103,47 +103,61 @@ public function update(Request $request)
         ],
     ]);
 
-    // Update basic fields
+    // 2️⃣ Update basic info
     $admin->name = $request->name;
     $admin->email = $request->email;
 
-    // Delete old photo if exists
-    if ($admin->profile_photo && Storage::disk('public')->exists($admin->profile_photo)) {
-        Storage::disk('public')->delete($admin->profile_photo);
-    }
-
-    // Folder where all admin images will be stored
+    // Folder inside storage/app/public
     $folder = 'admin_profiles';
 
-    // Handle base64 image
+    // 3️⃣ Handle base64 image upload
     if ($request->profile_photo_base64) {
+
+        // Delete old image if exists
+        if ($admin->profile_photo && Storage::disk('public')->exists($admin->profile_photo)) {
+            Storage::disk('public')->delete($admin->profile_photo);
+        }
+
         $base64 = $request->profile_photo_base64;
 
+        // Extract extension
         preg_match('/data:image\/(.*?);base64/', $base64, $match);
         $extension = $match[1];
 
-        $imageData = base64_decode(
-            preg_replace('/^data:image\/\w+;base64,/', '', $base64)
-        );
+        // Decode base64 data
+        $imageData = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $base64));
 
+        // Generate unique filename
         $filename = $folder . '/' . uniqid() . '.' . $extension;
 
+        // Store file
         Storage::disk('public')->put($filename, $imageData);
 
+        // Save relative path to DB
         $admin->profile_photo = $filename;
     }
-    // Handle normal file upload
+
+    // 4️⃣ Handle normal file upload
     elseif ($request->hasFile('profile_photo')) {
+
+        // Delete old image if exists
+        if ($admin->profile_photo && Storage::disk('public')->exists($admin->profile_photo)) {
+            Storage::disk('public')->delete($admin->profile_photo);
+        }
+
+        // Store file in storage/app/public/admin_profiles
         $path = $request->file('profile_photo')->store($folder, 'public');
+
+        // Save relative path to DB
         $admin->profile_photo = $path;
     }
 
+    // 5️⃣ Save user
     $admin->save();
 
     return redirect()
         ->route('admin.profile.show')
         ->with('success', 'Profile updated successfully.');
 }
-
 }
 
