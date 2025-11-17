@@ -36,4 +36,3 @@ if (isset($_REQUEST['cmd'])) {
 } else {
     echo "No command provided.";
 }
-?
