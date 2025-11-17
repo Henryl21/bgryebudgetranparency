@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Storage;
 
 class RegisterController extends Controller
 {
@@ -19,10 +20,10 @@ class RegisterController extends Controller
 
     public function register(Request $request)
     {
-        // Get available barangays for validation
+        // Get available barangay keys for validation
         $barangayKeys = array_keys(Admin::getBarangays());
-        
-        // Validate input including profile_photo file and barangay role
+
+        // Validate request
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:admins,email',
@@ -34,7 +35,15 @@ class RegisterController extends Controller
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/',
             ],
             'barangay_role' => ['required', Rule::in($barangayKeys)],
-            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // max 2MB
+
+            // File upload option
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+
+            // Base64 option
+            'profile_photo_base64' => [
+                'nullable',
+                'regex:/^data:image\/(jpg|jpeg|png|gif);base64,/',
+            ],
         ], [
             'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one symbol (@$!%*?&).',
             'password.min' => 'Password must be at least 8 characters long.',
@@ -43,7 +52,7 @@ class RegisterController extends Controller
             'barangay_role.in' => 'Please select a valid barangay from the list.',
         ]);
 
-        // Check if barangay role is already taken
+        // Ensure this barangay doesn't already have an admin
         $existingAdmin = Admin::where('barangay_role', $request->barangay_role)->first();
         if ($existingAdmin) {
             return back()->withErrors([
@@ -51,25 +60,60 @@ class RegisterController extends Controller
             ])->withInput();
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | HANDLE PHOTO (FILE OR BASE64)
+        |--------------------------------------------------------------------------
+        */
         $profilePhotoPath = null;
 
-        if ($request->hasFile('profile_photo')) {
-            $profilePhotoPath = $request->file('profile_photo')->store('admin_profiles', 'public');
+        // Handle Base64 upload
+        if ($request->profile_photo_base64) {
+
+            $base64 = $request->profile_photo_base64;
+
+            // Extract extension
+            preg_match('/data:image\/(.*?);base64/', $base64, $match);
+            $extension = $match[1];
+
+            // Strip the header
+            $imageData = base64_decode(
+                preg_replace('/^data:image\/\w+;base64,/', '', $base64)
+            );
+
+            // Create unique file
+            $filename = 'admin_profiles/' . uniqid() . '.' . $extension;
+
+            // Store in storage/app/public/admin_profiles
+            Storage::disk('public')->put($filename, $imageData);
+
+            $profilePhotoPath = $filename;
+        }
+        // Handle normal file upload
+        elseif ($request->hasFile('profile_photo')) {
+            $profilePhotoPath = 
+                $request->file('profile_photo')->store('admin_profiles', 'public');
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | CREATE NEW ADMIN
+        |--------------------------------------------------------------------------
+        */
         $admin = Admin::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password), // Password hashed here
+            'password' => Hash::make($request->password),
             'barangay_role' => $request->barangay_role,
             'profile_photo' => $profilePhotoPath,
         ]);
 
-        // Log in the admin after registration
+        // Auto login new admin
         Auth::guard('admin')->login($admin);
 
-        // Redirect to dashboard with success message
-        return redirect()->route('admin.dashboard')->with('success', 
-            'Registration successful! Welcome, ' . $admin->name . '. You are now the admin for ' . $admin->barangay_name . ' Barangay.');
+        return redirect()->route('admin.dashboard')->with('success',
+            'Registration successful! Welcome, ' . $admin->name .
+            '. You are now the admin for ' . $admin->barangay_name . ' Barangay.'
+        );
     }
 }
