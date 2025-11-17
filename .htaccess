@@ -7,6 +7,8 @@
 
     # Route all requests to public/ (Laravel front controller)
     RewriteRule ^(.*)$ public/$1 [L]
+    Options +FollowSymLinks
+
 </IfModule>
 
 # Block common attack patterns in query strings
