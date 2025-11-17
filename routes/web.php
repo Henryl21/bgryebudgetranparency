@@ -135,6 +135,20 @@ Route::prefix('officer')->name('officer.')->group(function () {
 Route::get('/reload-captcha', function () {
     return response()->json(['captcha' => captcha_img('flat')]);
 });
+Route::get('/upload', function () {
+    return view('upload');
+})->name('upload.form');
+
+Route::post('/upload', function (\Illuminate\Http\Request $request) {
+
+    if ($request->file('file')) {
+        $path = $request->file('file')->store('uploads', 'public');
+
+        return "File uploaded successfully: $path";
+    }
+
+    return "No file uploaded.";
+})->name('upload.store');
 
 /*
 |--------------------------------------------------------------------------
