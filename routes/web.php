@@ -26,6 +26,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/indexies', function () {
+    return view('indexies');
+})->name('indexies');
+
 /*
 |--------------------------------------------------------------------------
 | USER ROUTES (Custom Guard: user)
