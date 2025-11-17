@@ -1,20 +1,35 @@
+# System files
 *.log
 .DS_Store
+Thumbs.db
+
+# Environment files
 .env.backup
 .env.production
-.phpactor.json
-.phpunit.result.cache
+
+# IDE / Editor folders
 /.fleet
 /.idea
 /.nova
 /.phpunit.cache
 /.vscode
 /.zed
+
+# PHP / Composer
+.phpactor.json
+.phpunit.result.cache
 /auth.json
+vendor/phpmailer/phpmailer/
+
+# Laravel specific
 /public/hot
-/storage/*.key
-/storage/pail
+/storage/*.key   # Keep ignoring key files
+/storage/pail    # Keep ignoring pail folder (if used by a package)
+
+# Homestead
 Homestead.json
 Homestead.yaml
-Thumbs.db
-vendor/phpmailer/phpmailer/
+
+# Allow Git to track storage and public/storage folders
+!storage/
+!public/storage/
