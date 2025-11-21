@@ -38,8 +38,8 @@
                     <thead>
                         <tr class="bg-gradient-to-r from-gray-100 to-gray-50 border-b-2 border-indigo-200">
                             <th class="px-6 py-5 text-left text-xs font-bold text-indigo-900 uppercase tracking-wider">Officer</th>
-                            <th class="px-6 py-5 text-left text-xs font-bold text-indigo-900 uppercase tracking-wider">Title</th>
-                            <th class="px-6 py-5 text-left text-xs font-bold text-indigo-900 uppercase tracking-wider">Description</th>
+                            <th class="px-6 py-5 text-left text-xs font-bold text-indigo-900 uppercase tracking-wider">Details</th>
+                           
                             <th class="px-6 py-5 text-left text-xs font-bold text-indigo-900 uppercase tracking-wider">Amount</th>
                             <th class="px-6 py-5 text-left text-xs font-bold text-indigo-900 uppercase tracking-wider">Resolution</th>
                             <th class="px-6 py-5 text-left text-xs font-bold text-indigo-900 uppercase tracking-wider">Status</th>
@@ -60,14 +60,15 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-5">
-                                    <p class="text-sm font-semibold text-gray-900 group-hover:text-indigo-700 transition-colors">{{ $budget->title }}</p>
-                                </td>
-                                <td class="px-6 py-5">
-                                    <p class="text-sm text-gray-600 max-w-xs truncate" title="{{ $budget->description }}">
-                                        {{ $budget->description }}
-                                    </p>
-                                </td>
+                              <td class="px-6 py-5 align-top">
+    <textarea
+        class="w-full border border-gray-300 rounded-lg p-2 text-sm font-semibold text-gray-900 
+               resize-y overflow-hidden focus:ring-2 focus:ring-indigo-400"
+        oninput="autoResize(this)"
+    >{{ $budget->title }}</textarea>
+</td>
+
+                              
                                 <td class="px-6 py-5 whitespace-nowrap">
                                     <div class="bg-gradient-to-r from-emerald-100 to-teal-100 px-4 py-2 rounded-lg inline-block">
                                         <span class="text-sm font-bold text-emerald-800">₱{{ number_format($budget->amount, 2) }}</span>
@@ -193,13 +194,10 @@
                         <!-- Request Details -->
                         <div class="space-y-3 mb-5">
                             <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-xl border-l-4 border-indigo-500">
-                                <p class="text-xs text-indigo-700 uppercase tracking-wide font-bold mb-1">Title</p>
+                                <p class="text-xs text-indigo-700 uppercase tracking-wide font-bold mb-1">Detai;s</p>
                                 <p class="text-sm font-semibold text-gray-900">{{ $budget->title }}</p>
                             </div>
-                            <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-xl border-l-4 border-purple-500">
-                                <p class="text-xs text-purple-700 uppercase tracking-wide font-bold mb-1">Description</p>
-                                <p class="text-sm text-gray-700">{{ $budget->description }}</p>
-                            </div>
+                            
                             <div class="flex gap-3">
                                 <div class="flex-1 bg-gradient-to-br from-emerald-100 to-teal-100 p-4 rounded-xl border-2 border-emerald-300">
                                     <p class="text-xs text-emerald-700 uppercase tracking-wide font-bold mb-1">Amount</p>
@@ -274,6 +272,30 @@
     animation: gradient-shift 3s ease infinite;
 }
 </style>
+<!-- Include SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: '{{ session("success") }}',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    @endif
+
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Cannot Approve',
+            text: '{{ session("error") }}',
+            timer: 4000,
+            showConfirmButton: true
+        });
+    @endif
+</script>
 
 <script>
     function declineBudget(id) {
@@ -319,6 +341,10 @@
                 csrf.name = '_token';
                 csrf.value = '{{ csrf_token() }}';
                 form.appendChild(csrf);
+function autoResize(textarea) {
+    textarea.style.height = "auto";
+    textarea.style.height = textarea.scrollHeight + "px";
+}
 
                 const reasonInput = document.createElement('input');
                 reasonInput.type = 'hidden';

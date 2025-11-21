@@ -5,32 +5,15 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Budget;
-use Illuminate\Support\Facades\Auth;
 
-class BudgetController extends Controller
+class TreasurerBudgetController extends Controller
+
 {
-    /**
-     * Check if current user is treasurer.
-     * Returns a response if not, otherwise null.
-     */
-    private function checkTreasurer()
-    {
-        $user = Auth::guard('admin')->user();
-        if (!$user || $user->role !== 'treasurer') {
-            return response()->view('admin.budget.access-denied'); // create this view for SweetAlert
-        }
-        return null;
-    }
-
     /**
      * Display a listing of all budgets (with filters, search, pagination).
      */
     public function index(Request $request)
     {
-        if ($response = $this->checkTreasurer()) {
-            return $response;
-        }
-
         $query = Budget::query();
 
         // Search filter
@@ -57,6 +40,8 @@ class BudgetController extends Controller
 
         // Get paginated results (10 per page)
         $budgets = $query->paginate(10);
+
+        // Keep query parameters in pagination links
         $budgets->appends($request->query());
 
         // Get all budgets for stats (without pagination)
@@ -66,14 +51,34 @@ class BudgetController extends Controller
     }
 
     /**
+     * Display the dashboard with summary and all budgets.
+     */
+    public function dashboard()
+    {
+        $totalBudget = Budget::where('type', 'income')->sum('amount');
+        $totalSpent = Budget::where('type', 'expense')->sum('amount');
+        $totalRemaining = $totalBudget - $totalSpent;
+        $budgets = Budget::latest()->get(); // all types for display
+
+        $budgetChart = [
+            'labels' => ['Income', 'Expense'],
+            'data' => [$totalBudget, $totalSpent],
+        ];
+
+        return view('admin.dashboard', compact(
+            'totalBudget',
+            'totalSpent',
+            'totalRemaining',
+            'budgets',
+            'budgetChart'
+        ));
+    }
+
+    /**
      * Show the form for creating a new budget.
      */
     public function create()
     {
-        if ($response = $this->checkTreasurer()) {
-            return $response;
-        }
-
         return view('admin.budget.create');
     }
 
@@ -82,13 +87,9 @@ class BudgetController extends Controller
      */
     public function store(Request $request)
     {
-        if ($response = $this->checkTreasurer()) {
-            return $response;
-        }
-
         $request->validate([
             'title' => 'required|string|max:255',
-            'type' => 'required|in:revenue,expense,income',
+            'type' => 'required|in:revenue,expense,income', // allow legacy "income"
             'amount' => 'required|numeric|min:0',
         ]);
 
@@ -103,10 +104,6 @@ class BudgetController extends Controller
      */
     public function edit(Budget $budget)
     {
-        if ($response = $this->checkTreasurer()) {
-            return $response;
-        }
-
         return view('admin.budget.edit', compact('budget'));
     }
 
@@ -115,13 +112,9 @@ class BudgetController extends Controller
      */
     public function update(Request $request, Budget $budget)
     {
-        if ($response = $this->checkTreasurer()) {
-            return $response;
-        }
-
         $request->validate([
             'title' => 'required|string|max:255',
-            'type' => 'required|in:revenue,expense,income',
+            'type' => 'required|in:revenue,expense,income', // allow legacy "income"
             'amount' => 'required|numeric|min:0',
         ]);
 
@@ -136,41 +129,9 @@ class BudgetController extends Controller
      */
     public function destroy(Budget $budget)
     {
-        if ($response = $this->checkTreasurer()) {
-            return $response;
-        }
-
         $budget->delete();
 
         return redirect()->route('admin.budget.index')
             ->with('success', 'Budget record deleted successfully.');
-    }
-
-    /**
-     * Display the dashboard with summary and all budgets.
-     */
-    public function dashboard()
-    {
-        if ($response = $this->checkTreasurer()) {
-            return $response;
-        }
-
-        $totalBudget = Budget::where('type', 'income')->sum('amount');
-        $totalSpent = Budget::where('type', 'expense')->sum('amount');
-        $totalRemaining = $totalBudget - $totalSpent;
-        $budgets = Budget::latest()->get();
-
-        $budgetChart = [
-            'labels' => ['Income', 'Expense'],
-            'data' => [$totalBudget, $totalSpent],
-        ];
-
-        return view('admin.dashboard', compact(
-            'totalBudget',
-            'totalSpent',
-            'totalRemaining',
-            'budgets',
-            'budgetChart'
-        ));
     }
 }

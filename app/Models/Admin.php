@@ -19,7 +19,8 @@ class Admin extends Authenticatable
         'password',
         'profile_photo',
         'barangay_role',
-        'barangay_name'
+        'barangay_name',
+        'role', // ⭐ ADDED ROLE (admin, treasurer, captain)
     ];
 
     protected $hidden = [
@@ -53,7 +54,7 @@ class Admin extends Authenticatable
     {
         return [
             'bunakan' => 'Bunakan',
-            'kangwayan' => 'Kangwayan', 
+            'kangwayan' => 'Kangwayan',
             'kaongkod' => 'Kaongkod',
             'kodia' => 'Kodia',
             'maalat' => 'Maalat',
@@ -127,5 +128,23 @@ class Admin extends Authenticatable
     public function scopeForBarangay($query, $barangayRole)
     {
         return $query->where('barangay_role', $barangayRole);
+    }
+
+    /**
+     * ⭐ ROLE CHECKERS (ADDED)
+     */
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isTreasurer()
+    {
+        return $this->role === 'treasurer';
+    }
+
+    public function isCaptain()
+    {
+        return $this->role === 'captain';
     }
 }

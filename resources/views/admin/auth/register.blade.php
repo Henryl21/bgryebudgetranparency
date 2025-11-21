@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Register - Madridejos Barangay System</title>
     <style>
         * {
@@ -30,7 +29,6 @@
             border-radius: 16px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
             width: 450px;
-            max-width: 100%;
             text-align: center;
         }
         
@@ -125,28 +123,6 @@
             transform: translateY(-50%);
             color: rgba(255, 255, 255, 0.7);
             font-size: 18px;
-            pointer-events: none;
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            font-size: 20px;
-            user-select: none;
-            z-index: 10;
-            transition: all 0.3s ease;
-            padding: 5px;
-        }
-
-        .toggle-password:hover {
-            transform: translateY(-50%) scale(1.1);
-        }
-
-        .toggle-password:active {
-            transform: translateY(-50%) scale(0.95);
         }
 
         .label {
@@ -185,7 +161,6 @@
             position: relative;
             font-size: 13px;
             color: rgba(255, 255, 255, 0.8);
-            transition: all 0.3s ease;
         }
 
         .password-requirements li:before {
@@ -196,6 +171,7 @@
             font-weight: bold;
         }
         
+        /* Profile photo upload styles */
         .photo-upload-group {
             position: relative;
             margin-bottom: 25px;
@@ -284,10 +260,6 @@
             box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
             transform: translateY(-2px);
         }
-
-        .register-box button:active {
-            transform: translateY(0);
-        }
         
         .error-message {
             background: rgba(255, 107, 107, 0.2);
@@ -337,6 +309,7 @@
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
         
+        /* Icons using CSS */
         .user-icon::before {
             content: "👤";
         }
@@ -344,176 +317,24 @@
         .email-icon::before {
             content: "✉";
         }
-
-        /* Responsive design */
-        @media (max-width: 768px) {
-            body {
-                padding: 15px;
-            }
-
-            .register-box {
-                width: 100%;
-                padding: 35px 25px;
-            }
-            
-            .register-box h2 {
-                font-size: 26px;
-                letter-spacing: 1.5px;
-            }
-
-            .register-subtitle {
-                font-size: 13px;
-            }
-
-            .register-box input[type="text"],
-            .register-box input[type="email"],
-            .register-box input[type="password"],
-            .register-box select {
-                font-size: 16px; /* Prevents zoom on iOS */
-                padding: 14px 18px;
-            }
-
-            .toggle-password {
-                font-size: 19px;
-                right: 12px;
-            }
-
-            .password-requirements {
-                padding: 12px;
-            }
-
-            .password-requirements h4 {
-                font-size: 13px;
-            }
-
-            .password-requirements li {
-                font-size: 12px;
-            }
+        
+        .lock-icon::before {
+            content: "🔒";
         }
 
-        @media (max-width: 480px) {
-            body {
-                padding: 10px;
-            }
+        .barangay-icon::before {
+            content: "🏢";
+        }
 
+        /* Responsive design */
+        @media (max-width: 480px) {
             .register-box {
-                padding: 30px 20px;
-                border-radius: 12px;
+                width: 90%;
+                padding: 30px 25px;
             }
             
             .register-box h2 {
                 font-size: 24px;
-                letter-spacing: 1px;
-                margin-bottom: 8px;
-            }
-
-            .register-subtitle {
-                font-size: 12px;
-                margin-bottom: 25px;
-            }
-
-            .input-group {
-                margin-bottom: 20px;
-            }
-
-            .register-box input[type="text"],
-            .register-box input[type="email"],
-            .register-box input[type="password"],
-            .register-box select {
-                padding: 13px 16px;
-                padding-right: 45px;
-                font-size: 15px;
-            }
-
-            .toggle-password {
-                font-size: 18px;
-                right: 12px;
-            }
-
-            .input-icon {
-                font-size: 16px;
-                right: 12px;
-            }
-
-            .label {
-                font-size: 13px;
-                margin-bottom: 6px;
-            }
-
-            .password-requirements {
-                padding: 10px 12px;
-                margin-bottom: 20px;
-            }
-
-            .password-requirements h4 {
-                font-size: 12px;
-                margin-bottom: 8px;
-            }
-
-            .password-requirements li {
-                font-size: 11px;
-                padding-left: 18px;
-                margin-bottom: 4px;
-            }
-
-            .file-input-button {
-                padding: 13px 16px;
-                font-size: 13px;
-            }
-
-            .photo-preview img {
-                max-width: 100px;
-                max-height: 100px;
-            }
-
-            .register-box button {
-                padding: 13px;
-                font-size: 15px;
-                letter-spacing: 0.5px;
-            }
-
-            .login-link {
-                font-size: 13px;
-                margin-top: 20px;
-            }
-        }
-
-        @media (max-width: 360px) {
-            .register-box {
-                padding: 25px 15px;
-            }
-
-            .register-box h2 {
-                font-size: 22px;
-            }
-
-            .register-subtitle {
-                font-size: 11px;
-            }
-
-            .register-box input[type="text"],
-            .register-box input[type="email"],
-            .register-box input[type="password"],
-            .register-box select {
-                padding: 12px 14px;
-                padding-right: 42px;
-                font-size: 14px;
-            }
-
-            .toggle-password {
-                font-size: 17px;
-                right: 10px;
-            }
-
-            .password-requirements li {
-                font-size: 10px;
-            }
-        }
-
-        @media (min-width: 769px) and (max-width: 1024px) {
-            .register-box {
-                width: 500px;
-                padding: 45px;
             }
         }
     </style>
@@ -523,59 +344,76 @@
         <h2>Admin Register</h2>
         <div class="register-subtitle">Madridejos Barangay Management System</div>
 
+        {{-- Success Messages --}}
+        @if (session('success'))
+            <div class="success-message">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        {{-- Validation Errors --}}
+        @if ($errors->any())
+            <div class="error-message">
+                @foreach ($errors->all() as $error)
+                    <div>{{ $error }}</div>
+                @endforeach
+            </div>
+        @endif
+
         <div class="password-requirements">
             <h4>Password Requirements:</h4>
             <ul>
-                <li id="req-length">At least 8 characters long</li>
-                <li id="req-uppercase">One uppercase letter (A-Z)</li>
-                <li id="req-lowercase">One lowercase letter (a-z)</li>
-                <li id="req-number">One number (0-9)</li>
-                <li id="req-symbol">One symbol (@$!%*?&)</li>
+                <li>At least 8 characters long</li>
+                <li>One uppercase letter (A-Z)</li>
+                <li>One lowercase letter (a-z)</li>
+                <li>One number (0-9)</li>
+                <li>One symbol (@$!%*?&)</li>
             </ul>
         </div>
 
-        <form id="registerForm">
+        <form method="POST" action="{{ route('admin.register') }}" enctype="multipart/form-data">
+            @csrf
+            
             <div class="input-group">
-                <input type="text" name="name" id="name" placeholder="Admin Full Name" required>
+                <input type="text" name="name" placeholder="Admin Full Name" required value="{{ old('name') }}">
                 <div class="input-icon user-icon"></div>
             </div>
             
             <div class="input-group">
-                <input type="email" name="email" id="email" placeholder="Email Address" required>
+                <input type="email" name="email" placeholder="Email Address" required value="{{ old('email') }}">
                 <div class="input-icon email-icon"></div>
             </div>
 
             <div class="input-group">
                 <label class="label">Barangay Assignment</label>
                 <div class="select-wrapper">
-                    <select name="barangay_role" id="barangay_role" required>
+                    <select name="barangay_role" required>
                         <option value="">Select Barangay</option>
-                        <option value="bunakan">Bunakan</option>
-                        <option value="kangwayan">Kangwayan</option>
-                        <option value="kaongkod">Kaongkod</option>
-                        <option value="kodia">Kodia</option>
-                        <option value="maalat">Maalat</option>
-                        <option value="malbago">Malbago</option>
-                        <option value="mancilang">Mancilang</option>
-                        <option value="pili">Pili</option>
-                        <option value="poblacion">Poblacion</option>
-                        <option value="san_agustin">San Agustin</option>
-                        <option value="tabagak">Tabagak</option>
-                        <option value="talangnan">Talangnan</option>
-                        <option value="tarong">Tarong</option>
-                        <option value="tugas">Tugas</option>
+                        @foreach($barangays as $key => $name)
+                            <option value="{{ $key }}" {{ old('barangay_role') == $key ? 'selected' : '' }}>
+                                {{ $name }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
             </div>
-            
+                     <div class="mb-4">
+    
+    <select name="role" class="form-select" required>
+        <option value="">-- Choose Role --</option>
+        <option value="admin">Admin</option>
+        <option value="treasurer">Treasurer</option>
+        <option value="captain">Captain</option>
+    </select>
+</div>
             <div class="input-group">
-                <input type="password" name="password" id="password" placeholder="Password" required>
-                <span class="toggle-password" data-target="password">🔒</span>
+                <input type="password" name="password" placeholder="Password" required>
+                <div class="input-icon lock-icon"></div>
             </div>
             
             <div class="input-group">
-                <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Confirm Password" required>
-                <span class="toggle-password" data-target="password_confirmation">🔒</span>
+                <input type="password" name="password_confirmation" placeholder="Confirm Password" required>
+                <div class="input-icon lock-icon"></div>
             </div>
             
             <div class="photo-upload-group">
@@ -594,30 +432,13 @@
             <button type="submit">Register Admin Account</button>
         </form>
 
-          <div class="login-link">
+        <div class="login-link">
             Already have an account?
             <a href="{{ route('admin.login') }}">Login here</a>
         </div>
     </div>
 
     <script>
-        // Toggle password visibility
-        document.querySelectorAll('.toggle-password').forEach(toggle => {
-            toggle.addEventListener('click', function() {
-                const targetId = this.getAttribute('data-target');
-                const input = document.getElementById(targetId);
-                
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    this.textContent = '🔓';
-                } else {
-                    input.type = 'password';
-                    this.textContent = '🔒';
-                }
-            });
-        });
-
-        // Profile photo handling
         document.getElementById('profile_photo').addEventListener('change', function(e) {
             const file = e.target.files[0];
             const fileButton = document.getElementById('file-button');
@@ -625,21 +446,25 @@
             const previewImage = document.getElementById('preview-image');
             
             if (file) {
+                // Validate file size (2MB max)
                 if (file.size > 2 * 1024 * 1024) {
                     alert('File size must be less than 2MB');
                     this.value = '';
                     return;
                 }
 
+                // Validate file type
                 if (!file.type.match(/^image\/(jpeg|jpg|png|gif)$/)) {
                     alert('Please select a valid image file (JPEG, PNG, or GIF)');
                     this.value = '';
                     return;
                 }
                 
+                // Update button text and style
                 fileButton.textContent = `📸 ${file.name}`;
                 fileButton.classList.add('has-file');
                 
+                // Show preview
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     previewImage.src = e.target.result;
@@ -647,6 +472,7 @@
                 };
                 reader.readAsDataURL(file);
             } else {
+                // Reset if no file selected
                 fileButton.textContent = '📸 Choose Profile Photo';
                 fileButton.classList.remove('has-file');
                 photoPreview.style.display = 'none';
@@ -654,33 +480,28 @@
         });
 
         // Real-time password validation
-        document.getElementById('password').addEventListener('input', function(e) {
+        document.querySelector('input[name="password"]').addEventListener('input', function(e) {
             const password = e.target.value;
+            const requirements = document.querySelectorAll('.password-requirements li');
             
-            const requirements = {
-                'req-length': password.length >= 8,
-                'req-uppercase': /[A-Z]/.test(password),
-                'req-lowercase': /[a-z]/.test(password),
-                'req-number': /\d/.test(password),
-                'req-symbol': /[@$!%*?&]/.test(password)
-            };
+            // Check each requirement
+            const checks = [
+                password.length >= 8,
+                /[A-Z]/.test(password),
+                /[a-z]/.test(password),
+                /\d/.test(password),
+                /[@$!%*?&]/.test(password)
+            ];
             
-            for (const [id, passed] of Object.entries(requirements)) {
-                const element = document.getElementById(id);
-                if (passed) {
-                    element.style.color = '#4ade80';
-                    element.style.fontWeight = '500';
+            requirements.forEach((req, index) => {
+                if (checks[index]) {
+                    req.style.color = '#4ade80';
+                    req.style.fontWeight = '500';
                 } else {
-                    element.style.color = 'rgba(255, 255, 255, 0.8)';
-                    element.style.fontWeight = '400';
+                    req.style.color = 'rgba(255, 255, 255, 0.8)';
+                    req.style.fontWeight = '400';
                 }
-            }
-        });
-
-        // Form submission
-        document.getElementById('registerForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Registration form submitted! (This is a demo)');
+            });
         });
     </script>
 </body>

@@ -25,7 +25,9 @@ class RegisterController extends Controller
     public function showRegisterForm()
     {
         $barangays = User::getBarangays();
-        return view('user.register', compact('barangays'));
+        $user = new User(); // empty user object for register form
+
+        return view('user.register', compact('barangays', 'user'));
     }
 
     /**
@@ -58,12 +60,30 @@ class RegisterController extends Controller
                 'profile_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png|max:2048'],
             ]);
 
-      if ($request->hasFile('profile_photo')) {
-            $path = $request->file('profile_photo')->store('profile_photos', 'public');
-            $validated['profile_photo'] = $path;
-        } else {
-            $validated['profile_photo'] = null;
-        }
+            /**
+             * HANDLE PROFILE PHOTO UPLOAD
+             * EXACT SAME WAY AS ProfileController
+             */
+            if ($request->hasFile('profile_photo')) {
+
+                $file = $request->file('profile_photo');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $destinationPath = public_path('profile_photos');
+
+                // Create folder if not exists
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0777, true);
+                }
+
+                // Move file to public/profile_photos/
+                $file->move($destinationPath, $filename);
+
+                // Save only the filename in session data
+                $validated['profile_photo'] = $filename;
+
+            } else {
+                $validated['profile_photo'] = null;
+            }
 
             // Generate OTP
             $otp = rand(100000, 999999);

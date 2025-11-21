@@ -7,20 +7,16 @@ use Illuminate\Http\Request;
 use App\Models\Budget;
 use App\Models\Expenditure;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Storage;
 
 class ExpenditureController extends Controller
 {
     public function index()
     {
-        // $expenditures = Budget::expense()
-        //     ->orderBy('date', 'desc')
-        //     ->orderBy('created_at', 'desc')
-        //     ->get();
         $auth_user_barangay = auth()->user()->barangay_role;
 
         $expenditures = Expenditure::whereRaw('LOWER(barangay) = ?', [$auth_user_barangay])
             ->get();
+
         $totalSpent = $expenditures->sum('amount');
 
         return view('admin.expenditure.index', compact('expenditures', 'totalSpent'));
@@ -44,11 +40,23 @@ class ExpenditureController extends Controller
 
         $data['type'] = 'expense';
 
-        if ($request->hasFile('receipt')) {
-            $data['receipt'] = $request->file('receipt')->store('receipts', 'public');
+        // Get current total budget and total spent
+        $totalBudget = Budget::sum('amount'); // total budget
+        $totalSpent = Expenditure::sum('amount');
+
+        // Check if adding this expenditure exceeds budget
+        if (($totalSpent + $data['amount']) > $totalBudget) {
+            return redirect()->back()->with('error', 'Cannot add expenditure. Total budget is not enough.');
         }
 
-        Budget::create($data);
+        // Handle receipt file
+        if ($request->hasFile('receipt')) {
+            $file = $request->file('receipt');
+            $data['receipt'] = base64_encode(file_get_contents($file->getRealPath()));
+            $data['receipt_type'] = $file->getClientMimeType();
+        }
+
+        Expenditure::create($data);
 
         Cache::forget('dashboard_totals');
         Cache::forget('expenditure_totals');
@@ -59,13 +67,13 @@ class ExpenditureController extends Controller
 
     public function edit($id)
     {
-        $expenditure = Budget::findOrFail($id);
+        $expenditure = Expenditure::findOrFail($id);
         return view('admin.expenditure.edit', compact('expenditure'));
     }
 
     public function update(Request $request, $id)
     {
-        $expenditure = Budget::findOrFail($id);
+        $expenditure = Expenditure::findOrFail($id);
 
         $data = $request->validate([
             'title'       => 'required|string|max:255',
@@ -77,18 +85,25 @@ class ExpenditureController extends Controller
             'remove_image'=> 'nullable|in:0,1'
         ]);
 
-        // Remove old receipt if requested
-        if ($request->remove_image == '1' && $expenditure->receipt) {
-            Storage::disk('public')->delete($expenditure->receipt);
+        // Calculate remaining budget if updating amount
+        $totalBudget = Budget::sum('amount');
+        $totalSpent = Expenditure::sum('amount') - $expenditure->amount; // subtract old amount
+
+        if (($totalSpent + $data['amount']) > $totalBudget) {
+            return redirect()->back()->with('error', 'Cannot update expenditure. Total budget is not enough.');
+        }
+
+        // Remove old base64 receipt
+        if ($request->remove_image == '1') {
             $data['receipt'] = null;
+            $data['receipt_type'] = null;
         }
 
         // Upload new receipt
         if ($request->hasFile('receipt')) {
-            if ($expenditure->receipt) {
-                Storage::disk('public')->delete($expenditure->receipt);
-            }
-            $data['receipt'] = $request->file('receipt')->store('receipts', 'public');
+            $file = $request->file('receipt');
+            $data['receipt'] = base64_encode(file_get_contents($file->getRealPath()));
+            $data['receipt_type'] = $file->getClientMimeType();
         }
 
         $expenditure->update($data);
@@ -102,11 +117,7 @@ class ExpenditureController extends Controller
 
     public function destroy($id)
     {
-        $expenditure = Budget::findOrFail($id);
-
-        if ($expenditure->receipt) {
-            Storage::disk('public')->delete($expenditure->receipt);
-        }
+        $expenditure = Expenditure::findOrFail($id);
 
         $expenditure->delete();
 

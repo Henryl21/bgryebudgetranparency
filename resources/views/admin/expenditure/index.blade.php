@@ -246,7 +246,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
-                        DESCRIPTION
+                        Details
                     </div>
                     <div class="col-span-2 flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -261,6 +261,7 @@
                         DATE
                     </div>
                 </div>
+                
             </div>
 
             <!-- Table Body -->
@@ -304,9 +305,18 @@
                     </div>
 
                     <!-- DESCRIPTION -->
-                    <div class="col-span-2 flex items-center font-semibold text-gray-900">
-                        {{ $exp->title }}
-                    </div>
+           <div class="col-span-2">
+    <div class="bg-gray-50 border border-gray-300 rounded-lg p-3
+                text-gray-900 font-semibold shadow-sm
+                leading-relaxed
+                w-full max-w-full
+                text-left whitespace-pre-wrap
+                block">
+        {{ $exp->title }}
+    </div>
+</div>
+
+
 
                     <!-- Amount -->
                     <div class="col-span-2 flex items-center">

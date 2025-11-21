@@ -32,27 +32,21 @@
             <form action="{{ route('officer.expenditures.update', $expenditure->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
-
-                <!-- Title -->
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-medium mb-2">Title</label>
-                    <input type="text" name="title" value="{{ old('title', $expenditure->title) }}" required
-                        class="w-full border-gray-300 rounded-lg focus:ring-yellow-400 focus:border-yellow-400 shadow-sm p-2">
-                </div>
-
-                <!-- Description -->
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-medium mb-2">Description</label>
-                    <textarea name="description" rows="3"
-                        class="w-full border-gray-300 rounded-lg focus:ring-yellow-400 focus:border-yellow-400 shadow-sm p-2">{{ old('description', $expenditure->description) }}</textarea>
-                </div>
-
-                <!-- Category -->
+ <!-- Category -->
                 <div class="mb-4">
                     <label class="block text-gray-700 font-medium mb-2">Category</label>
                     <input type="text" name="category" value="{{ old('category', $expenditure->category) }}"
                         class="w-full border-gray-300 rounded-lg focus:ring-yellow-400 focus:border-yellow-400 shadow-sm p-2">
                 </div>
+                <!-- Title -->
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">Details</label>
+                    <input type="text" name="title" value="{{ old('title', $expenditure->title) }}" required
+                        class="w-full border-gray-300 rounded-lg focus:ring-yellow-400 focus:border-yellow-400 shadow-sm p-2">
+                </div>
+
+              
+             
 
                 <!-- Amount -->
                 <div class="mb-4">

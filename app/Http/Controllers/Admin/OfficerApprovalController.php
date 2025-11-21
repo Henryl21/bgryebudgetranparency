@@ -7,15 +7,34 @@ use App\Models\Officer;
 use App\Models\OfficerUser;
 use App\Models\OfficerRequest;
 use App\Models\Expenditure;
+use App\Models\Budget;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class OfficerApprovalController extends Controller
 {
+    /**
+     * Check if current user is captain.
+     * Returns a response if not, otherwise null.
+     */
+    private function checkCaptain()
+    {
+        $user = Auth::guard('admin')->user();
+        if (!$user || $user->role !== 'captain') {
+            return response()->view('admin.officers.access-denied'); // create this view for access denied
+        }
+        return null;
+    }
+
     /**
      * Display all pending officers for approval.
      */
     public function index()
     {
+        if ($response = $this->checkCaptain()) {
+            return $response;
+        }
+
         $officers = Officer::latest()->get();
 
         // Get barangay name of logged-in admin
@@ -34,12 +53,23 @@ class OfficerApprovalController extends Controller
     }
 
     /**
-     * Approve the officer request.
-     * Also auto-inserts into the expenditures table.
+     * Approve the officer request and auto-insert into expenditures.
      */
     public function approve($id)
     {
+        if ($response = $this->checkCaptain()) {
+            return $response;
+        }
+
         $officer = Officer::findOrFail($id);
+
+        // Check if total budget is enough
+        $totalBudget = Budget::sum('amount');
+        $totalSpent = Expenditure::sum('amount');
+
+        if (($totalSpent + ($officer->amount ?? 0)) > $totalBudget) {
+            return back()->with('error', 'Cannot approve officer. Total budget is not enough.');
+        }
 
         // Update officer status
         $officer->status = 'approved';
@@ -66,22 +96,32 @@ class OfficerApprovalController extends Controller
      */
     public function approveBudgetRequest(Request $request, $id)
     {
-        $officer = OfficerRequest::findOrFail($id);
+        if ($response = $this->checkCaptain()) {
+            return $response;
+        }
 
-        // Update officer request status
-        $officer->status = 'approved';
-        $officer->decline_reason = null;
-        $officer->save();
+        $officerRequest = OfficerRequest::findOrFail($id);
 
-        // Auto-insert to expenditures table
+        // Check if total budget is enough
+        $totalBudget = Budget::sum('amount');
+        $totalSpent = Expenditure::sum('amount');
+
+        if (($totalSpent + ($officerRequest->amount ?? 0)) > $totalBudget) {
+            return back()->with('error', 'Cannot approve budget request. Total budget is not enough.');
+        }
+
+        $officerRequest->status = 'approved';
+        $officerRequest->decline_reason = null;
+        $officerRequest->save();
+
         Expenditure::create([
-            'title'       => $officer->title ?? $officer->name,
-            'category'    => $officer->category ?? 'Other',
-            'barangay'    => strtolower($officer->barangay ?? auth()->user()->barangay_role),
-            'amount'      => $officer->amount ?? 0,
+            'title'       => $officerRequest->title ?? $officerRequest->name,
+            'category'    => $officerRequest->category ?? 'Other',
+            'barangay'    => strtolower($officerRequest->barangay ?? auth()->user()->barangay_role),
+            'amount'      => $officerRequest->amount ?? 0,
             'date'        => now(),
-            'description' => $officer->description ?? 'Budget request approved.',
-            'receipt'     => $officer->receipt ?? null,
+            'description' => $officerRequest->description ?? 'Budget request approved.',
+            'receipt'     => $officerRequest->receipt ?? null,
             'status'      => 'approved',
         ]);
 
@@ -93,6 +133,10 @@ class OfficerApprovalController extends Controller
      */
     public function decline(Request $request, $id)
     {
+        if ($response = $this->checkCaptain()) {
+            return $response;
+        }
+
         $request->validate([
             'reason' => 'required|string|max:255',
         ]);
@@ -110,14 +154,18 @@ class OfficerApprovalController extends Controller
      */
     public function declineBudgetRequest(Request $request, $id)
     {
+        if ($response = $this->checkCaptain()) {
+            return $response;
+        }
+
         $request->validate([
             'reason' => 'required|string|max:255',
         ]);
 
-        $officer = OfficerRequest::findOrFail($id);
-        $officer->status = 'declined';
-        $officer->decline_reason = $request->input('reason');
-        $officer->save();
+        $officerRequest = OfficerRequest::findOrFail($id);
+        $officerRequest->status = 'declined';
+        $officerRequest->decline_reason = $request->input('reason');
+        $officerRequest->save();
 
         return back()->with('success', 'Budget request declined with reason.');
     }
@@ -127,6 +175,10 @@ class OfficerApprovalController extends Controller
      */
     public function show($id)
     {
+        if ($response = $this->checkCaptain()) {
+            return $response;
+        }
+
         $officer = Officer::findOrFail($id);
         return view('admin.officers.show', compact('officer'));
     }
@@ -136,6 +188,10 @@ class OfficerApprovalController extends Controller
      */
     public function destroy($id)
     {
+        if ($response = $this->checkCaptain()) {
+            return $response;
+        }
+
         $officer = Officer::findOrFail($id);
         $officer->delete();
 

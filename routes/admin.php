@@ -15,6 +15,8 @@ use App\Http\Controllers\Admin\BarangaySettingController;
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Officer\OfficerAuthController;
 use App\Http\Controllers\Officer\OfficerDashboardController;
+use App\Http\Controllers\Treasurer\TreasurerAuthController;
+use App\Http\Controllers\Treasurer\TreasurerDashboardController;
 use App\Http\Controllers\User\FeedbackController as UserFeedbackController;
 use App\Http\Controllers\Admin\UserController; // ✅ added for officer list
 
@@ -33,6 +35,8 @@ Route::get('/dashboard', function () {
         return redirect()->route('admin.dashboard');
     } elseif (auth('officer')->check()) {
         return redirect()->route('officer.dashboard');
+    } elseif (auth('treasurer')->check()) {
+        return redirect()->route('treasurer.dashboard');
     }
     return redirect()->route('welcome');
 })->name('dashboard');
@@ -50,6 +54,7 @@ Route::post('/admin/register', [RegisterController::class, 'register']);
 Route::get('/admin/otp', [LoginController::class, 'showOtpForm'])->name('admin.otp.form');
 Route::post('/admin/otp', [LoginController::class, 'verifyOtp'])->name('admin.otp.verify');
 Route::post('admin/otp/resend', [LoginController::class, 'resendOtp'])->name('admin.otp.resend');
+
 // Redirect legacy upload-receipt route
 Route::get('/admin/expenditure/{id}/upload-receipt', function ($id) {
     return redirect("/admin/expenditures/{$id}/upload-receipt");
@@ -61,8 +66,10 @@ Route::get('/admin/expenditure/{id}/upload-receipt', function ($id) {
 |--------------------------------------------------------------------------
 */
 Route::prefix('admin')->name('admin.')->middleware(['auth:admin'])->group(function () {
-Route::get('/admin/database', [AdminDashboardController::class, 'showDatabasePage'])->name('database');
-Route::get('/admin/download-database', [AdminDashboardController::class, 'downloadDatabase'])->name('downloadDatabase');
+
+    Route::get('/admin/database', [AdminDashboardController::class, 'showDatabasePage'])->name('database');
+    Route::get('/admin/download-database', [AdminDashboardController::class, 'downloadDatabase'])->name('downloadDatabase');
+
     // ✅ Dashboard
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/budget-dashboard', [BudgetController::class, 'dashboard'])->name('budget.dashboard');
@@ -70,12 +77,10 @@ Route::get('/admin/download-database', [AdminDashboardController::class, 'downlo
     Route::post('/admin/logout', [AdminDashboardController::class, 'logout'])->name('logout');
 
     // ✅ Users list route (for admin to view all registered users)
-    Route::get('/users-officers', [UserController::class, 'index'])
-        ->name('users_officers.index');
-
-    Route::get('users-officers/{email}', [\App\Http\Controllers\Admin\UserController::class, 'show'])
-        ->name('users_officers.show');
+    Route::get('/users-officers', [UserController::class, 'index'])->name('users_officers.index');
+    Route::get('users-officers/{email}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('users_officers.show');
     Route::get('/activity-logs', [UserController::class, 'activityLogs'])->name('activity.logs');
+
     // ✅ Admin Profile
     Route::get('/profile', [AdminProfileController::class, 'show'])->name('profile.show');
     Route::put('/profile', [AdminProfileController::class, 'update'])->name('profile.update');
@@ -86,8 +91,7 @@ Route::get('/admin/download-database', [AdminDashboardController::class, 'downlo
 
     // ✅ Reports
     Route::resource('settings/reports', ReportController::class);
-    Route::get('/reports/expenditures', [ReportController::class, 'printExpenditures'])
-        ->name('reports.print');
+    Route::get('/reports/expenditures', [ReportController::class, 'printExpenditures'])->name('reports.print');
 
     // ✅ Budget CRUD
     Route::resource('/budget', BudgetController::class);
@@ -119,7 +123,6 @@ Route::get('/admin/download-database', [AdminDashboardController::class, 'downlo
     Route::get('/expenditures/{id}/download-receipt', [ExpenditureController::class, 'downloadReceipt'])->name('expenditure.downloadReceipt');
     Route::post('/expenditures/{id}/upload-receipt', [ExpenditureController::class, 'storeReceipt'])->name('expenditure.storeReceipt');
 
-    
     // ✅ Officer Approvals
     Route::get('/officers/approval', [OfficerApprovalController::class, 'index'])->name('officers.approval');
     Route::post('/officers/{id}/approve', [OfficerApprovalController::class, 'approve'])->name('officers.approve');
@@ -159,7 +162,6 @@ Route::prefix('officer')->name('officer.')->group(function () {
     Route::post('/logout', [OfficerAuthController::class, 'logout'])->name('logout');
 });
 
-
 /*
 |--------------------------------------------------------------------------
 | Officer Protected Routes
@@ -182,6 +184,49 @@ Route::middleware(['auth:officer'])->prefix('officer')->name('officer.')->group(
     Route::delete('/expenditures/{id}', [OfficerDashboardController::class, 'destroy'])->name('expenditures.destroy');
 });
 
+/*
+|--------------------------------------------------------------------------
+| ⭐ TREASURER AUTHENTICATION
+|--------------------------------------------------------------------------
+*/
+Route::prefix('treasurer')->name('treasurer.')->group(function () {
+
+    // Registration
+    Route::get('/register', [TreasurerAuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [TreasurerAuthController::class, 'register'])->name('register.submit');
+
+    // Registration OTP
+    Route::get('/register/otp', [TreasurerAuthController::class, 'showRegisterOtp'])->name('register.otp');
+    Route::post('/register/otp', [TreasurerAuthController::class, 'verifyRegisterOtp'])->name('register.verifyOtp');
+
+    // Login
+    Route::get('/login', [TreasurerAuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [TreasurerAuthController::class, 'login'])->name('login.submit');
+
+    // Login OTP
+    Route::get('/otp', [TreasurerAuthController::class, 'showOtp'])->name('otp');
+    Route::post('/otp', [TreasurerAuthController::class, 'verifyOtp'])->name('verifyOtp');
+
+    // Logout
+    Route::post('/logout', [TreasurerAuthController::class, 'logout'])->name('logout');
+});
+
+/*
+|--------------------------------------------------------------------------
+| ⭐ TREASURER PROTECTED ROUTES
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth:treasurer'])
+    ->prefix('treasurer')
+    ->name('treasurer.')
+    ->group(function () {
+
+        // Dashboard
+        Route::get('/dashboard', [TreasurerDashboardController::class, 'index'])->name('dashboard');
+
+        // (Optional future CRUD)
+        // Route::resource('/reports', TreasurerReportController::class);
+    });
 
 /*
 |--------------------------------------------------------------------------
@@ -189,8 +234,8 @@ Route::middleware(['auth:officer'])->prefix('officer')->name('officer.')->group(
 |--------------------------------------------------------------------------
 */
 // Route::middleware(['auth'])->group(function () {
-//     Route::get('/feedback', [UserFeedbackController::class, 'index'])->name('feedback.index');   // list user feedback
-//     Route::get('/feedback/create', [UserFeedbackController::class, 'create'])->name('user.feedback.create'); // feedback form
-//     Route::post('/feedback', [UserFeedbackController::class, 'store'])->name('user.feedback.store');  // save feedback
-//     Route::delete('/feedback/{id}', [UserFeedbackController::class, 'destroy'])->name('user.feedback.destroy'); // delete feedback
+//     Route::get('/feedback', [UserFeedbackController::class, 'index'])->name('feedback.index');   
+//     Route::get('/feedback/create', [UserFeedbackController::class, 'create'])->name('user.feedback.create'); 
+//     Route::post('/feedback', [UserFeedbackController::class, 'store'])->name('user.feedback.store');  
+//     Route::delete('/feedback/{id}', [UserFeedbackController::class, 'destroy'])->name('user.feedback.destroy'); 
 // });

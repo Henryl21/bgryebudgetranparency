@@ -5,14 +5,32 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Announcement;
+use Illuminate\Support\Facades\Auth;
 
 class AnnouncementController extends Controller
 {
+    /**
+     * Check if current user is admin.
+     * Returns a response if not, otherwise null.
+     */
+    private function checkAdmin()
+    {
+        $user = Auth::guard('admin')->user();
+        if (!$user || $user->role !== 'admin') {
+            return response()->view('admin.announcements.access-denied'); // create this view for SweetAlert
+        }
+        return null;
+    }
+
     /**
      * Display a listing of the announcements.
      */
     public function index()
     {
+        if ($response = $this->checkAdmin()) {
+            return $response;
+        }
+
         // Only show announcements from the logged-in admin's barangay
         $announcements = Announcement::where('barangay_role', auth('admin')->user()->barangay_role)
                                      ->latest()
@@ -26,6 +44,10 @@ class AnnouncementController extends Controller
      */
     public function create()
     {
+        if ($response = $this->checkAdmin()) {
+            return $response;
+        }
+
         return view('admin.announcements.create');
     }
 
@@ -34,6 +56,10 @@ class AnnouncementController extends Controller
      */
     public function store(Request $request)
     {
+        if ($response = $this->checkAdmin()) {
+            return $response;
+        }
+
         $request->validate([
             'title'   => 'required|string|max:255',
             'content' => 'required|string',
@@ -42,7 +68,7 @@ class AnnouncementController extends Controller
         Announcement::create([
             'title'         => $request->title,
             'content'       => $request->content,
-            'barangay_role' => auth('admin')->user()->barangay_role, // ✅ Save barangay
+            'barangay_role' => auth('admin')->user()->barangay_role,
             'published_at'  => now(),
         ]);
 
@@ -55,9 +81,12 @@ class AnnouncementController extends Controller
      */
     public function edit($id)
     {
+        if ($response = $this->checkAdmin()) {
+            return $response;
+        }
+
         $announcement = Announcement::findOrFail($id);
 
-        // Optional: Ensure only admins from the same barangay can edit
         if ($announcement->barangay_role !== auth('admin')->user()->barangay_role) {
             abort(403, 'Unauthorized action.');
         }
@@ -70,6 +99,10 @@ class AnnouncementController extends Controller
      */
     public function update(Request $request, $id)
     {
+        if ($response = $this->checkAdmin()) {
+            return $response;
+        }
+
         $request->validate([
             'title'   => 'required|string|max:255',
             'content' => 'required|string',
@@ -77,7 +110,6 @@ class AnnouncementController extends Controller
 
         $announcement = Announcement::findOrFail($id);
 
-        // Optional: Restrict update to barangay owner
         if ($announcement->barangay_role !== auth('admin')->user()->barangay_role) {
             abort(403, 'Unauthorized action.');
         }
@@ -85,7 +117,6 @@ class AnnouncementController extends Controller
         $announcement->update([
             'title'   => $request->title,
             'content' => $request->content,
-            // ✅ Do NOT overwrite barangay_role (keep original)
         ]);
 
         return redirect()->route('admin.announcements.index')
@@ -97,9 +128,12 @@ class AnnouncementController extends Controller
      */
     public function destroy($id)
     {
+        if ($response = $this->checkAdmin()) {
+            return $response;
+        }
+
         $announcement = Announcement::findOrFail($id);
 
-        // Optional: Restrict delete to barangay owner
         if ($announcement->barangay_role !== auth('admin')->user()->barangay_role) {
             abort(403, 'Unauthorized action.');
         }

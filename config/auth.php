@@ -8,8 +8,6 @@ return [
     |--------------------------------------------------------------------------
     */
     'defaults' => [
-        // 👇 Default guard is still 'web' (admin panel or generic pages)
-        // But you can switch to 'user' if your site is user-first.
         'guard' => env('AUTH_GUARD', 'web'),
         'passwords' => env('AUTH_PASSWORD_BROKER', 'users'),
     ],
@@ -20,28 +18,35 @@ return [
     |--------------------------------------------------------------------------
     */
     'guards' => [
-        // 🔹 Default Laravel web guard (generic pages)
+
+        // Default guard
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
         ],
 
-        // 🔹 Frontend / Resident user guard
+        // Resident / Frontend user
         'user' => [
             'driver' => 'session',
-            'provider' => 'users', // ✅ still uses 'users' provider
+            'provider' => 'users',
         ],
 
-        // 🔹 Admin guard
+        // Admin guard
         'admin' => [
             'driver' => 'session',
             'provider' => 'admins',
         ],
 
-        // 🔹 Officer guard
+        // Officer guard
         'officer' => [
             'driver' => 'session',
             'provider' => 'officers',
+        ],
+
+        // ⭐ NEW — Treasurer Guard
+        'treasurer' => [
+            'driver' => 'session',
+            'provider' => 'treasurers',
         ],
     ],
 
@@ -51,22 +56,29 @@ return [
     |--------------------------------------------------------------------------
     */
     'providers' => [
-        // 👤 User provider (Residents or App Users)
+
+        // Residents / App Users
         'users' => [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
         ],
 
-        // 👨‍💼 Admin provider
+        // Admins
         'admins' => [
             'driver' => 'eloquent',
             'model' => App\Models\Admin::class,
         ],
 
-        // 🧑‍💼 Officer provider
+        // Officers
         'officers' => [
             'driver' => 'eloquent',
             'model' => App\Models\OfficerUser::class,
+        ],
+
+        // ⭐ NEW — Treasurers
+        'treasurers' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Treasurer::class,
         ],
     ],
 
@@ -76,6 +88,8 @@ return [
     |--------------------------------------------------------------------------
     */
     'passwords' => [
+
+        // Users
         'users' => [
             'provider' => 'users',
             'table' => 'password_resets',
@@ -83,6 +97,7 @@ return [
             'throttle' => 60,
         ],
 
+        // Admins
         'admins' => [
             'provider' => 'admins',
             'table' => 'password_resets',
@@ -90,9 +105,18 @@ return [
             'throttle' => 60,
         ],
 
+        // Officers
         'officers' => [
             'provider' => 'officers',
             'table' => 'officer_password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
+        // ⭐ NEW — Treasurer Password Reset
+        'treasurers' => [
+            'provider' => 'treasurers',
+            'table' => 'password_resets',
             'expire' => 60,
             'throttle' => 60,
         ],

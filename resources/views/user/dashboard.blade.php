@@ -6,6 +6,8 @@
     <title>Barangay eBudget Transparency</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -46,6 +48,7 @@
         }
 
         .brgy-logo {
+            position: relative;
             width: 60px;
             height: 60px;
             background: white;
@@ -53,13 +56,20 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            color: #1a237e;
-            font-size: 0.7rem;
-            text-align: center;
-            padding: 5px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             border: 3px solid #ffd700;
+        }
+
+        .brgy-logo i.fa-house {
+            color: #16a34a;
+            font-size: 1.8rem;
+        }
+
+        .brgy-logo i.fa-users {
+            position: absolute;
+            color: #15803d;
+            font-size: 0.6rem;
+            bottom: 18px;
         }
 
         header h1 {
@@ -67,6 +77,7 @@
             font-weight: 700;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
             letter-spacing: 0.5px;
+            color: white;
         }
 
         .profile-wrapper {
@@ -92,6 +103,7 @@
             width: 50px;
             height: 50px;
             display: block;
+            object-fit: cover;
         }
 
         #profile-dropdown {
@@ -119,7 +131,9 @@
 
         #profile-dropdown a,
         #profile-dropdown button {
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 8px;
             width: 100%;
             padding: 12px 16px;
             text-decoration: none;
@@ -136,6 +150,14 @@
         #profile-dropdown button:hover {
             background: #e8eaf6;
             color: #1a237e;
+        }
+
+        #profile-dropdown button[type="submit"] {
+            color: #dc2626;
+        }
+
+        #profile-dropdown button[type="submit"]:hover {
+            background: #fee2e2;
         }
 
         /* Main */
@@ -340,6 +362,84 @@
             border-bottom: none;
         }
 
+        /* Expenditure Cards (Mobile) */
+        .expenditure-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            background: #f9fafb;
+        }
+
+        .expenditure-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .expenditure-barangay {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .expenditure-amount {
+            color: #ea580c;
+            font-weight: 700;
+        }
+
+        .expenditure-category {
+            display: inline-flex;
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 9999px;
+        }
+
+        .expenditure-category.infrastructure {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .expenditure-category.education {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .expenditure-category.healthcare {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .expenditure-category.public-safety {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .expenditure-category.utilities {
+            background: #f3e8ff;
+            color: #6b21a8;
+        }
+
+        .expenditure-category.other {
+            background: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .expenditure-title {
+            color: #1f2937;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .expenditure-date {
+            color: #6b7280;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
         /* Feedback Modal */
         #feedback-modal {
             display: none;
@@ -482,6 +582,24 @@
         }
 
         /* Responsive Design */
+        @media (max-width: 1024px) {
+            .desktop-table {
+                display: none;
+            }
+            .mobile-cards {
+                display: block;
+            }
+        }
+
+        @media (min-width: 1025px) {
+            .desktop-table {
+                display: block;
+            }
+            .mobile-cards {
+                display: none;
+            }
+        }
+
         @media (max-width: 768px) {
             header {
                 padding: 12px 15px;
@@ -500,7 +618,14 @@
             .brgy-logo {
                 width: 50px;
                 height: 50px;
-                font-size: 0.6rem;
+            }
+
+            .brgy-logo i.fa-house {
+                font-size: 1.5rem;
+            }
+
+            .brgy-logo i.fa-users {
+                font-size: 0.5rem;
             }
 
             header h1 {
@@ -587,64 +712,54 @@
 </head>
 <body>
     <!-- Header -->
-<header>
-    <div class="header-container flex items-center justify-between p-4 bg-white shadow">
-        <!-- Left side: Barangay Icon + Title -->
-        <div class="header-left flex items-center gap-4">
-            <!-- Barangay Icon (House + People inside circle) -->
-            <div class="relative flex items-center justify-center w-16 h-16 rounded-full bg-green-100 border-2 border-green-500 shadow-md">
-                <i class="fa-solid fa-house text-green-600 text-3xl"></i>
-                <i class="fa-solid fa-users absolute text-green-800 text-xs translate-y-3"></i>
+    <header>
+        <div class="header-container">
+            <!-- Left side: Barangay Icon + Title -->
+            <div class="header-left">
+                <!-- Barangay Icon (House + People inside circle) -->
+                <div class="brgy-logo">
+                    <i class="fa-solid fa-house"></i>
+                    <i class="fa-solid fa-users"></i>
+                </div>
+
+                <div>
+                    <h1>Barangay eBudget Transparency</h1>
+                </div>
             </div>
 
-            <div class="flex flex-col">
-               
-                <h1 class="text-3xl font-bold text-gray-800 leading-tight">Barangay eBudget Transparency</h1>
+            <!-- Right side: Profile -->
+            <div class="profile-wrapper">
+                <button id="profile-button">
+                    <img src="{{ $user->profile_photo && file_exists(public_path('profile_photos/' . $user->profile_photo)) 
+                                 ? asset('profile_photos/' . $user->profile_photo) 
+                                 : asset('images/default-avatar.png') }}" 
+                         alt="{{ $user->full_name }}">
+                </button>
+
+                <!-- Dropdown -->
+                <div id="profile-dropdown">
+                    <!-- Feedback Button -->
+                    <a href="{{ route('user.feedback.index') }}">
+                        <i class="fa-solid fa-comment-dots"></i>
+                        Feedback
+                    </a>
+
+                    <a href="{{ route('user.profile.edit') }}">
+                        <i class="fa-solid fa-user"></i>
+                        Profile
+                    </a>
+
+                    <form action="{{ route('user.logout') }}" method="POST">
+                        @csrf
+                        <button type="submit">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            Logout
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
-
-        <!-- Right side: Profile -->
-      <div class="profile-wrapper relative">
-   <button id="profile-button" class="flex items-center focus:outline-none group">
-    <img src="{{ $user->profile_photo && file_exists(public_path('profile_photos/' . $user->profile_photo)) 
-                 ? asset('profile_photos/' . $user->profile_photo) 
-                 : asset('images/default-avatar.png') }}" 
-         alt="{{ $user->full_name }}" 
-         class="w-12 h-12 rounded-full object-cover border-2 border-green-400 shadow-md transition-transform transform hover:scale-110">
-</button>
-
-
-    <!-- Dropdown -->
-    <div id="profile-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
-
-    <!-- ⭐ Feedback Button -->
-<a href="{{ route('user.feedback.index') }}"
-   class="w-full text-left px-4 py-2 text-blue-700 font-medium hover:bg-blue-100 rounded-lg 
-          transition flex items-center gap-2">
-    <i class="fa-solid fa-comment-dots text-blue-600"></i>
-    Feedback
-</a>
-
-        <a href="{{ route('user.profile.edit') }}" 
-           class="block px-4 py-2 text-gray-700 hover:bg-green-100 rounded-lg transition">
-            Profile
-        </a>
-
-        <form action="{{ route('user.logout') }}" method="POST">
-            @csrf
-            <button type="submit" 
-                    class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-100 rounded-lg transition">
-                Logout
-            </button>
-        </form>
-    </div>
-</div>
-
-</header>
-
-<!-- Font Awesome CDN -->
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-
+    </header>
 
     <!-- Feedback Modal -->
     <div id="feedback-modal">
@@ -765,6 +880,96 @@
                 <p style="color: #757575; font-style: italic;">No announcements yet.</p>
             @endif
         </section>
+
+        <!-- Expenditures Section -->
+        <section>
+            <h2>💳 Expenditures</h2>
+            <div class="ph-accent"></div>
+            
+            <!-- Desktop Table -->
+            <div class="desktop-table">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>CATEGORY</th>
+                                <th>DETAILS</th>
+                                <th>AMOUNT (₱)</th>
+                                <th>DATE</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($expenditures as $exp)
+                            <tr class="{{ session('new_expenditure_id') == $exp->id ? 'bg-green-50 border-l-4 border-green-500' : '' }}">
+                                <td>
+                                    <span class="expenditure-category 
+                                        @if($exp->category == 'Infrastructure') infrastructure
+                                        @elseif($exp->category == 'Education') education
+                                        @elseif($exp->category == 'Healthcare') healthcare
+                                        @elseif($exp->category == 'Public Safety') public-safety
+                                        @elseif($exp->category == 'Utilities') utilities
+                                        @else other
+                                        @endif">
+                                        {{ $exp->category ?? 'N/A' }}
+                                    </span>
+                                </td>
+                                <td>{{ $exp->title }}</td>
+                                <td style="color: #ea580c; font-weight: 700;">₱{{ number_format($exp->amount, 2) }}</td>
+                                <td>{{ $exp->date ? \Carbon\Carbon::parse($exp->date)->format('M d, Y') : ($exp->created_at ? $exp->created_at->format('M d, Y') : 'N/A') }}</td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="4" style="text-align: center; padding: 60px 20px; color: #6b7280;">
+                                    <div style="font-size: 3rem; margin-bottom: 15px;">📊</div>
+                                    <div style="font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;">No expenditures found</div>
+                                    <div style="font-size: 0.875rem;">Check back later for updates</div>
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Mobile Cards -->
+            <div class="mobile-cards" style="display: none;">
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    @forelse($expenditures as $exp)
+                    <div class="expenditure-card">
+                        <div class="expenditure-card-header">
+                            <span class="expenditure-barangay">{{ $exp->barangay ?? 'N/A' }}</span>
+                            <span class="expenditure-amount">₱{{ number_format($exp->amount, 2) }}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                            <span class="expenditure-category 
+                                @if($exp->category == 'Infrastructure') infrastructure
+                                @elseif($exp->category == 'Education') education
+                                @elseif($exp->category == 'Healthcare') healthcare
+                                @elseif($exp->category == 'Public Safety') public-safety
+                                @elseif($exp->category == 'Utilities') utilities
+                                @else other
+                                @endif">
+                                {{ $exp->category ?? 'N/A' }}
+                            </span>
+                        </div>
+                        <div class="expenditure-title">{{ $exp->title }}</div>
+                        <div class="expenditure-date">
+                            <svg style="width: 16px; height: 16px; color: #9ca3af;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            {{ $exp->date ? \Carbon\Carbon::parse($exp->date)->format('M d, Y') : ($exp->created_at ? $exp->created_at->format('M d, Y') : 'N/A') }}
+                        </div>
+                    </div>
+                    @empty
+                    <div style="text-align: center; padding: 60px 20px; color: #6b7280;">
+                        <div style="font-size: 3rem; margin-bottom: 15px;">📊</div>
+                        <div style="font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;">No expenditures found</div>
+                        <div style="font-size: 0.875rem;">Check back later for updates</div>
+                    </div>
+                    @endforelse
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- Logout Form -->
@@ -773,11 +978,13 @@
     </form>
 
     <script>
+        // Data from Laravel
         const budgetChart = @json($budgetChart ?? ['labels' => [], 'data' => []]);
         const totalBudget = {{ $totalBudget ?? 0 }};
         const totalSpent = {{ $totalSpent ?? 0 }};
         const totalRemaining = {{ $totalRemaining ?? 0 }};
 
+        // Budget Overview Chart (Doughnut)
         const budgetOverviewChart = new Chart(document.getElementById('budgetOverviewChart'), {
             type: 'doughnut',
             data: {
@@ -807,6 +1014,7 @@
             }
         });
 
+        // Category Chart (Bar)
         if (budgetChart.labels && budgetChart.labels.length > 0) {
             const categoryChart = new Chart(document.getElementById('categoryChart'), {
                 type: 'bar',
@@ -856,32 +1064,36 @@
             });
         }
 
+        // Function to update budget charts
         function updateBudgetCharts(newTotalBudget, newTotalSpent, newTotalRemaining) {
             budgetOverviewChart.data.datasets[0].data = [newTotalSpent, newTotalRemaining];
             budgetOverviewChart.update();
         }
 
+        // Logout confirmation
         function confirmLogout() {
             if (confirm('Are you sure you want to logout?')) {
                 document.getElementById('logout-form').submit();
             }
         }
 
-        // Profile dropdown with animation effect
+        // Profile dropdown functionality
         const profileButton = document.getElementById('profile-button');
         const profileDropdown = document.getElementById('profile-dropdown');
 
-        profileButton.addEventListener('click', function(e) {
-            e.stopPropagation();
-            profileDropdown.classList.toggle('show');
-        });
+        if (profileButton && profileDropdown) {
+            profileButton.addEventListener('click', function(e) {
+                e.stopPropagation();
+                profileDropdown.classList.toggle('show');
+            });
 
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!profileButton.contains(e.target) && !profileDropdown.contains(e.target)) {
-                profileDropdown.classList.remove('show');
-            }
-        });
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!profileButton.contains(e.target) && !profileDropdown.contains(e.target)) {
+                    profileDropdown.classList.remove('show');
+                }
+            });
+        }
 
         // Feedback modal functionality
         document.addEventListener('DOMContentLoaded', function() {
@@ -892,32 +1104,100 @@
             const form = document.getElementById('feedback-form');
             const messagesDiv = document.getElementById('feedback-messages');
 
+            // Open modal
             if (openBtn) {
-                openBtn.addEventListener('click', function() {
+                openBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
                     modal.style.display = 'block';
                     document.body.style.overflow = 'hidden';
                     loadUserFeedbacks();
                 });
             }
 
+            // Close modal function
             function closeModal() {
                 modal.style.display = 'none';
                 document.body.style.overflow = 'auto';
-                form.reset();
-                messagesDiv.style.display = 'none';
+                if (form) form.reset();
+                if (messagesDiv) messagesDiv.style.display = 'none';
             }
 
-            closeBtn.addEventListener('click', closeModal);
-            cancelBtn.addEventListener('click', closeModal);
+            // Close button
+            if (closeBtn) {
+                closeBtn.addEventListener('click', closeModal);
+            }
 
-            modal.addEventListener('click', function(e) {
-                if (e.target === modal) closeModal();
-            });
+            // Cancel button
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', closeModal);
+            }
+
+            // Click outside to close
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closeModal();
+                    }
+                });
+            }
+
+            // Form submission
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const submitBtn = document.getElementById('submit-feedback-btn');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = 'Submitting...';
+                    }
+                });
+            }
         });
 
+        // Load user feedbacks function (placeholder)
         function loadUserFeedbacks() {
-            // Placeholder function - implement your feedback loading logic
+            const displayDiv = document.getElementById('user-feedback-display');
+            if (displayDiv) {
+                // This would typically make an AJAX call to load feedbacks
+                // For now, keeping the loading message
+                displayDiv.innerHTML = '<p style="color: #757575; font-style: italic;">Loading your feedback...</p>';
+            }
         }
+
+        // Handle window resize for responsive behavior
+        function handleResize() {
+            const width = window.innerWidth;
+            const desktopTable = document.querySelector('.desktop-table');
+            const mobileCards = document.querySelector('.mobile-cards');
+            
+            if (desktopTable && mobileCards) {
+                if (width <= 1024) {
+                    desktopTable.style.display = 'none';
+                    mobileCards.style.display = 'block';
+                } else {
+                    desktopTable.style.display = 'block';
+                    mobileCards.style.display = 'none';
+                }
+            }
+        }
+
+        // Call on load and resize
+        window.addEventListener('load', handleResize);
+        window.addEventListener('resize', handleResize);
+
+        // Highlight new expenditure row (if present)
+        document.addEventListener('DOMContentLoaded', function() {
+            const highlightedRows = document.querySelectorAll('tr.bg-green-50');
+            if (highlightedRows.length > 0) {
+                highlightedRows[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Remove highlight after 5 seconds
+                setTimeout(function() {
+                    highlightedRows.forEach(row => {
+                        row.classList.remove('bg-green-50', 'border-l-4', 'border-green-500');
+                    });
+                }, 5000);
+            }
+        });
     </script>
 </body>
 </html>

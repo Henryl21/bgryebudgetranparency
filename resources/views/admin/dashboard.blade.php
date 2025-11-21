@@ -399,7 +399,97 @@
                 </div>
             </div>
         @endif
+        
     </div>
+<!-- Responsive Expenditures Table -->
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <!-- Desktop Table (hidden on mobile) -->
+    <div class="hidden lg:block">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+                <tr>
+                    <th class="px-4 py-3 text-left">CATEGORY</th>
+                    <th class="px-4 py-3 text-left">DETAILS</th>
+                    <th class="px-4 py-3 text-left">AMOUNT (₱)</th>
+                    <th class="px-4 py-3 text-left">DATE</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                @forelse($expenditures as $exp)
+                <tr class="{{ session('new_expenditure_id') == $exp->id ? 'bg-green-50 border-l-4 border-green-500' : '' }}">
+                    <td class="px-4 py-3">
+                        <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full
+                            @switch($exp->title)
+                                @case('Infrastructure') bg-blue-100 text-blue-800 @break
+                                @case('Education') bg-green-100 text-green-800 @break
+                                @case('Healthcare') bg-red-100 text-red-800 @break
+                                @case('Public Safety') bg-yellow-100 text-yellow-800 @break
+                                @case('Utilities') bg-purple-100 text-purple-800 @break
+                                @default bg-gray-100 text-gray-800
+                            @endswitch">
+                            {{ $exp->category ?? 'N/A' }}
+                        </span>
+                    </td>
+                    <!-- Left-aligned details -->
+                    <td class="px-4 py-3 text-left text-gray-800 font-medium">{{ $exp->title }}</td>
+                    <td class="px-4 py-3 text-left text-orange-600 font-bold">₱{{ number_format($exp->amount,2) }}</td>
+                    <td class="px-4 py-3 text-left text-gray-600">
+                        {{ $exp->date ? \Carbon\Carbon::parse($exp->date)->format('M d, Y') : ($exp->created_at ? $exp->created_at->format('M d, Y') : 'N/A') }}
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="4" class="p-12 text-center text-gray-500">
+                        <div class="text-6xl mb-4">📊</div>
+                        <div class="text-xl font-bold mb-2">No expenditures found</div>
+                        <div class="text-sm">Click "ADD EXPENDITURE" to get started</div>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Mobile Table (cards stacked) -->
+    <div class="lg:hidden p-4 space-y-4">
+        @forelse($expenditures as $exp)
+        <div class="border rounded-lg p-4 shadow-sm bg-gray-50">
+            <div class="flex justify-between items-center mb-2">
+                <span class="font-semibold text-gray-700">{{ $exp->barangay ?? 'N/A' }}</span>
+                <span class="text-orange-600 font-bold">₱{{ number_format($exp->amount,2) }}</span>
+            </div>
+            <div class="flex items-center gap-2 mb-2">
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                    @switch($exp->title)
+                        @case('Infrastructure') bg-blue-100 text-blue-800 @break
+                        @case('Education') bg-green-100 text-green-800 @break
+                        @case('Healthcare') bg-red-100 text-red-800 @break
+                        @case('Public Safety') bg-yellow-100 text-yellow-800 @break
+                        @case('Utilities') bg-purple-100 text-purple-800 @break
+                        @default bg-gray-100 text-gray-800
+                    @endswitch">
+                    {{ $exp->category ?? 'N/A' }}
+                </span>
+            </div>
+            <div class="text-gray-800 font-medium mb-2">{{ $exp->title }}</div>
+            <div class="text-gray-500 text-sm flex items-center gap-1">
+                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                {{ $exp->date ? \Carbon\Carbon::parse($exp->date)->format('M d, Y') : ($exp->created_at ? $exp->created_at->format('M d, Y') : 'N/A') }}
+            </div>
+        </div>
+        @empty
+        <div class="p-12 text-center text-gray-500">
+            <div class="text-6xl mb-4">📊</div>
+            <div class="text-xl font-bold mb-2">No expenditures found</div>
+            <div class="text-sm">Click "ADD EXPENDITURE" to get started</div>
+        </div>
+        @endforelse
+    </div>
+</div>
+
+</div>
 
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

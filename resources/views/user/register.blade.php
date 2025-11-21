@@ -657,10 +657,14 @@
   @csrf
 
   <div class="profile-preview-container">
-    <img id="preview-image" 
-         src="{{ old('profile_photo') ? asset('storage/' . old('profile_photo')) : 'https://ui-avatars.com/api/?name=' . urlencode(old('first_name', 'User')) . '&background=3b82f6&color=fff&size=110' }}" 
-         class="profile-preview" alt="Preview">
-  </div>
+    <img id="preview-image"
+         src="{{ $user->profile_photo 
+                ? asset('profile_photos/' . $user->profile_photo)
+                : 'https://ui-avatars.com/api/?name=' . urlencode($user->first_name ?? 'User') . '&background=3b82f6&color=fff&size=110' }}"
+         class="profile-preview"
+         alt="Preview">
+</div>
+
 
   <div class="form-grid">
     <div class="form-row">

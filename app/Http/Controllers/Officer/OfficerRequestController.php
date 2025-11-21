@@ -18,6 +18,9 @@ class OfficerRequestController extends Controller
         return view('officer.dashboard', compact('expenditures'));
     }
 
+    /**
+     * Store Officer Expenditure Request (with PUBLIC receipt upload)
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -37,14 +40,38 @@ class OfficerRequestController extends Controller
         $data['officer_id'] = Auth::id();
         $data['status'] = 'pending';
 
-        // Handle receipt upload
+        // ========= PUBLIC RECEIPT UPLOAD =========
         if ($request->hasFile('receipt')) {
-            $data['receipt_path'] = $request->file('receipt')->store('receipts', 'public');
+            $filename = time() . '_' . $request->file('receipt')->getClientOriginalName();
+            $request->file('receipt')->move(public_path('receipts'), $filename);
+
+            // Save path relative to /public
+            $data['receipt_path'] = 'receipts/' . $filename;
         }
 
         Budget::create($data);
 
         return redirect()->route('officer.dashboard')
             ->with('success', 'Expenditure request submitted successfully!');
+    }
+
+    /**
+     * Public receipt viewer: /receipt/{id}
+     */
+    public function publicReceipt($id)
+    {
+        $budget = Budget::findOrFail($id);
+
+        if (!$budget->receipt_path) {
+            abort(404, 'No receipt uploaded.');
+        }
+
+        $file = public_path($budget->receipt_path);
+
+        if (!file_exists($file)) {
+            abort(404, 'Receipt file not found.');
+        }
+
+        return response()->file($file);
     }
 }

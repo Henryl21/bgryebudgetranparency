@@ -42,10 +42,14 @@ class LoginController extends Controller
 
         $barangayKeys = array_keys(Admin::getBarangays());
 
+        // ================================
+        // ✅ ADD ROLE VALIDATION
+        // ================================
         $rules = [
             'email' => 'required|email',
             'password' => ['required', 'string', 'min:8'],
             'barangay_role' => ['required', Rule::in($barangayKeys)],
+            'role' => ['required', Rule::in(['admin', 'treasurer', 'captain'])],
         ];
 
         if ($this->hasTooManyLoginAttempts($request)) {
@@ -55,18 +59,25 @@ class LoginController extends Controller
         $request->validate($rules, [
             'barangay_role.required' => 'Please select your barangay.',
             'barangay_role.in' => 'Please select a valid barangay from the list.',
+            'role.required' => 'Please select your role.',
+            'role.in' => 'Invalid role selected.',
             'captcha.required' => 'Please complete the CAPTCHA verification.',
             'captcha.captcha' => 'CAPTCHA verification failed. Please try again.',
         ]);
 
+        // ================================
+        // LOGIN CHECK WITH ROLE
+        // ================================
         $admin = Admin::where('email', $request->email)
             ->whereRaw('LOWER(barangay_role) = ?', [strtolower($request->barangay_role)])
+            ->where('role', $request->role)   // ✔ filter by role
             ->first();
 
         if (!$admin) {
             $this->incrementLoginAttempts($request);
-            return back()->withErrors(['email' => 'No admin found with these details.'])
-                         ->withInput($request->only('email', 'barangay_role'));
+            return back()->withErrors([
+                'email' => 'No account found with this email, barangay, and role.'
+            ])->withInput($request->only('email', 'barangay_role', 'role'));
         }
 
         if (!Hash::check($request->password, $admin->password)) {
@@ -77,7 +88,7 @@ class LoginController extends Controller
                 $errorMessage .= " You have {$attemptsLeft} attempt(s) remaining.";
             }
             return back()->withErrors(['password' => $errorMessage])
-                         ->withInput($request->only('email', 'barangay_role'));
+                ->withInput($request->only('email', 'barangay_role', 'role'));
         }
 
         if (Hash::needsRehash($admin->password)) {
@@ -101,6 +112,7 @@ class LoginController extends Controller
         session([
             'otp_admin_id' => $admin->id,
             'otp_email' => $admin->email,
+            'otp_role' => $admin->role,
             'otp_last_sent' => now(),
         ]);
 
@@ -117,7 +129,8 @@ class LoginController extends Controller
         }
 
         return view('admin.auth.verify-otp', [
-            'email' => session('otp_email')
+            'email' => session('otp_email'),
+            'role' => session('otp_role'),
         ]);
     }
 
@@ -127,6 +140,7 @@ class LoginController extends Controller
     public function verifyOtp(Request $request)
     {
         $request->validate(['otp' => 'required|digits:6']);
+
         $admin = Admin::find(session('otp_admin_id'));
 
         if (!$admin) {
@@ -146,54 +160,43 @@ class LoginController extends Controller
         $admin->otp_expires_at = null;
         $admin->save();
 
-        // Clear OTP session data
-        session()->forget('otp_admin_id');
-        session()->forget('otp_email');
-        session()->forget('otp_last_sent');
+        session()->forget(['otp_admin_id', 'otp_email', 'otp_role', 'otp_last_sent']);
 
         Auth::guard('admin')->login($admin);
         $request->session()->regenerate();
 
-        return redirect()->route('admin.dashboard')->with('success', 'OTP Verified — Welcome back, ' . $admin->name . '!');
+        return redirect()->route('admin.dashboard')
+            ->with('success', 'OTP Verified — Welcome back, ' . $admin->name . '!');
     }
 
-    /**
-     * Resend OTP
-     */
-   public function resendOtp(Request $request)
-{
-    if (!session()->has('otp_admin_id')) {
-        return redirect()->route('admin.login')->with('error', 'Session expired. Please login again.');
+    /** Resend OTP */
+    public function resendOtp(Request $request)
+    {
+        if (!session()->has('otp_admin_id')) {
+            return redirect()->route('admin.login')->with('error', 'Session expired. Please login again.');
+        }
+
+        $admin = Admin::find(session('otp_admin_id'));
+
+        if (!$admin) {
+            session()->forget(['otp_admin_id', 'otp_email', 'otp_role', 'otp_last_sent']);
+            return redirect()->route('admin.login')->with('error', 'Admin not found. Please login again.');
+        }
+
+        $otp = rand(100000, 999999);
+        $admin->otp = $otp;
+        $admin->otp_expires_at = now()->addMinutes(5);
+        $admin->save();
+
+        $mailer = new PHPMailerService();
+        $mailer->sendOtpEmail($admin->email, $otp, 5);
+
+        session(['otp_last_sent' => now()]);
+
+        return back()->with('success', 'A new OTP has been sent to your email.');
     }
 
-    $admin = Admin::find(session('otp_admin_id'));
-
-    if (!$admin) {
-        session()->forget('otp_admin_id');
-        session()->forget('otp_email');
-        session()->forget('otp_last_sent');
-        return redirect()->route('admin.login')->with('error', 'Admin not found. Please login again.');
-    }
-
-    // Generate new OTP instantly (no cooldown)
-    $otp = rand(100000, 999999);
-    $admin->otp = $otp;
-    $admin->otp_expires_at = now()->addMinutes(5);
-    $admin->save();
-
-    // Send OTP email
-    $mailer = new PHPMailerService();
-    $mailer->sendOtpEmail($admin->email, $otp, 5);
-
-    // Update last sent time (optional, for info only)
-    session(['otp_last_sent' => now()]);
-
-    return back()->with('success', 'A new OTP has been sent to your email.');
-}
-
-    /**
-     * Logout the admin
-     */
+    /** Logout */
     public function logout(Request $request)
     {
         Auth::guard('admin')->logout();
@@ -203,7 +206,7 @@ class LoginController extends Controller
         return redirect()->route('admin.login')->with('status', 'You have been successfully logged out.');
     }
 
-    // ================= RATE LIMIT HELPERS =================
+    // Rate Limit Helpers
     protected function throttleKey(Request $request): string
     {
         return Str::lower($request->input('email')) . '|' . $request->ip();

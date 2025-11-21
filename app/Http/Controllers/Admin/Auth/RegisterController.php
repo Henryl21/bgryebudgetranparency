@@ -20,10 +20,8 @@ class RegisterController extends Controller
 
     public function register(Request $request)
     {
-        // Get available barangay keys for validation
         $barangayKeys = array_keys(Admin::getBarangays());
 
-        // Validate request
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:admins,email',
@@ -35,11 +33,8 @@ class RegisterController extends Controller
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/',
             ],
             'barangay_role' => ['required', Rule::in($barangayKeys)],
-
-            // File upload option
+            'role' => ['required', Rule::in(['admin', 'treasurer', 'captain'])],
             'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-
-            // Base64 option
             'profile_photo_base64' => [
                 'nullable',
                 'regex:/^data:image\/(jpg|jpeg|png|gif);base64,/',
@@ -52,11 +47,13 @@ class RegisterController extends Controller
             'barangay_role.in' => 'Please select a valid barangay from the list.',
         ]);
 
-        // Ensure this barangay doesn't already have an admin
-        $existingAdmin = Admin::where('barangay_role', $request->barangay_role)->first();
+        // Ensure this barangay doesn't already have the same role
+        $existingAdmin = Admin::where('barangay_role', $request->barangay_role)
+                              ->where('role', $request->role)
+                              ->first();
         if ($existingAdmin) {
             return back()->withErrors([
-                'barangay_role' => 'This barangay already has an assigned admin. Please choose a different barangay.'
+                'barangay_role' => 'This barangay already has an assigned ' . $request->role . '. Please choose a different role or barangay.'
             ])->withInput();
         }
 
@@ -69,7 +66,6 @@ class RegisterController extends Controller
 
         // Handle Base64 upload
         if ($request->profile_photo_base64) {
-
             $base64 = $request->profile_photo_base64;
 
             // Extract extension
@@ -105,6 +101,7 @@ class RegisterController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'barangay_role' => $request->barangay_role,
+            'role' => $request->role,
             'profile_photo' => $profilePhotoPath,
         ]);
 
@@ -113,7 +110,7 @@ class RegisterController extends Controller
 
         return redirect()->route('admin.dashboard')->with('success',
             'Registration successful! Welcome, ' . $admin->name .
-            '. You are now the admin for ' . $admin->barangay_name . ' Barangay.'
+            '. You are now the ' . $admin->role . ' for ' . $admin->barangay_name . ' Barangay.'
         );
     }
 }

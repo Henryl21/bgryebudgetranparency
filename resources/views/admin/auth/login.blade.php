@@ -725,7 +725,15 @@
                     </div>
                 </div>
 
-                
+                            <div class="mb-4">
+    
+    <select name="role" class="form-select" required>
+        <option value="">-- Choose Role --</option>
+        <option value="admin">Admin</option>
+        <option value="treasurer">Treasurer</option>
+        <option value="captain">Captain</option>
+    </select>
+</div>
  <div class="input-group">
                     <div class="input-icon">🔒</div>
                     <input type="password" name="password" id="password" placeholder="Password" required>
@@ -742,6 +750,10 @@
 
                 <button type="submit" class="login-btn">Login</button>
             </form>
+<div class="register-link">
+    Don't have an account?
+    <a href="{{ route('admin.register') }}">Create an account</a>
+</div>
 
         </div>
     </div>
